@@ -10,25 +10,14 @@
 #  Copyright 2019 Bender Robotics
 
 import serial
-import serial.tools.list_ports
 
-from supply.supply import Supply
+from supplies.supplies import Supplies
 
-class Tenma(Supply.Generic):
+class Tenma(Supplies.Generic):
 
-    '''
-    '''
     PORT_BAUD     = 9600
     PORT_TIMEOUT  = 0.050
 
-    '''
-
-    '''
-    TENMA_VID = 0x416   # Winbond Electronics Corporation
-    TENMA_PID = 0x5011  # Virtual Com Port
-
-    '''
-    '''
     class Commands():
         GET_ID      = '*IDN?'
         GET_STATUS  = 'STATUS?'
@@ -45,8 +34,6 @@ class Tenma(Supply.Generic):
         RECALL      = 'RCL1'
         SAVE        = 'SAV1'
 
-    '''
-    '''
     class Model():
 
         def __init__(self, idn, channels, voltage, current, protection):
@@ -57,16 +44,16 @@ class Tenma(Supply.Generic):
             self.protection = protection
 
     Models = [
-        Model('TENMA 72-2535', 1, 30.0, 3.0, [Supply.Protection.OCP, Supply.Protection.OVP]),
-        Model('TENMA 72-2540', 1, 30.0, 5.0, [Supply.Protection.OCP, Supply.Protection.OVP]),
-        Model('TENMA 72-2545', 1, 60.0, 2.0, [Supply.Protection.OCP, Supply.Protection.OVP]),
-        Model('TENMA 72-2550', 1, 60.0, 3.0, [Supply.Protection.OCP, Supply.Protection.OVP]),
+        Model('TENMA 72-2535', 1, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
+        Model('TENMA 72-2540', 1, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
+        Model('TENMA 72-2545', 1, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
+        Model('TENMA 72-2550', 1, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
     ]
 
-    '''
-    '''
     def __init__(self, port=None):
-        #super().__init__()
+        '''
+
+        '''
 
         self.port = port
         self.com = None
@@ -76,9 +63,12 @@ class Tenma(Supply.Generic):
         if (None != self.port):
             self.connect()
             self.detect()
-    '''
-    '''
+
     def connect(self, port=None, baud=PORT_BAUD):
+        '''
+
+        '''
+
         if (None == self.com):
             try:
                 if (None != port):
@@ -99,29 +89,21 @@ class Tenma(Supply.Generic):
             except:
                 raise
 
-    '''
-    '''
     def disconnect(self):
+        '''
+
+        '''
+
         try:
             self.com.close()
         except:
             pass #TO-DO
 
-    '''
-    '''
-    #def probe(self):
-    #    # List all available comports currently present in the system
-    #    coms = serial.tools.list_ports.comports()
-
-    #    for com in coms:
-    #        if Tenma.TENMA_VID == com.vid and Tenma.TENMA_PID == com.pid:
-    #            # TO-DO: Handle case of more than one port available
-    #            print('Detected Tenma type PSU @{0}'.format(com.device))
-    #            return com.device
-    '''
-    Method which tries to determine specific electrical limits of the supply based on IDN retrieval.
-    '''
     def detect(self):
+        '''
+        Method which tries to determine specific electrical limits of the supply based on IDN retrieval.
+        '''
+
         psu_idn = self._send_command(Tenma.Commands.GET_ID)
 
         for model in self.Models:
@@ -133,9 +115,11 @@ class Tenma(Supply.Generic):
 
     # Internal methods
 
-    '''
-    '''
     def _send_command(self, command, modifier = None):
+        '''
+
+        '''
+
         try:
             # Assemble message
             if (modifier == None):
