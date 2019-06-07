@@ -10,8 +10,7 @@
 #  Copyright 2019 Bender Robotics
 
 import serial
-
-from supplies.supplies import Supplies
+from brest.supplies import Supplies
 
 class Tenma(Supplies.Generic):
 

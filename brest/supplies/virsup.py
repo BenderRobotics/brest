@@ -10,7 +10,7 @@
 #  Copyright 2019 Bender Robotics
 
 import logging
-from supplies.supplies import Supplies
+from brest.supplies import Supplies
 
 class Virsup(Supplies.Generic):
     '''

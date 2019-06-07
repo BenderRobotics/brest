@@ -16,8 +16,8 @@ if not path in sys.path:
     sys.path.insert(1, path)
 del path
 
-# TO-DO: make automatic
-from supplies.tenma import Tenma
-from supplies.virsup import Virsup
+from brest.supplies.tenma import Tenma
+from brest.supplies.virsup import Virsup
+
 
 # @}
