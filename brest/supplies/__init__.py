@@ -9,16 +9,19 @@
 #
 #  Copyright 2019 Bender Robotics
 
+from brest import Resources
+from brest.config import Config
+
 import serial
 import serial.tools.list_ports
 
-class Supplies():
+class Supplies(Resources.Generic):
     '''
     Bender Robotics Supplies class.
     '''
 
-    # Known supplies which Supplies class can autodetect and properly use internally.
-    Known = {
+    # KNOWN supplies which Supplies class can autodetect and properly use internally.
+    KNOWN = {
         'Tenma':{'vid':0x416, 'pid':0x5011, 'serial':None}, # Winbond Virtual COM port
         'Virsup':{'vid':0x10C4, 'pid':0xEA60, 'serial':'0195A356'} # CP2102
     }
@@ -41,13 +44,7 @@ class Supplies():
         FIXED           = 1 # Fixed power Supplies
         PROGRAMMABLE    = 2 # Programmable power Supplies
 
-    def __new__(cls, psu=None, com=None):
-        '''
-        Constructor of the Supplies class.
-        '''
-
-        return cls.any()
-
+    @staticmethod
     def probe(psu):
         '''
         Checks wheter given supply is connected to the host system.
@@ -57,8 +54,8 @@ class Supplies():
         ret = None
 
         for com in coms:
-            if Supplies.Known[psu]['vid'] == com.vid and Supplies.Known[psu]['pid'] == com.pid:
-                if Supplies.Known[psu]['serial'] != None and Supplies.Known[psu]['serial'] != com.serial_number:
+            if Supplies.KNOWN[psu]['vid'] == com.vid and Supplies.KNOWN[psu]['pid'] == com.pid:
+                if Supplies.KNOWN[psu]['serial'] != None and Supplies.KNOWN[psu]['serial'] != com.serial_number:
                     continue
                 # TO-DO: Handle case of more than one same Supplies available.
                 #print('Detected {0} type PSU @{1}'.format(psu, com.device))
@@ -66,6 +63,7 @@ class Supplies():
 
         return ret
 
+    @staticmethod
     def available():
         '''
         Returns all available supplies found in the system.
@@ -73,27 +71,27 @@ class Supplies():
 
         supplies = []
 
-        for psu in Supplies.Known:
+        for psu in Supplies.KNOWN:
             com = Supplies.probe(psu)
+            match = Config.match(Supplies, {'name':psu, 'port':com})
             if None is not com:
-                supplies.append({'name':psu, 'com':com})
+                supplies.append({'name':psu, 'port':com, 'match':match})
 
         return supplies
 
-
-    def get(mask=''):
+    @staticmethod
+    def get(preset='', mask=''):
         '''
         Returns instance of first available supply present in the system matching the mask.
         '''
-
-        psu = None
 
         supplies = Supplies.available()
         for supply in supplies:
             if mask in supply['name']:
                 for cls in Supplies.Generic.__subclasses__():
                     if cls.__name__ == supply['name']:
-                        return cls(supply['com'])
+                        if (None == Config.preset or supply['match'] == preset):
+                            return cls(supply['port'])
 
         return None
 
