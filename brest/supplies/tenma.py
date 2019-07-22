@@ -9,12 +9,11 @@
 #
 #  Copyright 2019 Bender Robotics
 
-import serial
 from brest.supplies import Supplies
+from brest.communication import SerialCommunicable
 
-class Tenma(Supplies.Generic):
+class Tenma(Supplies, SerialCommunicable):
 
-    PORT_BAUD     = 9600
     PORT_TIMEOUT  = 0.050
 
     class Commands():
@@ -33,88 +32,70 @@ class Tenma(Supplies.Generic):
         RECALL      = 'RCL1'
         SAVE        = 'SAV1'
 
-    class Model():
-
-        def __init__(self, idn, channels, voltage, current, protection):
-            self.idn = idn
-            self.channels = channels
-            self.voltage = voltage
-            self.current = current
-            self.protection = protection
 
     Models = [
-        Model('TENMA 72-2535', 1, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
-        Model('TENMA 72-2540', 1, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
-        Model('TENMA 72-2545', 1, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
-        Model('TENMA 72-2550', 1, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
+        Supplies.Model('TENMA 72-2535', 1, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
+        Supplies.Model('TENMA 72-2540', 1, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
+        Supplies.Model('TENMA 72-2545', 1, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
+        Supplies.Model('TENMA 72-2550', 1, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
     ]
 
-    def __init__(self, port=None):
+    def __init__(self, port = None):
+        '''
+
+        '''
+        serial_args = {'port' : port, 'timeout' : self.PORT_TIMEOUT}
+        SerialCommunicable.__init__(self, **serial_args)
+        Supplies.__init__(self)
+
+        self.connect()
+        self.detect()
+
+    def connect(self):
         '''
 
         '''
 
-        self.port = port
-        self.com = None
-
-        if (None == self.port):
-            self.port = self.probe()
-        if (None != self.port):
-            self.connect()
-            self.detect()
-
-    def connect(self, port=None, baud=PORT_BAUD):
-        '''
-
-        '''
-
-        if (None == self.com):
-            try:
-                if (None != port):
-                    self.port = port
-                self.com = serial.Serial(
-                    self.port,
-                    baud,
-                    timeout=Tenma.PORT_TIMEOUT,
-                    parity=serial.PARITY_NONE,
-                    stopbits=serial.STOPBITS_ONE,
-                    bytesize=serial.EIGHTBITS,
-                )
-            except:
-                raise
-        else:
+        if self.com and not self.com.isOpen():
             try:
                 self.com.open()
             except:
-                raise
+                pass #TO-DO
 
     def disconnect(self):
         '''
 
         '''
 
-        try:
-            self.com.close()
-        except:
-            pass #TO-DO
+        if self.com and self.com.isOpen():
+            try:
+                self.com.close()
+            except:
+                pass #TO-DO
+
+    def apply_model_specs(self, model):
+        '''
+        '''
+        self.model_name = model.psu_idn
+        self.MAX_VOLTAGE = model.max_voltage
+        self.MAX_CURRENT = model.max_current
+        self.protection = model.protection
+        self.kind = model.kind
 
     def detect(self):
         '''
         Method which tries to determine specific electrical limits of the supply based on IDN retrieval.
         '''
 
-        psu_idn = self._send_command(Tenma.Commands.GET_ID)
+        psu_idn = self.trancieve(Tenma.Commands.GET_ID)
 
         for model in self.Models:
             if (model.idn in psu_idn):
-                self.name = psu_idn
-                print ('Detected {0} PSU'.format(self.name))
-        if (None == self.name):
-            print ('Unable to detect type of the PSU.')
+                apply_model_specs(model)
+        if (None == self.model_name):
+            print ('Unable to detect type of the PSU.')    
 
-    # Internal methods
-
-    def _send_command(self, command, modifier = None):
+    def trancieve(self, command, modifier = None):
         '''
 
         '''

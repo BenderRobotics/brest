@@ -13,38 +13,37 @@ import os
 
 from yaml import load, Loader
 
-from brest import Singleton
-from brest import BREST_CONFIG
+BREST_CONFIG_PATH = os.path.expanduser('~/brest')
+BREST_CONFIG_NAME = 'brest.yaml'
+BREST_CONFIG      = '{0}/{1}'.format(BREST_CONFIG_PATH, BREST_CONFIG_NAME)
 
-class Config(metaclass=Singleton):
+class Config():
     '''
 
     '''
+    def __init__(self):
+        self.config = None
+        self.preset = None
+        self.raw_conf = None
 
-    config = None
-    preset = None
-
-    @classmethod
-    def read(cls, config=BREST_CONFIG):
+    def read(self, config=BREST_CONFIG):
         '''
 
         '''
 
         with open(BREST_CONFIG, 'r') as stream:
-            cls.raw_conf = load(stream, Loader=Loader)
+            self.raw_conf = load(stream, Loader=Loader)
 
-    @classmethod
-    def choose(cls, preset):
+    def choose(self, preset):
         '''
 
         '''
 
-        cls.preset = preset
-        cls.config = cls.raw_conf[preset]
+        self.preset = preset
+        self.config = self.raw_conf[preset]
 
-    @classmethod
-    def match(cls, resource, attributes):
-        conf = cls.config
+    def match(self, resource, attributes):
+        conf = self.config
 
         ref_cnt = 0
         pas_cnt = 0
