@@ -2,26 +2,47 @@ import importlib
 
 class ResourceProvider:
     '''
+    Base class for specific resource providers.
     '''
 
     @staticmethod
     def probe(resource):
+        '''
+        Checks if resource is present in the system, and returns its port's name.
+        '''
+
         raise NotImplementedError('This provider does not support resource probing.')
 
     @staticmethod
     def available():
+        '''
+        Searches for all available resources present in the system.
+        '''
+
         raise NotImplementedError('This provider does not support available resource listing.')
 
     @staticmethod
     def construct(**kwargs):
+        '''
+        Constructs a resource from given parameters.
+        '''
+
         raise NotImplementedError('This provider does not support resource instantiation .')
 
     @staticmethod
     def construct_available():
+        '''
+        Constructs all available resources.
+        '''
+
         raise NotImplementedError('This provider does not support all available resource instantiation .')
 
     @staticmethod
     def _construct(module_name, **kwargs):
+        '''
+        Generic method for class instantiation from given module.
+        '''
+
         from brest.supplies import __all__ as classes
         if kwargs['name'] in classes:
             module = importlib.import_module(module_name)

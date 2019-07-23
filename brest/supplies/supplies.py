@@ -6,7 +6,7 @@ import serial.tools.list_ports
 
 class Supplies():
     '''
-    Bender Robotics Supplies class.
+    Base class for representing a supply.
     '''
 
     class Protection():
@@ -43,38 +43,39 @@ class Supplies():
     def __init__(self):
         self._voltage = 0.0
         self._current = 0.0
+        self.CHANNELS = 1
         self.MAX_VOLTAGE = None
         self.MAX_CURRENT = None
         self.model_name = None
         self.protection = None
         self.kind = None
 
-    def enable(self):
+    def enable(self, channel = 1):
         raise NotImplementedError('This supply cannot be enabled.')
 
-    def disable(self):
+    def disable(self, channel = 1):
         raise NotImplementedError('This supply cannot be disabled.')
 
     @property
-    def voltage(self):
+    def voltage(self, channel = 1):
         raise NotImplementedError('This supply is unable to measure output voltage.')
 
     @voltage.setter
-    def voltage(self, value):
+    def voltage(self, value, channel = 1):
         raise NotImplementedError('This supply does not support different voltages.')
 
     @property
-    def current(self):
+    def current(self, channel = 1):
         raise NotImplementedError('This supply is unable to measure output current.')
 
     @current.setter
-    def current(self, value):
+    def current(self, value, channel = 1):
         raise NotImplementedError('This supply does not support different current limits.')
 
-    def enable_protection(self, protection_type):
+    def enable_protection(self, protection_type, channel = 1):
         raise NotImplementedError('This supply has no means of output protection.')
 
-    def disable_protection(self, protection_type):
+    def disable_protection(self, protection_type, channel = 1):
         raise NotImplementedError('This supply has no means of output protection.')
 
     def get_status(self):

@@ -3,9 +3,12 @@ import serial
 from brest.communication import Communicable
 
 class SerialCommunicable(Communicable):
+    '''
+    Represents a serial communication
+    '''
     
     def __init__(self, **kwargs):
         if kwargs['port'] != None:
             self.com = serial.Serial(**kwargs)
         else:
-            raise ValueError('Port must be defined')
+            raise ValueError('Port must be defined.')

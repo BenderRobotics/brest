@@ -16,15 +16,18 @@ class SupplyProvider(ResourceProvider):
         '''
         Checks wheter given supply is connected to the host system.
         '''
+        if psu not in SupplyProvider.KNOWN:
+            return None
 
         coms = serial.tools.list_ports.comports()
+        kpsu = SupplyProvider.KNOWN[psu]
         ret = None
 
         for com in coms:
-            if SupplyProvider.KNOWN[psu]['vid'] == com.vid and SupplyProvider.KNOWN[psu]['pid'] == com.pid:
-                if SupplyProvider.KNOWN[psu]['serial'] != None and SupplyProvider.KNOWN[psu]['serial'] != com.serial_number:
+            if kpsu['vid'] == com.vid and kpsu['pid'] == com.pid:
+                if kpsu['serial'] != None and kpsu['serial'] != com.serial_number:
                     continue
-                # TO-DO: Handle case of more than one same Supplies available.
+                #TODO: Handle case of more than one same Supplies available.
                 #print('Detected {0} type PSU @{1}'.format(psu, com.device))
                 ret = com.device
 
@@ -36,23 +39,31 @@ class SupplyProvider(ResourceProvider):
         Returns all available supplies found in the system.
         '''
 
-        supplies = []
+        available = []
 
         for psu in SupplyProvider.KNOWN:
-            com = SupplyProvider.probe(psu)
-            if None is not com:
-                supplies.append({'name':psu, 'port':com})
+            port = SupplyProvider.probe(psu)
+            if None is not port:
+                available.append({'name' : psu, 'port' : port})
 
-        return supplies
+        return available
 
     @staticmethod
     def construct(**kwargs):
+        '''
+        Constructs a supply from given parameters
+        '''
+
         return ResourceProvider._construct("brest.supplies", **kwargs)
 
     @staticmethod
     def construct_available():
-        supplies = SupplyProvider.available()
-        psus = []
-        for psu_args in supplies:
-            psus.append(SupplyProvider.construct(**psu_args))
-        return psus
+        '''
+        Constructs all available resources.
+        '''
+
+        available = SupplyProvider.available()
+        supplies = []
+        for psu_args in available:
+            supplies.append(SupplyProvider.construct(**psu_args))
+        return supplies

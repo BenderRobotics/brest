@@ -1,13 +1,32 @@
 class Communicable():
+    '''
+    Base class for communication interfaces.
+    '''
     
     def connect(self, **kwargs):
-        raise NotImplementedError('This device doesn\'t support connection')
+        '''
+        Tries to connect to the interface.
+        '''
+
+        raise NotImplementedError('This interface doesn\'t support connection')
 
     def disconnect(self):
-        raise NotImplementedError('This device doesn\'t support disconnection')
+        '''
+        Tries to disconnect from the interface.
+        '''
+
+        raise NotImplementedError('This interface doesn\'t support disconnection')
 
     def trancieve(self, command, modifier = None):
-        raise NotImplementedError('This device doesn\'t support trancieve communication')
+        '''
+        Sends and receives message in blocking mode.
+        '''
+
+        raise NotImplementedError('This interface doesn\'t support trancieve communication')
 
     def send_command_async(self, command, modifire = None, callback = None):
-        raise NotImplementedError('This device doesn\'t support async communication')
+        '''
+        Sends message in non-blocking mode and pass the received message to the callback
+        '''
+
+        raise NotImplementedError('This interface doesn\'t support async communication')

@@ -34,10 +34,10 @@ class Tenma(Supplies, SerialCommunicable):
 
 
     Models = [
-        Supplies.Model('TENMA 72-2535', 1, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
-        Supplies.Model('TENMA 72-2540', 1, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
-        Supplies.Model('TENMA 72-2545', 1, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
-        Supplies.Model('TENMA 72-2550', 1, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP]),
+        Supplies.Model('TENMA 72-2535', 1, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
+        Supplies.Model('TENMA 72-2540', 1, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
+        Supplies.Model('TENMA 72-2545', 1, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
+        Supplies.Model('TENMA 72-2550', 1, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
     ]
 
     def __init__(self, port = None):
@@ -74,9 +74,8 @@ class Tenma(Supplies, SerialCommunicable):
                 pass #TO-DO
 
     def apply_model_specs(self, model):
-        '''
-        '''
         self.model_name = model.psu_idn
+        self.CHANNELS = model.channels
         self.MAX_VOLTAGE = model.max_voltage
         self.MAX_CURRENT = model.max_current
         self.protection = model.protection
@@ -91,7 +90,7 @@ class Tenma(Supplies, SerialCommunicable):
 
         for model in self.Models:
             if (model.idn in psu_idn):
-                apply_model_specs(model)
+                self.apply_model_specs(model)
         if (None == self.model_name):
             print ('Unable to detect type of the PSU.')    
 
