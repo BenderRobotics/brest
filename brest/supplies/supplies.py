@@ -2,9 +2,9 @@
 import serial
 import serial.tools.list_ports
 
-#TODO: Support for mutli-channel supplies
+from brest import Resource
 
-class Supplies():
+class Supplies(Resource):
     '''
     Base class for representing a supply.
     '''
@@ -40,7 +40,8 @@ class Supplies():
             self.protection = protection
             self.kind = kind
 
-    def __init__(self):
+    def __init__(self, name = None):
+        Resource.__init__(self, name)
         self._voltage = 0.0
         self._current = 0.0
         self.CHANNELS = 1

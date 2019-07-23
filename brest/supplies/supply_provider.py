@@ -44,7 +44,7 @@ class SupplyProvider(ResourceProvider):
         for psu in SupplyProvider.KNOWN:
             port = SupplyProvider.probe(psu)
             if None is not port:
-                available.append({'name' : psu, 'port' : port})
+                available.append({'class_name' : psu, 'port' : port})
 
         return available
 
@@ -57,13 +57,37 @@ class SupplyProvider(ResourceProvider):
         return ResourceProvider._construct("brest.supplies", **kwargs)
 
     @staticmethod
-    def construct_available():
+    def construct_list(resource_list):
         '''
-        Constructs all available resources.
+        Constructs all available supplies.
+        '''
+
+        supplies = []
+        for psu_args in resource_list:
+            supplies.append(SupplyProvider.construct(**psu_args))
+        return supplies
+
+    @staticmethod
+    def construct_config(config):
+        '''
+        Constructs all available supplies described in config.
         '''
 
         available = SupplyProvider.available()
-        supplies = []
-        for psu_args in available:
-            supplies.append(SupplyProvider.construct(**psu_args))
-        return supplies
+        _config = config.get_config_for('Supplies')
+        matched = []
+
+        for name, params in _config.items():
+            for a in available:
+                if params['class_name'] == a['class_name'] and params['port'] == a['port']:
+                    params['name'] = name
+                    matched.append(params)
+                    break
+
+        return SupplyProvider.construct_list(matched)
+
+if __name__ == "__main__":
+    from brest import Config
+    cfg = Config('MMI')
+    l = SupplyProvider.construct_config(cfg)
+    print(l)

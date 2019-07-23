@@ -19,10 +19,14 @@ class Virsup(Supplies, SerialCommunicable):
     Virtual power Supplies class for demonstration purposes.
     '''
 
-    def __init__(self, port = None):
+    def __init__(self, name = None, port = None, max_voltage = None):
         serial_args = {'port' : port}
         SerialCommunicable.__init__(self, **serial_args)
-        Supplies.__init__(self)
+        Supplies.__init__(self, name)
+
+        if max_voltage is not None:
+            self.MAX_VOLTAGE = max_voltage
+
         self.connect()
         self.detect()
 
