@@ -9,6 +9,11 @@ class Supplies(Resource):
     Base class for representing a supply.
     '''
 
+    KNOWN = {
+        'Tenma':{'vid':0x416, 'pid':0x5011, 'serial':None}, # Winbond Virtual COM port
+        'Virsup':{'vid':0x10C4, 'pid':0xEA60, 'serial':'0195A356'} # CP2102
+    }
+
     class Protection():
         '''
         All available types of protection supported by Supplies class.

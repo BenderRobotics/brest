@@ -3,24 +3,20 @@ import serial
 import serial.tools.list_ports
 
 from brest import ResourceProvider
+from brest.supplies import Supplies
 
 class SupplyProvider(ResourceProvider):
-
-    KNOWN = {
-        'Tenma':{'vid':0x416, 'pid':0x5011, 'serial':None}, # Winbond Virtual COM port
-        'Virsup':{'vid':0x10C4, 'pid':0xEA60, 'serial':'0195A356'} # CP2102
-    }
 
     @staticmethod
     def probe(psu):
         '''
         Checks wheter given supply is connected to the host system.
         '''
-        if psu not in SupplyProvider.KNOWN:
+        if psu not in Supplies.KNOWN:
             return None
 
         coms = serial.tools.list_ports.comports()
-        kpsu = SupplyProvider.KNOWN[psu]
+        kpsu = Supplies.KNOWN[psu]
         ret = None
 
         for com in coms:
@@ -41,7 +37,7 @@ class SupplyProvider(ResourceProvider):
 
         available = []
 
-        for psu in SupplyProvider.KNOWN:
+        for psu in Supplies.KNOWN:
             port = SupplyProvider.probe(psu)
             if None is not port:
                 available.append({'class_name' : psu, 'port' : port})
@@ -54,7 +50,11 @@ class SupplyProvider(ResourceProvider):
         Constructs a supply from given parameters
         '''
 
-        return ResourceProvider._construct("brest.supplies", kwargs)
+        for cls in Supplies.__subclasses__():
+            if cls.__name__ == kwargs['class_name']:
+                return ResourceProvider._construct(cls.__module__, kwargs)
+        else:
+            print('jejda')
 
     @staticmethod
     def construct_list(resource_list):
