@@ -57,5 +57,5 @@ class ResourceProvider:
             del kwargs['class_name']
             return class_(kwargs)
         except:
-            print('Could not create class')
+            #TODO: Notice user about brest not being able to construct given class
             return None

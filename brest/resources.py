@@ -15,6 +15,9 @@ class Resources():
         else:
             raise KeyError("Invali key: {}".format(key))
 
+    def __iter__(self):
+        return iter(self.resources.items())
+
     def instantiate(self, project):
         # Tohle musí jít jinak
         from brest.supplies.supply_provider import SupplyProvider
@@ -26,7 +29,6 @@ class Resources():
         res.extend(SupplyProvider.construct_config(cfg))
 
         for r in res:
-            self.resources[r.name] = r # 
-
-if __name__ == "__main__":
-    res = Resources('MMI')
+            # Failed object construction results in None being in the list
+            if r:
+                self.resources[r.name] = r 

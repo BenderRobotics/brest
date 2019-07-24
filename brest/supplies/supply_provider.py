@@ -10,7 +10,7 @@ class SupplyProvider(ResourceProvider):
     @staticmethod
     def probe(psu):
         '''
-        Checks wheter given supply is connected to the host system.
+        Checks wheter given supply is connected to the host system and returns its port name.
         '''
         if psu not in Supplies.KNOWN:
             return None
@@ -47,14 +47,15 @@ class SupplyProvider(ResourceProvider):
     @staticmethod
     def construct(kwargs):
         '''
-        Constructs a supply from given parameters
+        Constructs a supply from given parameters. Supply must be derived from Supplies class.
         '''
 
         for cls in Supplies.__subclasses__():
             if cls.__name__ == kwargs['class_name']:
                 return ResourceProvider._construct(cls.__module__, kwargs)
         else:
-            print('jejda')
+            #TODO: Warn user about error in class inheritance
+            return None
 
     @staticmethod
     def construct_list(resource_list):
@@ -85,9 +86,3 @@ class SupplyProvider(ResourceProvider):
                     break
 
         return SupplyProvider.construct_list(matched)
-
-if __name__ == "__main__":
-    from brest import Config
-    cfg = Config('MMI')
-    l = SupplyProvider.construct_config(cfg)
-    print(l)

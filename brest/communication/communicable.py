@@ -2,9 +2,6 @@ class Communicable():
     '''
     Base class for communication interfaces.
     '''
-    
-    def __init__(self):
-        super().__init__()
         
     def connect(self, **kwargs):
         '''

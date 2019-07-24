@@ -34,25 +34,6 @@ class Config():
         with open(config_path, 'r') as stream:
             self.config = load(stream, Loader=Loader)
 
-    # def match(self, resource, attributes):
-    #     conf = self.config
-
-    #     ref_cnt = 0
-    #     pas_cnt = 0
-
-    #     if (None is not conf):
-    #         for resource_name in conf[resource.__name__]:
-    #             for ref_key, ref_val in conf[resource.__name__][resource_name].items():
-    #                 ref_cnt += 1
-    #                 for cur_key, cur_val in attributes.items():
-    #                     if ref_key == cur_key and ref_val == cur_val:
-    #                         pas_cnt += 1
-
-    #         if pas_cnt == ref_cnt:
-    #             return resource_name
-    #     else:
-    #         return None
-
     def get_config_for(self, resource):
         '''
         Returns dict of resources parameters for given resource group indexed by custom name.
@@ -64,8 +45,3 @@ class Config():
                 for name, _params in self.config[self.project][resource].items():
                     params[name] = _params
         return params
-
-if __name__ == "__main__":
-    cfg = Config('MMI')
-    l = cfg.get_config_for('Supplies')
-    print(l)
