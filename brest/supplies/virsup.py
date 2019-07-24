@@ -20,7 +20,8 @@ class Virsup(Supplies, SerialCommunicable):
     '''
 
     def __init__(self, kwargs):
-        super().__init__(kwargs)
+        Supplies.__init__(self)
+        SerialCommunicable.__init__(self, kwargs)
         
         self.parse_args(kwargs)
 

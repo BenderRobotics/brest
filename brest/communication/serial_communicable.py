@@ -8,7 +8,7 @@ class SerialCommunicable(Communicable):
     '''
     
     def __init__(self, kwargs):
-        super().__init__(kwargs)
+        super().__init__()
         serial_args = {}
         for attr, value in kwargs.items():
             if hasattr(serial.Serial, attr):

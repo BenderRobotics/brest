@@ -5,8 +5,7 @@ class Resource():
 
     cnt = 0
 
-    def __init__(self, kwargs):
-        super().__init__(kwargs)
+    def __init__(self):
         self.name = 'resource_' + str(Resource.cnt)
         Resource.cnt += 1
 
