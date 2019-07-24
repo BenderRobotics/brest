@@ -22,7 +22,7 @@ class ResourceProvider:
         raise NotImplementedError('This provider does not support available resource listing.')
 
     @staticmethod
-    def construct(**kwargs):
+    def construct(kwargs):
         '''
         Constructs a resource from given parameters.
         '''
@@ -46,15 +46,16 @@ class ResourceProvider:
         raise NotImplementedError('This provider does not support all available resource in config instantiation .')
 
     @staticmethod
-    def _construct(module_name, **kwargs):
+    def _construct(module_name, kwargs):
         '''
         Generic method for class instantiation from given module.
         '''
 
-        from brest.supplies import __all__ as classes
-        if kwargs['class_name'] in classes:
+        try:
             module = importlib.import_module(module_name)
             class_ = getattr(module, kwargs['class_name'])
             del kwargs['class_name']
-            return class_(**kwargs)
-        return None
+            return class_(kwargs)
+        except:
+            print('Could not create class')
+            return None

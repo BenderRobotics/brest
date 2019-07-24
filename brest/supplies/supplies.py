@@ -40,8 +40,8 @@ class Supplies(Resource):
             self.protection = protection
             self.kind = kind
 
-    def __init__(self, name = None):
-        Resource.__init__(self, name)
+    def __init__(self, kwargs):
+        super().__init__(kwargs)
         self._voltage = 0.0
         self._current = 0.0
         self.CHANNELS = 1

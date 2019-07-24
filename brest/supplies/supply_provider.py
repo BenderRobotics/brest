@@ -49,12 +49,12 @@ class SupplyProvider(ResourceProvider):
         return available
 
     @staticmethod
-    def construct(**kwargs):
+    def construct(kwargs):
         '''
         Constructs a supply from given parameters
         '''
 
-        return ResourceProvider._construct("brest.supplies", **kwargs)
+        return ResourceProvider._construct("brest.supplies", kwargs)
 
     @staticmethod
     def construct_list(resource_list):
@@ -64,7 +64,7 @@ class SupplyProvider(ResourceProvider):
 
         supplies = []
         for psu_args in resource_list:
-            supplies.append(SupplyProvider.construct(**psu_args))
+            supplies.append(SupplyProvider.construct(psu_args))
         return supplies
 
     @staticmethod

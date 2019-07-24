@@ -3,6 +3,9 @@ class Communicable():
     Base class for communication interfaces.
     '''
     
+    def __init__(self, kwargs):
+        super().__init__()
+        
     def connect(self, **kwargs):
         '''
         Tries to connect to the interface.
