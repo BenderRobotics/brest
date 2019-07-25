@@ -17,7 +17,7 @@ class Communicable():
 
         raise NotImplementedError('This interface doesn\'t support disconnection')
 
-    def trancieve(self, command, modifier = None):
+    def trancieve(self, command, value = None):
         '''
         Sends and receives message in blocking mode.
         '''
