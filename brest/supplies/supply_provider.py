@@ -8,20 +8,22 @@ from brest.supplies import Supplies
 class SupplyProvider(ResourceProvider):
 
     @staticmethod
-    def probe(psu):
+    def probe(psu, vps = None):
         '''
         Checks wheter given supply is connected to the host system and returns its port name.
         '''
-        if psu not in Supplies.KNOWN:
-            return None
-
+        
+        if not vps:
+            if psu not in Supplies.KNOWN:
+                return None
+            vps = Supplies.KNOWN[psu]
+        
         coms = serial.tools.list_ports.comports()
-        kpsu = Supplies.KNOWN[psu]
         ret = None
 
         for com in coms:
-            if kpsu['vid'] == com.vid and kpsu['pid'] == com.pid:
-                if kpsu['serial'] != None and kpsu['serial'] != com.serial_number:
+            if vps['vid'] == com.vid and vps['pid'] == com.pid:
+                if vps['serial'] != None and vps['serial'] != com.serial_number:
                     continue
                 #TODO: Handle case of more than one same Supplies available.
                 #print('Detected {0} type PSU @{1}'.format(psu, com.device))
@@ -58,31 +60,17 @@ class SupplyProvider(ResourceProvider):
             return None
 
     @staticmethod
-    def construct_list(resource_list):
-        '''
-        Constructs all available supplies.
-        '''
-
-        supplies = []
-        for psu_args in resource_list:
-            supplies.append(SupplyProvider.construct(psu_args))
-        return supplies
-
-    @staticmethod
     def construct_config(config):
         '''
         Constructs all available supplies described in config.
         '''
-
-        available = SupplyProvider.available()
         _config = config.get_config_for('Supplies')
-        matched = []
+        constructed = []
 
         for name, params in _config.items():
-            for a in available:
-                if params['class_name'] == a['class_name'] and params['port'] == a['port']:
-                    params['name'] = name
-                    matched.append(params)
-                    break
+            if 'port' not in params:
+                params['port'] = SupplyProvider.probe(name, params)
+            params['name'] = name
+            constructed.append(SupplyProvider.construct(params))
 
-        return SupplyProvider.construct_list(matched)
+        return constructed

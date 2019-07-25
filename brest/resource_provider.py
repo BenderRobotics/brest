@@ -6,7 +6,7 @@ class ResourceProvider:
     '''
 
     @staticmethod
-    def probe(resource):
+    def probe(resource, known_params = None):
         '''
         Checks if resource is present in the system, and returns its port's name.
         '''
@@ -28,14 +28,6 @@ class ResourceProvider:
         '''
 
         raise NotImplementedError('This provider does not support resource instantiation .')
-
-    @staticmethod
-    def construct_list(resource_list):
-        '''
-        Constructs all available resources.
-        '''
-
-        raise NotImplementedError('This provider does not support all available resource instantiation .')
 
     @staticmethod
     def construct_config(config):

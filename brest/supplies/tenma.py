@@ -40,13 +40,11 @@ class Tenma(Supplies, SerialCommunicable):
         Supplies.Model('TENMA 72-2550', 1, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
     ]
 
-    def __init__(self, port = None):
-        '''
-
-        '''
-        serial_args = {'port' : port, 'timeout' : self.PORT_TIMEOUT}
-        SerialCommunicable.__init__(self, **serial_args)
+    def __init__(self, kwargs):
         Supplies.__init__(self)
+        SerialCommunicable.__init__(self, kwargs)
+        
+        self.parse_args(kwargs)
 
         self.connect()
         self.detect()
