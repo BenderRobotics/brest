@@ -2,11 +2,10 @@ from brest import Resource
 
 class Loads(Resource):
     
-    KNOWN = {
-        'PLI' : {'vid' : 0x0403, 'pid' : 0x06001, 'serial' : 'FT99QOL2A'}
-    }
+    KNOWN = {}
 
     def __init__(self):
+        super().__init__()
         self._current = 0
         self.MAX_CURRENT = None
 

@@ -21,12 +21,14 @@ class Resources():
     def instantiate(self, project):
         # Tohle musí jít jinak
         from brest.supplies.supply_provider import SupplyProvider
+        from brest.loads.load_provider import LoadProvider
 
         cfg = Config(project)
         res = []
 
         # Call all Providers here
         res.extend(SupplyProvider.construct_config(cfg))
+        res.extend(LoadProvider.construct_config(cfg))
 
         for r in res:
             # Failed object construction results in None being in the list

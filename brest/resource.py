@@ -6,7 +6,7 @@ class Resource():
     cnt = 0
 
     def __init__(self):
-        self.name = 'resource_' + str(Resource.cnt)
+        self._name = 'resource_' + str(Resource.cnt)
         Resource.cnt += 1
 
     @property
@@ -20,5 +20,6 @@ class Resource():
     def parse_args(self, kwargs):
         for attr, value in kwargs.items():
             if hasattr(self, attr):
-                print('u tridy {} nastavuji {} na {}'.format(self.__class__, attr, value))
                 setattr(self, attr, value)
+            else:
+                pass #TODO: Inform user about not existing parameter
