@@ -2,7 +2,7 @@ class Communicable():
     '''
     Base class for communication interfaces.
     '''
-        
+
     def connect(self, **kwargs):
         '''
         Tries to connect to the interface.

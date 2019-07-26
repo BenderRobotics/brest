@@ -10,28 +10,28 @@
 #  Copyright 2019 Bender Robotics
 
 from brest.supplies import Supplies
+from brest.communication import Command
 from brest.communication import SerialCommunicable
 
 class Tenma(Supplies, SerialCommunicable):
 
-    PORT_TIMEOUT  = 0.050
+    Supplies.KNOWN['Tenma'] = {'type':'serial', 'vid':0x416, 'pid':0x5011, 'serial':[None]}
 
     class Commands():
-        GET_ID      = '*IDN?'
-        GET_STATUS  = 'STATUS?'
-        SET_VOLTAGE = 'VSET1?'
-        GET_VOLTAGE = 'VOUT1?'
-        SET_CURRENT = 'ISET1?'
-        GET_CURRENT = 'IOUT1?'
-        EN_OUTPUT   = 'OUT1'
-        DIS_OUTPUT  = 'OUT0'
-        EN_OVP      = 'OVP1'
-        DIS_OVP     = 'OVP0'
-        EN_OCP      = 'OCP1'
-        DIS_OCP     = 'OCP0'
-        RECALL      = 'RCL1'
-        SAVE        = 'SAV1'
-
+        GET_ID      = Command('*IDN?',   False, True)
+        GET_STATUS  = Command('STATUS?', False, True)
+        SET_VOLTAGE = Command('VSET1?',  True,  True)
+        GET_VOLTAGE = Command('VOUT1?',  False, True)
+        SET_CURRENT = Command('ISET1?',  True,  True)
+        GET_CURRENT = Command('IOUT1?',  False, True)
+        EN_OUTPUT   = Command('OUT1',    False, False)
+        DIS_OUTPUT  = Command('OUT0',    False, False)
+        EN_OVP      = Command('OVP1',    False, False)
+        DIS_OVP     = Command('OVP0',    False, False)
+        EN_OCP      = Command('OCP1',    False, False)
+        DIS_OCP     = Command('OCP0',    False, False)
+        RECALL      = Command('RCL1',    False, False)
+        SAVE        = Command('SAV1',    False, False)
 
     Models = [
         Supplies.Model('TENMA 72-2535', 1, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
@@ -42,82 +42,72 @@ class Tenma(Supplies, SerialCommunicable):
 
     def __init__(self, kwargs):
         Supplies.__init__(self)
-        SerialCommunicable.__init__(self, kwargs)
+        SerialCommunicable.__init__(self, kwargs['interface'])
         
         self.parse_args(kwargs)
 
         self.connect()
         self.detect()
 
+    def enable(self, channel = 1):
+        self.trancieve(Tenma.Commands.EN_OUTPUT)
+
+    def disable(self, channel = 1):
+        self.trancieve(Tenma.Commands.DIS_OUTPUT)
+
+    @property
+    def voltage(self, channel = 1):
+        return float(self.trancieve(Tenma.Commands.GET_VOLTAGE))
+
+    @voltage.setter
+    def voltage(self, value, channel = 1):
+        self.trancieve(Tenma.Commands.SET_VOLTAGE, value)
+
+    @property
+    def current(self, channel = 1):
+        return float(self.trancieve(Tenma.Commands.GET_CURRENT))
+
+    @current.setter
+    def current(self, value, channel = 1):
+        self.trancieve(Tenma.Commands.SET_CURRENT, value)
+
+    def enable_protection(self, protection_type, channel = 1):
+        if protection_type == Supplies.Protection.OVP:
+            command = Tenma.Commands.EN_OVP
+        elif protection_type == Supplies.Protection.OCP:
+            command = Tenma.Commands.EN_OCP
+        else:
+            pass #TODO: Protection not supported
+        self.trancieve(command)
+
+    def disable_protection(self, protection_type, channel = 1):
+        if protection_type == Supplies.Protection.OVP:
+            command = Tenma.Commands.DIS_OVP
+        elif protection_type == Supplies.Protection.OCP:
+            command = Tenma.Commands.DIS_OCP
+        else:
+            pass #TODO: Protection not supported
+        self.trancieve(command)
+
+    def detect(self):
+        psu_idn = self.trancieve(Tenma.Commands.GET_ID).split(',')[0]
+
+        for model in self.Models:
+            if (model.idn in psu_idn):
+                self._apply_model_specs(model)
+        if (None == self.model_name):
+            print ('Unable to detect type of the PSU.')    
+
     def connect(self):
-        '''
-
-        '''
-
         if self.com and not self.com.isOpen():
             try:
                 self.com.open()
             except:
-                pass #TO-DO
+                pass #TODO: Unable to open communication
 
     def disconnect(self):
-        '''
-
-        '''
-
         if self.com and self.com.isOpen():
             try:
                 self.com.close()
             except:
-                pass #TO-DO
-
-    def apply_model_specs(self, model):
-        self.model_name = model.psu_idn
-        self.CHANNELS = model.channels
-        self.MAX_VOLTAGE = model.max_voltage
-        self.MAX_CURRENT = model.max_current
-        self.protection = model.protection
-        self.kind = model.kind
-
-    def detect(self):
-        '''
-        Method which tries to determine specific electrical limits of the supply based on IDN retrieval.
-        '''
-
-        psu_idn = self.trancieve(Tenma.Commands.GET_ID)
-
-        for model in self.Models:
-            if (model.idn in psu_idn):
-                self.apply_model_specs(model)
-        if (None == self.model_name):
-            print ('Unable to detect type of the PSU.')    
-
-    def trancieve(self, command, modifier = None):
-        '''
-
-        '''
-
-        try:
-            # Assemble message
-            if (modifier == None):
-                # If no modifier is sent, send whole command
-                msg = command
-            else:
-                if (command[-1:] == '?'):
-                    # Some messages require different format
-                    msg = command[:-1] + ':' + modifier
-                else:
-                    msg = command + modifier
-            # Send message to serial port
-            self.com.write(msg.encode('utf-8'))
-            # Get response
-            recv = ''
-            while(True):
-                char = str(self.com.read(1), 'utf-8')
-                if ('' == char):
-                    break
-                recv += char
-            return recv
-        except Exception as e:
-            print(e)
-            pass
+                pass #TODO" Unable to close communication

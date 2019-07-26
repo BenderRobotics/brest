@@ -19,9 +19,11 @@ class Virsup(Supplies, SerialCommunicable):
     Virtual power Supplies class for demonstration purposes.
     '''
 
+    Supplies.KNOWN['Virsup'] = {'type':'serial', 'vid':0x10C4, 'pid':0xEA60, 'serial':['0195A356', '0001']}
+
     def __init__(self, kwargs):
         Supplies.__init__(self)
-        SerialCommunicable.__init__(self, kwargs)
+        SerialCommunicable.__init__(self, kwargs['interface'])
         
         self.parse_args(kwargs)
 

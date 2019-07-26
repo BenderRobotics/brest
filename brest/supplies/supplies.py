@@ -9,10 +9,7 @@ class Supplies(Resource):
     Base class for representing a supply.
     '''
 
-    KNOWN = {
-        'Tenma':{'vid':0x416, 'pid':0x5011, 'serial':None}, # Winbond Virtual COM port
-        'Virsup':{'vid':0x10C4, 'pid':0xEA60, 'serial':'0195A356'} # CP2102
-    }
+    KNOWN = {}
 
     class Protection():
         '''
@@ -34,7 +31,7 @@ class Supplies(Resource):
 
     class Model():
         '''
-        Model info
+        Model info.
         '''
 
         def __init__(self, idn, channels, max_voltage, max_current, protection, kind):
@@ -57,38 +54,79 @@ class Supplies(Resource):
         self.kind = None
 
     def enable(self, channel = 1):
+        '''
+        Enables power supply output.
+        '''
+
         raise NotImplementedError('This supply cannot be enabled.')
 
     def disable(self, channel = 1):
+        '''
+        Disables power supply output.
+        '''
+
         raise NotImplementedError('This supply cannot be disabled.')
 
     @property
     def voltage(self, channel = 1):
+        '''
+        Gets voltage. You can specifi channel.
+        '''
+
         raise NotImplementedError('This supply is unable to measure output voltage.')
 
     @voltage.setter
     def voltage(self, value, channel = 1):
+        '''
+        Sets voltage. You can specifi channel.
+        '''
+
         raise NotImplementedError('This supply does not support different voltages.')
 
     @property
     def current(self, channel = 1):
+        '''
+        Gets current. You can specifi channel.
+        '''
+
         raise NotImplementedError('This supply is unable to measure output current.')
 
     @current.setter
     def current(self, value, channel = 1):
+        '''
+        Sets current. You can specifi channel.
+        '''
+
         raise NotImplementedError('This supply does not support different current limits.')
 
     def enable_protection(self, protection_type, channel = 1):
+        '''
+        Enables given protection. You can specifi channel.
+        '''
+
         raise NotImplementedError('This supply has no means of output protection.')
 
     def disable_protection(self, protection_type, channel = 1):
+        '''
+        Disables given protection. You can specifi channel.
+        '''
+
         raise NotImplementedError('This supply has no means of output protection.')
 
     def get_status(self):
         raise NotImplementedError('This supply has no means of status detection.')
     
-    def detect(self):
+    def detect(self, apply = True):
+        '''
+        Returns model info. Implicitly tries to apply model's electrical limits.
+        '''
+
         raise NotImplementedError('This supply does not support specific model detection.')
 
-    def apply_model_specs(self, model):
-        raise NotImplementedError('This supply does not support specific model application.')
+    def _apply_model_specs(self, model):
+        self.model_name = model.psu_idn
+        self.CHANNELS = model.channels
+        self.MAX_VOLTAGE = model.max_voltage
+        self.MAX_CURRENT = model.max_current
+        self.protection = model.protection
+        self.kind = model.kind
