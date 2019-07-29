@@ -3,7 +3,7 @@ from brest.communication import SerialCommunicable, Command
 
 class Pli(Loads, SerialCommunicable):
 
-    Loads.KNOWN['Pli'] = {'type':'serial', 'vid':0x0403, 'pid':0x06001, 'serial':['FT99QOL2A']}
+    Loads.KNOWN['Pli'] = {'type':'serial', 'baudrate':115200, 'vid':0x0403, 'pid':0x06001, 'serial_number':['FT99QOL2A']}
 
     class Commands():
         INFO_GET    = Command("*IDN?",   False, True)

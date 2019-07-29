@@ -1,4 +1,5 @@
 import serial
+import serial.tools.list_ports
 
 from brest.communication import Communicable
 
@@ -6,7 +7,7 @@ class SerialCommunicable(Communicable):
     '''
     Represents a serial communication
     '''
-    
+
     ENCODING = 'utf-8'
 
     def __init__(self, kwargs):
@@ -21,13 +22,15 @@ class SerialCommunicable(Communicable):
         if 'port' in serial_args and serial_args['port'] != None:
             self.com = serial.Serial(**serial_args)
         else:
-            raise ValueError('Port must be defined.')
+            pass #TODO: Warn user about missing port name
 
     def trancieve(self, command, value = None):
         message = command.cmd
         if command.modifier_required:
             if value:
                 message + ' ' + str(value)
+            else:
+                pass #TODO: Warn user about missing value
         message += '\n'
         
         self.com.write(message.encode(SerialCommunicable.ENCODING))
@@ -46,9 +49,16 @@ class SerialCommunicable(Communicable):
         '''
         Checks wheter given supply is connected to the host system and returns its interface description name.
         '''
+        ret = []
 
         coms = serial.tools.list_ports.comports()
         for com in coms:
             if com.vid == interface['vid'] and com.pid == interface['pid']:
-                if interface['serial'] is not None and com.serial_number in interface['serial']:
-                    return com.device
+                if interface['serial_number']:
+                    for serial_number in interface['serial_number']:
+                        if serial_number == com.serial_number:
+                            ret.append(com.device)
+                else:
+                    ret.append(com.deivce)
+
+        return ret

@@ -1,6 +1,6 @@
 class Resource():
     '''
-    Base class for representing resource by name
+    Base class for representing resource by name.
     '''
 
     cnt = 0
@@ -18,8 +18,12 @@ class Resource():
         self._name = value
 
     def parse_args(self, kwargs):
+        '''
+        If object has attribute specified in `kwargs` dict, sets its value.
+        '''
+
         for attr, value in kwargs.items():
             if hasattr(self, attr):
                 setattr(self, attr, value)
             else:
-                pass #TODO: Inform user about not existing parameter
+                pass #TODO: Inform user about non existing parameter

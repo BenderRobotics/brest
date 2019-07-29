@@ -15,7 +15,7 @@ from brest.communication import SerialCommunicable
 
 class Tenma(Supplies, SerialCommunicable):
 
-    Supplies.KNOWN['Tenma'] = {'type':'serial', 'vid':0x416, 'pid':0x5011, 'serial':[None]}
+    Supplies.KNOWN['Tenma'] = {'type':'serial', 'vid':0x416, 'pid':0x5011, 'serial_number':[]}
 
     class Commands():
         GET_ID      = Command('*IDN?',   False, True)
