@@ -1,4 +1,6 @@
+import logging
 import importlib
+import serial.tools.list_ports
 
 import brest.supplies
 import brest.loads
@@ -12,11 +14,15 @@ class ResourceProvider:
     '''
 
     def __init__(self):
+        self.log_args = {'class_name':self.__class__.__module__ + '.' + self.__class__.__name__}
+        self.logger = logging.getLogger('brest')
+
+        # Merge all known resources into one dict
         self.knowns = {}
         for cls_ in Resource.__subclasses__():
             self.knowns[cls_.__name__] = cls_.KNOWN
 
-    def probe(self, resource, interface = None):
+    def probe(self, resource, interface = None, coms = None):
         '''
         Checks if resource is present in the system, and returns its port's name.
         '''
@@ -26,12 +32,14 @@ class ResourceProvider:
                 if resource in resources:
                     interface = resources[resource]
         if interface is None:
+            self.logger.warning(f'Resource `{resource}` not found in known', extra=self.log_args)
             return None
 
         # Serial probe
         if interface['type'] == 'serial':
-            return SerialCommunicable.serial_probe(interface)
+            return SerialCommunicable.serial_probe(interface, coms)
         else:
+            self.logger.warning(f'Can\'t probe, unknown interface `{interface["type"]}`', extra=self.log_args)
             return None
 
     def available(self):
@@ -39,21 +47,38 @@ class ResourceProvider:
         Searches for all available resources present in the system.
         '''
 
+        coms = serial.tools.list_ports.comports()
         available = []
         for _, resources in self.knowns.items():
             for class_name, interface in resources.items():
 
                 # Serial available
                 if interface['type'] == 'serial':
-                    port = self.probe(None, interface)
-                    # multiple devices of a same type
-                    if port:
-                        for i in range(len(port)):
+                    
+                    # If it is a list of serial number
+                    if isinstance(interface['serial_number'], list):
+
+                        # Iterate over serial numbers and probe each separately
+                        for i in range(len(interface['serial_number'])):
                             interface_ = dict(interface)
-                            interface_['port'] = port[i]
                             interface_['serial_number'] = interface['serial_number'][i]
+                            interface_['port'] = self.probe(None, interface_, coms)
+                            if interface_['port']:
+                                resource = {'class_name':class_name, 'interface':interface_}
+                                available.append(resource)
+
+                    # Otherwise it is a single serial number
+                    else:
+                        interface_ = dict(interface)
+                        interface_['serial_number'] = interface['serial_number']
+                        interface_['port'] = self.probe(None, interface_, coms)
+                        if interface_['port']:
                             resource = {'class_name':class_name, 'interface':interface_}
                             available.append(resource)
+                else:
+                    self.logger.warning(f'Encountered unknown interface `{interface["type"]}`', extra=self.log_args)
+
+                    
 
         return available
 
@@ -67,7 +92,7 @@ class ResourceProvider:
                 if subcls_.__name__ == kwargs['class_name']:
                     return self.__construct(subcls_.__module__, kwargs)
 
-        #TODO: Warn user about error in class inheritance
+        self.logger.warning(f'Can\'t construct class `{kwargs["class_name"]}`. Class is not subclass of any resource', extra=self.log_args)
         return None
 
     def construct_config(self, config):
@@ -82,6 +107,8 @@ class ResourceProvider:
 
             # get config for each group of resources
             cfg = config.get_config_for(group)
+            if not cfg:
+                continue
 
             # iterate over resources in config group
             for alias, params in cfg.items():
@@ -106,7 +133,11 @@ class ResourceProvider:
                     # if there is port missing, probe it
                     if 'port' not in params['interface']:
                         port_ = SerialCommunicable.serial_probe(params['interface'])
-                        params['interface']['port'] = port_[0] if port_ else None
+                        if port_:
+                            params['interface']['port'] = port_
+                        else:
+                            self.logger.warning(f'Could not detect `{params["name"]}` connected to the system', extra=self.log_args)
+                            
 
                 # now we should have all necessary data for object creation
                 constructed.append(self.construct(params))
@@ -125,5 +156,6 @@ class ResourceProvider:
             del kwargs['class_name']
             return class_(kwargs)
         except:
-            #TODO: Notice user about brest not being able to construct given class
+            message = f'Error durning `{kwargs["name"]}` construction' if kwargs['name'] else f'Error durning `{kwargs["class_name"]}` construction'
+            self.logger.error(message, extra=self.log_args)
             return None

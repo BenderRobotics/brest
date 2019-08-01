@@ -26,4 +26,4 @@ class Resource():
             if hasattr(self, attr):
                 setattr(self, attr, value)
             else:
-                pass #TODO: Inform user about non existing parameter
+                pass #TODO: Inform user about non existing attribute

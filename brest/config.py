@@ -10,6 +10,7 @@
 #  Copyright 2019 Bender Robotics
 
 import os
+import logging
 
 from yaml import load, Loader
 
@@ -22,17 +23,25 @@ class Config():
     Class that represents brest projects configuration file
     '''
     def __init__(self, project, config_path = BREST_CONFIG):
+        self.log_args = {'class_name':self.__class__.__module__ + '.' + self.__class__.__name__}
+        self.logger = logging.getLogger('brest')
         self.config = None
         self.project = project
+        self.is_valid = False
+
         self._parse(config_path)
 
     def _parse(self, config_path):
         '''
         Parse config file as dictionary
         '''
-
-        with open(config_path, 'r') as stream:
-            self.config = load(stream, Loader=Loader)
+        try:
+            with open(config_path, 'r') as stream:
+                self.config = load(stream, Loader=Loader)
+            self.is_valid = True
+        except OSError as ex:
+            self.logger.error(f'File `{ex.filename}` not found', extra=self.log_args)
+            raise SystemExit
 
     def get_config_for(self, resource):
         '''
