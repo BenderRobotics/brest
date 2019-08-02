@@ -17,6 +17,13 @@ class Communicable():
 
         raise NotImplementedError('This interface doesn\'t support disconnection')
 
+    def check_connecion(self):
+        '''
+        Checks if connection is able to send a receive messages.
+        '''
+
+        raise NotImplementedError('This interface doesn\'t implement connection check')
+
     def trancieve(self, command, value = None):
         '''
         Sends and receives message in blocking mode.

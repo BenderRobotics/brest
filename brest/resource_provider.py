@@ -22,34 +22,46 @@ class ResourceProvider:
         for cls_ in Resource.__subclasses__():
             self.knowns[cls_.__name__] = cls_.KNOWN
 
-    def probe(self, resource, interface = None, coms = None):
+    def probe(self, resource, coms = None):
         '''
         Checks if resource is present in the system, and returns its port's name.
         '''
- 
-        if interface is None:
-            for _, resources in self.knowns.items():
-                if resource in resources:
-                    interface = resources[resource]
+        interface = None
+        for _, resources in self.knowns.items():
+            if resource in resources:
+                interface = resources[resource]
         if interface is None:
             self.logger.warning(f'Resource `{resource}` not found in known', extra=self.log_args)
             return None
 
         # Serial probe
         if interface['type'] == 'serial':
-            return SerialCommunicable.serial_probe(interface, coms)
+            if isinstance(interface['serial_number'], list):
+                ports = []
+                for i in range(len(interface['serial_number'])):
+                    interface_ = dict(interface)
+                    interface_['serial_number'] = interface['serial_number'][i]
+                    ports.append(SerialCommunicable.serial_probe(interface_))
+                return ports
+            else:
+                return SerialCommunicable.serial_probe(interface, coms)
         else:
             self.logger.warning(f'Can\'t probe, unknown interface `{interface["type"]}`', extra=self.log_args)
             return None
 
-    def available(self):
+    def available(self, group = None):
         '''
         Searches for all available resources present in the system.
         '''
 
         coms = serial.tools.list_ports.comports()
         available = []
-        for _, resources in self.knowns.items():
+
+        for group_, resources in self.knowns.items():
+            # If we specified group of resources, skip all others
+            if group and group_ != group:
+                continue
+
             for class_name, interface in resources.items():
 
                 # Serial available
@@ -62,7 +74,7 @@ class ResourceProvider:
                         for i in range(len(interface['serial_number'])):
                             interface_ = dict(interface)
                             interface_['serial_number'] = interface['serial_number'][i]
-                            interface_['port'] = self.probe(None, interface_, coms)
+                            interface_['port'] = self.probe(interface_, coms)
                             if interface_['port']:
                                 resource = {'class_name':class_name, 'interface':interface_}
                                 available.append(resource)
@@ -71,7 +83,7 @@ class ResourceProvider:
                     else:
                         interface_ = dict(interface)
                         interface_['serial_number'] = interface['serial_number']
-                        interface_['port'] = self.probe(None, interface_, coms)
+                        interface_['port'] = self.probe(interface_, coms)
                         if interface_['port']:
                             resource = {'class_name':class_name, 'interface':interface_}
                             available.append(resource)
@@ -100,6 +112,7 @@ class ResourceProvider:
         Constructs all available resources described in config.
         '''
 
+        coms = serial.tools.list_ports.comports()
         constructed = []
 
         # iterate over known resources
@@ -132,7 +145,7 @@ class ResourceProvider:
 
                     # if there is port missing, probe it
                     if 'port' not in params['interface']:
-                        port_ = SerialCommunicable.serial_probe(params['interface'])
+                        port_ = SerialCommunicable.serial_probe(params['interface'], coms)
                         if port_:
                             params['interface']['port'] = port_
                         else:
@@ -144,18 +157,24 @@ class ResourceProvider:
 
         return constructed
 
+    def availableSupplies(self):
+        return self.available('Supplies')
+
+    def availableLoads(self):
+        return self.available('Loads')
 
     def __construct(self, module_name, kwargs):
         '''
         Generic method for class instantiation from given module.
         '''
 
+        module = importlib.import_module(module_name)
+        class_ = getattr(module, kwargs['class_name'])
+        message = f'Error durning `{kwargs["name"]}` construction. ' if kwargs['name'] else f'Error durning `{kwargs["class_name"]}` construction. ' # Possible log message
+        del kwargs['class_name']          # Avoid unnecessary warning about class_name not being class atribute
+
         try:
-            module = importlib.import_module(module_name)
-            class_ = getattr(module, kwargs['class_name'])
-            del kwargs['class_name']
             return class_(kwargs)
-        except:
-            message = f'Error durning `{kwargs["name"]}` construction' if kwargs['name'] else f'Error durning `{kwargs["class_name"]}` construction'
-            self.logger.error(message, extra=self.log_args)
+        except (NotImplementedError, ValueError, serial.SerialException) as e:            
+            self.logger.error(message + str(e), extra=self.log_args)
             return None

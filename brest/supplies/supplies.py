@@ -110,10 +110,14 @@ class Supplies(Resource):
 
         raise NotImplementedError('This supply has no means of output protection.')
 
-    def get_status(self):
+    def get_info(self):
+        '''
+        Returns info string.
+        '''
+        
         raise NotImplementedError('This supply has no means of status detection.')
     
-    def detect(self, apply = True):
+    def __detect(self, apply = True):
         '''
         Returns model info. Implicitly tries to apply model's electrical limits.
         '''
@@ -121,9 +125,19 @@ class Supplies(Resource):
         raise NotImplementedError('This supply does not support specific model detection.')
 
     def _apply_model_specs(self, model):
+        '''
+        Aplies model info to the class.
+        '''
+
         self.idn = model.idn
         self.CHANNELS = model.channels
-        self.MAX_VOLTAGE = model.max_voltage
-        self.MAX_CURRENT = model.max_current
         self.protection = model.protection
         self.kind = model.kind
+
+        if self.MAX_VOLTAGE and self.MAX_VOLTAGE > model.max_voltage:
+            raise ValueError('Configure maximal voltage exceeded model limits')
+        self.MAX_VOLTAGE = model.max_voltage
+        
+        if self.MAX_CURRENT and self.MAX_CURRENT > model.max_current:
+            raise ValueError('Configure maximal current exceeded model limits')
+        self.MAX_CURRENT = model.max_current

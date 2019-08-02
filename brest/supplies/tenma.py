@@ -13,12 +13,15 @@ from brest.supplies import Supplies
 from brest.communication import Command
 from brest.communication import SerialCommunicable
 
+from contextlib import suppress
+from serial import SerialException
+
 class Tenma(Supplies, SerialCommunicable):
 
     Supplies.KNOWN['Tenma'] = {'type':'serial', 'vid':0x416, 'pid':0x5011, 'serial_number':None}
 
     class Commands():
-        GET_ID      = Command('*IDN?',   False, True)
+        GET_INFO    = Command('*IDN?',   False, True)
         GET_STATUS  = Command('STATUS?', False, True)
         SET_VOLTAGE = Command('VSET1?',  True,  True)
         GET_VOLTAGE = Command('VOUT1?',  False, True)
@@ -44,10 +47,13 @@ class Tenma(Supplies, SerialCommunicable):
         Supplies.__init__(self)
         SerialCommunicable.__init__(self, kwargs['interface'])
         
-        self.parse_args(kwargs)
+        self.parse_args(kwargs)        
+        self.check_connecion()
+        self.__detect()
 
-        self.connect()
-        self.detect()
+    def __del_(self):
+        with suppress(Exception):
+            self.disable()
 
     def enable(self, channel = 1):
         self.trancieve(Tenma.Commands.EN_OUTPUT)
@@ -61,7 +67,12 @@ class Tenma(Supplies, SerialCommunicable):
 
     @voltage.setter
     def voltage(self, value, channel = 1):
-        self.trancieve(Tenma.Commands.SET_VOLTAGE, value)
+        if self.MAX_VOLTAGE and value > self.MAX_VOLTAGE:
+            self.logger.warning(f'Value {value} exceeded maximum voltage level', extra=self.log_args)
+        else:
+            received = self.trancieve(Tenma.Commands.SET_VOLTAGE, value)
+            if value != float(received):
+                self.logger.warning(f'Supply was not able to set voltage to {value}', extra=self.log_args)
 
     @property
     def current(self, channel = 1):
@@ -69,7 +80,12 @@ class Tenma(Supplies, SerialCommunicable):
 
     @current.setter
     def current(self, value, channel = 1):
-        self.trancieve(Tenma.Commands.SET_CURRENT, value)
+        if self.MAX_CURRENT and value > self.MAX_CURRENT:
+            self.logger.warning(f'Value {value} exceeded maximum current level', extra=self.log_args)
+        else:
+            received = self.trancieve(Tenma.Commands.SET_CURRENT, value)
+            if value != float(received):
+                self.logger.warning(f'Supply was not able to set current to {value}', extra=self.log_args)
 
     def enable_protection(self, protection_type, channel = 1):
         if protection_type == Supplies.Protection.OVP:
@@ -77,7 +93,7 @@ class Tenma(Supplies, SerialCommunicable):
         elif protection_type == Supplies.Protection.OCP:
             command = Tenma.Commands.EN_OCP
         else:
-            pass #TODO: Protection not supported
+            self.logger.warning(f'Protection `{protection_type.name}` is not supported', extra=self.log_args)
         self.trancieve(command)
 
     def disable_protection(self, protection_type, channel = 1):
@@ -86,28 +102,27 @@ class Tenma(Supplies, SerialCommunicable):
         elif protection_type == Supplies.Protection.OCP:
             command = Tenma.Commands.DIS_OCP
         else:
-            pass #TODO: Protection not supported
+            self.logger.warning(f'Protection `{protection_type.name}` is not supported', extra=self.log_args)
         self.trancieve(command)
 
-    def detect(self):
-        psu_idn = self.trancieve(Tenma.Commands.GET_ID).split(',')[0]
+    def __detect(self):
+        psu_idn = self.trancieve(Tenma.Commands.GET_INFO).split(',')[0]
 
         for model in self.Models:
             if (model.idn in psu_idn):
                 self._apply_model_specs(model)
         if (None == self.idn):
-            print ('Unable to detect type of the PSU.')
+            self.logger.warning('Unable to detect model', extra=self.log_args)
 
     def connect(self):
         if self.com and not self.com.isOpen():
-            try:
-                self.com.open()
-            except:
-                pass #TODO: Unable to open communication
+            self.com.open()
 
     def disconnect(self):
         if self.com and self.com.isOpen():
-            try:
-                self.com.close()
-            except:
-                pass #TODO" Unable to close communication
+            self.com.close()
+
+    def check_connecion(self):
+        received = self.trancieve(Tenma.Commands.GET_INFO)
+        if received == '':
+            raise SerialException('Unable to establish a connection')

@@ -1,6 +1,8 @@
 from brest.loads import Loads
 from brest.communication import SerialCommunicable, Command
 
+from serial import SerialException
+
 class Pli(Loads, SerialCommunicable):
 
     Loads.KNOWN['Pli'] = {'type':'serial', 'baudrate':115200, 'vid':0x0403, 'pid':0x06001, 'serial_number':'FT99QOL2A'}
@@ -22,6 +24,7 @@ class Pli(Loads, SerialCommunicable):
         self.message_suffix = '\n'
 
         self.parse_args(kwargs)
+        self.check_connecion()
 
     def enable(self):
         self.trancieve(Pli.Commands.INPUT_ON)
@@ -48,3 +51,8 @@ class Pli(Loads, SerialCommunicable):
 
     def self_test(self):
         return int(self.trancieve(Pli.Commands.SELF_TEST))
+
+    def check_connecion(self):
+        received = self.trancieve(Pli.Commands.INFO_GET)
+        if received == '':
+            raise SerialException('Unable to establish a connection')

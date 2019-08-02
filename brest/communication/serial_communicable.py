@@ -18,21 +18,16 @@ class SerialCommunicable(Communicable):
         self.log_args = {'class_name':self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
         self.message_suffix = '' #TODO: Dont forget to mention in the documentation
-
-        # Filter Serial() compatible parameters
-        serial_args = {}
-        for attr, value in kwargs.items():
-            if hasattr(serial.Serial, attr):
-                serial_args[attr] = value
-
+        
+        serial_args = self.__filter_serial_args(kwargs)
         if 'port' in serial_args and serial_args['port'] != None:
             self.com = serial.Serial(**serial_args)
         else:
-            self.logger.error(f'Missing PORT definition', extra=self.log_args)
             raise ValueError('Missing PORT definition')
 
     def trancieve(self, command, value = None):
         message = command.cmd
+
         if command.modifier_required:
             if value:
                 if message[-1] == '?':
@@ -40,10 +35,12 @@ class SerialCommunicable(Communicable):
                 else:
                     message = message + str(value)
             else:
-                pass #TODO: Warn user about missing value (neodesílat)
+                self.logger.warning('Command requires value, but value is missing. Message is not sent.', extra=self.log_args)
+                return
+
         message += self.message_suffix
-        
         self.com.write(message.encode(SerialCommunicable.ENCODING))
+
         if command.response_expected:
             received = ''
             while True:
@@ -54,12 +51,22 @@ class SerialCommunicable(Communicable):
             
             return received
 
+    def __filter_serial_args(self, kwargs):
+        '''
+        Filters out serial.Serial() compatible arguments
+        '''
+
+        serial_args = {}
+        for attr, value in kwargs.items():
+            if hasattr(serial.Serial, attr):
+                serial_args[attr] = value
+        return serial_args
+
     @staticmethod
     def serial_probe(interface, coms = None):
         '''
         Checks wheter given supply is connected to the host system and returns its interface description name.
         '''
-        ret = []
 
         if not coms:
             coms = serial.tools.list_ports.comports()
@@ -67,14 +74,9 @@ class SerialCommunicable(Communicable):
         for com in coms:
             if com.vid == interface['vid'] and com.pid == interface['pid']:
                 if interface['serial_number']:
-                    if isinstance(interface['serial_number'], list):
-                        for serial_number in interface['serial_number']:
-                            if serial_number == com.serial_number:
-                                ret.append(com.device)
-                    else:
-                        if interface['serial_number'] == com.serial_number:
-                            return com.device
+                    if interface['serial_number'] == com.serial_number:
+                        return com.device
                 else:
                    return com.device
-
-        return ret
+        
+        return None

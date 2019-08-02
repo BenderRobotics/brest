@@ -26,9 +26,7 @@ class Virsup(Supplies, SerialCommunicable):
         SerialCommunicable.__init__(self, kwargs['interface'])
         
         self.parse_args(kwargs)
-
-        self.connect()
-        self.detect()
+        self.__detect()
 
     @property
     def voltage(self, channel = 1):
@@ -54,36 +52,15 @@ class Virsup(Supplies, SerialCommunicable):
         else:
             self._current = value
 
+    def __detect(self):
+        print ('Detected generic virtual supply.')
+
     def connect(self):
-        '''
-
-        '''
-        
-        if not self.com.isOpen():
-            try:
-                self.com.open()
-            except serial.SerialException:
-                pass #TODO log
-        if self.com.isOpen():
-            print('Connected to virtual supply.') #TODO log
-
+        if self.com and not self.com.isOpen():
+            self.com.open()
+            print('Connected to virtual supply.')
 
     def disconnect(self):
-        '''
-
-        '''
-
-        if self.com.isOpen():
-            try:
-                self.com.close()
-            except serial.SerialException:
-                pass #TODO log
-        if not self.com.isOpen():
-            print("Disconnected from virtual supply.") #TODO log
-
-    def detect(self):
-        '''
-
-        '''
-
-        print ('Detected generic virtual supply.')
+        if self.com and self.com.isOpen():
+            self.com.close()
+            print("Disconnected from virtual supply.")

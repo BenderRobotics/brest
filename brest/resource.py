@@ -6,16 +6,16 @@ class Resource():
     cnt = 0
 
     def __init__(self):
-        self._name = 'resource_' + str(Resource.cnt)
+        self.__name = 'resource_' + str(Resource.cnt)
         Resource.cnt += 1
 
     @property
     def name(self):
-        return self._name
+        return self.__name
 
     @name.setter
     def name(self, value):
-        self._name = value
+        self.__name = value
 
     def parse_args(self, kwargs):
         '''
