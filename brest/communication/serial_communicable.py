@@ -17,6 +17,7 @@ class SerialCommunicable(Communicable):
         super().__init__()
         self.log_args = {'class_name':self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
+        self.message_suffix = '' #TODO: Dont forget to mention in the documentation
 
         # Filter Serial() compatible parameters
         serial_args = {}
@@ -34,10 +35,13 @@ class SerialCommunicable(Communicable):
         message = command.cmd
         if command.modifier_required:
             if value:
-                message + ' ' + str(value)
+                if message[-1] == '?':
+                    message = message[:-1] + ':' + str(value)
+                else:
+                    message = message + str(value)
             else:
                 pass #TODO: Warn user about missing value (neodesílat)
-        message += '\n'
+        message += self.message_suffix
         
         self.com.write(message.encode(SerialCommunicable.ENCODING))
         if command.response_expected:

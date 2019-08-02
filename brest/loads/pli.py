@@ -19,6 +19,7 @@ class Pli(Loads, SerialCommunicable):
     def __init__(self, kwargs):
         Loads.__init__(self)
         SerialCommunicable.__init__(self, kwargs['interface'])
+        self.message_suffix = '\n'
 
         self.parse_args(kwargs)
 

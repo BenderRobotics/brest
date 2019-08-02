@@ -95,8 +95,8 @@ class Tenma(Supplies, SerialCommunicable):
         for model in self.Models:
             if (model.idn in psu_idn):
                 self._apply_model_specs(model)
-        if (None == self.model_name):
-            print ('Unable to detect type of the PSU.')    
+        if (None == self.idn):
+            print ('Unable to detect type of the PSU.')
 
     def connect(self):
         if self.com and not self.com.isOpen():

@@ -40,6 +40,7 @@ class Supplies(Resource):
 
     def __init__(self):
         super().__init__()
+        self.idn = None
         self._voltage = 0.0
         self._current = 0.0
         self.CHANNELS = 1
@@ -120,7 +121,7 @@ class Supplies(Resource):
         raise NotImplementedError('This supply does not support specific model detection.')
 
     def _apply_model_specs(self, model):
-        self.model_name = model.psu_idn
+        self.idn = model.idn
         self.CHANNELS = model.channels
         self.MAX_VOLTAGE = model.max_voltage
         self.MAX_CURRENT = model.max_current
