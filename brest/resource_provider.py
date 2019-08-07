@@ -14,7 +14,7 @@ class ResourceProvider:
     '''
 
     def __init__(self):
-        self.log_args = {'class_name':self.__class__.__module__ + '.' + self.__class__.__name__}
+        self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
         # Merge all known resources into one dict
@@ -22,10 +22,16 @@ class ResourceProvider:
         for cls_ in Resource.__subclasses__():
             self.knowns[cls_.__name__] = cls_.KNOWN
 
+        # All interface handlers
+        self.handlers = {
+            'serial': SerialCommunicable.Handler(),
+        }
+
     def probe(self, resource, coms = None):
         '''
         Checks if resource is present in the system, and returns its port's name.
         '''
+
         interface = None
         for _, resources in self.knowns.items():
             if resource in resources:
@@ -34,20 +40,8 @@ class ResourceProvider:
             self.logger.warning(f'Resource `{resource}` not found in known', extra=self.log_args)
             return None
 
-        # Serial probe
-        if interface['type'] == 'serial':
-            if isinstance(interface['serial_number'], list):
-                ports = []
-                for i in range(len(interface['serial_number'])):
-                    interface_ = dict(interface)
-                    interface_['serial_number'] = interface['serial_number'][i]
-                    ports.append(SerialCommunicable.serial_probe(interface_))
-                return ports
-            else:
-                return SerialCommunicable.serial_probe(interface, coms)
-        else:
-            self.logger.warning(f'Can\'t probe, unknown interface `{interface["type"]}`', extra=self.log_args)
-            return None
+        handler = self.__get_interface_handler(interface['type'])
+        return handler.probe(interface)
 
     def available(self, group = None):
         '''
@@ -55,6 +49,7 @@ class ResourceProvider:
         '''
 
         coms = serial.tools.list_ports.comports()
+        connected = (coms,)
         available = []
 
         for group_, resources in self.knowns.items():
@@ -63,34 +58,10 @@ class ResourceProvider:
                 continue
 
             for class_name, interface in resources.items():
-
-                # Serial available
-                if interface['type'] == 'serial':
-                    
-                    # If it is a list of serial number
-                    if isinstance(interface['serial_number'], list):
-
-                        # Iterate over serial numbers and probe each separately
-                        for i in range(len(interface['serial_number'])):
-                            interface_ = dict(interface)
-                            interface_['serial_number'] = interface['serial_number'][i]
-                            interface_['port'] = self.probe(interface_, coms)
-                            if interface_['port']:
-                                resource = {'class_name':class_name, 'interface':interface_}
-                                available.append(resource)
-
-                    # Otherwise it is a single serial number
-                    else:
-                        interface_ = dict(interface)
-                        interface_['serial_number'] = interface['serial_number']
-                        interface_['port'] = self.probe(interface_, coms)
-                        if interface_['port']:
-                            resource = {'class_name':class_name, 'interface':interface_}
-                            available.append(resource)
-                else:
-                    self.logger.warning(f'Encountered unknown interface `{interface["type"]}`', extra=self.log_args)
-
-                    
+                handler = self.__get_interface_handler(interface['type'])
+                resources = handler.get_available(class_name, interface, connected)
+                if resources:
+                    available.extend(resources)                
 
         return available
 
@@ -113,6 +84,7 @@ class ResourceProvider:
         '''
 
         coms = serial.tools.list_ports.comports()
+        connected = (coms,)
         constructed = []
 
         # iterate over known resources
@@ -125,36 +97,35 @@ class ResourceProvider:
 
             # iterate over resources in config group
             for alias, params in cfg.items():
-                if 'interface' in params:
-
-                    # if there is interface definition in the config, merge it with known interface
-                    # prefer config info
-                    interface_ = {**resources[params['class_name']], **params['interface']}
-                else:
-
-                    # make copy of implicit interface arguments, because we are going to probe
-                    # and don't want to add port into base implicit arguments
-                    interface_ = dict(resources[params['class_name']])
-
-                params['interface'] = interface_
                 params['name'] = alias
 
-                # check for parameters necessary for communication interface to create
-                # in case of serial communication
-                if params['interface']['type'] == 'serial':
+                # check what is defined
+                if 'interface' in params:
+                    
+                    # if interface and class_name are defined
+                    # merge implicit interface definition with config definition
+                    if 'class_name' in params:
+                        params['interface'] = {**resources[params['class_name']], **params['interface']}
 
-                    # if there is port missing, probe it
-                    if 'port' not in params['interface']:
-                        port_ = SerialCommunicable.serial_probe(params['interface'], coms)
-                        if port_:
-                            params['interface']['port'] = port_
+                    # if there is no class_name defined, search for class_name by interface
+                    else:
+                        class_name = self.__find_class_by_interface(params['interface'])
+                        if class_name:
+                            params['class_name'] = class_name
                         else:
-                            self.logger.warning(f'Could not detect `{params["name"]}` connected to the system', extra=self.log_args)
-                            
+                            self.logger.error(f'Class for `{alias}`\'s interface not found', extra=self.log_args)
+                            raise SystemExit                      
+                else:
+                    
+                    # interface definition not present in config
+                    # make copy of implicit interface argument for class
+                    params['interface'] = dict(resources[params['class_name']])
+                
+                # check if interface has parameters necessary for creation
+                handler = self.__get_interface_handler(params['interface']['type'])
+                params['interface'] = handler.complete_interface(params, connected)
 
-                # now we should have all necessary data for object creation
                 constructed.append(self.construct(params))
-
         return constructed
 
     def availableSupplies(self):
@@ -163,6 +134,25 @@ class ResourceProvider:
     def availableLoads(self):
         return self.available('Loads')
 
+    def __get_interface_handler(self, interface_type):
+        if interface_type in self.handlers:
+            return self.handlers[interface_type]
+        else:
+            # self.logger.error('Unknown interface')
+            raise SystemExit
+
+    def __find_class_by_interface(self, interface):
+        '''
+        Searches for class name, by matching known interface params.
+        '''
+
+        for _, resources in self.knowns.items():
+            for class_name, interface_ in resources.items():
+                handler = self.__get_interface_handler(interface_['type'])
+                if handler.match_interface(interface, interface_):
+                    return class_name
+        return None
+
     def __construct(self, module_name, kwargs):
         '''
         Generic method for class instantiation from given module.
@@ -170,11 +160,14 @@ class ResourceProvider:
 
         module = importlib.import_module(module_name)
         class_ = getattr(module, kwargs['class_name'])
-        message = f'Error durning `{kwargs["name"]}` construction. ' if kwargs['name'] else f'Error durning `{kwargs["class_name"]}` construction. ' # Possible log message
-        del kwargs['class_name']          # Avoid unnecessary warning about class_name not being class atribute
+        message = f'Error durning `{kwargs["name"]}` construction. ' if 'name' in kwargs else f'Error durning `{kwargs["class_name"]}` construction. ' # Possible log message
+        del kwargs['class_name']          # Avoid unnecessary warning about class_name not being a class atribute
 
         try:
-            return class_(kwargs)
+            instance = class_(kwargs)
+            handler = self.__get_interface_handler(kwargs['interface']['type'])
+            handler.mark_taken(kwargs['interface'])
+            return instance
         except (NotImplementedError, ValueError, serial.SerialException) as e:            
             self.logger.error(message + str(e), extra=self.log_args)
             return None

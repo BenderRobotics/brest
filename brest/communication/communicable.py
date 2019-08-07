@@ -37,3 +37,23 @@ class Communicable():
         '''
 
         raise NotImplementedError('This interface doesn\'t support async communication')
+
+    class Handler():
+        '''
+        Base class for interface creation and probing.
+        '''
+
+        def is_taken(self, interface, taken):
+            raise NotImplementedError('is_taken not implemented')
+
+        def probe(self, resource, coms = None):
+            raise NotImplementedError('probe not implemented')
+
+        def available(self, class_name, interface):
+            raise NotImplementedError('available not implemented')
+
+        def complete_interface(self, interface, connected):
+            raise NotImplementedError('complete_interface not implemented')
+
+        def find_class(self, interface):
+            raise NotImplementedError('find_class_by_interface not implemented')
