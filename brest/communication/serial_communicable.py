@@ -129,7 +129,7 @@ class SerialCommunicable(Communicable):
                         interface['serial_number'] = port[0]
                     interface['port'] = port[1]
                 else:
-                    raise Exception('Port not found')
+                    raise Exception('Available port not found')
             return interface
 
         def match_interface(self, interface, known_interface):

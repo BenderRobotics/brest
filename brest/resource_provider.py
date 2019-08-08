@@ -4,9 +4,11 @@ import serial.tools.list_ports
 
 import brest.supplies
 import brest.loads
+import brest.cameras
 
 from brest import Resource
 from brest.communication import SerialCommunicable
+from brest.communication import CameraCommunicable
 
 class ResourceProvider:
     '''
@@ -25,6 +27,7 @@ class ResourceProvider:
         # All interface handlers
         self.handlers = {
             'serial': SerialCommunicable.Handler(),
+            'camera': CameraCommunicable.Handler(),
         }
 
     def probe(self, resource, coms = None):
@@ -47,8 +50,7 @@ class ResourceProvider:
         Searches for all available resources present in the system.
         '''
 
-        coms = serial.tools.list_ports.comports()
-        connected = (coms,)
+        connected = self.__refresh_connected()
         available = []
 
         for group_, resources in self.knowns.items():
@@ -81,9 +83,7 @@ class ResourceProvider:
         '''
         Constructs all available resources described in config.
         '''
-
-        coms = serial.tools.list_ports.comports()
-        connected = (coms,)
+        connected = self.__refresh_connected()
         constructed = []
 
         # iterate over known resources
@@ -136,6 +136,9 @@ class ResourceProvider:
 
     def availableLoads(self):
         return self.available('Loads')
+
+    def __refresh_connected(self):
+        return (serial.tools.list_ports.comports(), CameraCommunicable.list_cameras())
 
     def __get_interface_handler(self, interface_type):
         if interface_type in self.handlers:
