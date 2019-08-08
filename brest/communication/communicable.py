@@ -43,17 +43,20 @@ class Communicable():
         Base class for interface creation and probing.
         '''
 
-        def is_taken(self, interface, taken):
-            raise NotImplementedError('is_taken not implemented')
+        def mark_taken(self, interface):
+            raise NotImplementedError('mark_taken is not implemented')
 
-        def probe(self, resource, coms = None):
-            raise NotImplementedError('probe not implemented')
+        def is_taken(self, interface):
+            raise NotImplementedError('is_taken is not implemented')
 
-        def available(self, class_name, interface):
-            raise NotImplementedError('available not implemented')
+        def probe(self, interface, coms = None):
+            raise NotImplementedError('probe is not implemented')
 
-        def complete_interface(self, interface, connected):
-            raise NotImplementedError('complete_interface not implemented')
+        def get_available(self, class_name, interface, connected):
+            raise NotImplementedError('available is not implemented')
 
-        def find_class(self, interface):
-            raise NotImplementedError('find_class_by_interface not implemented')
+        def complete_interface(self, params, connected):
+            raise NotImplementedError('complete_interface is not implemented')
+
+        def match_interface(self, interface, known_interface):
+            raise NotImplementedError('find_class_by_interface is not implemented')

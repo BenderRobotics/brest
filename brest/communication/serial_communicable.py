@@ -63,7 +63,7 @@ class SerialCommunicable(Communicable):
     @staticmethod
     def serial_probe(interface, coms = None):
         '''
-        Checks wheter given supply is connected to the host system and returns its interface description name.
+        Checks wheter given supply is connected to the host system and returns serial number and port name in a tuple.
         '''
 
         if not coms:
@@ -71,91 +71,66 @@ class SerialCommunicable(Communicable):
 
         for com in coms:
             if com.vid == interface['vid'] and com.pid == interface['pid']:
-                if interface['serial_number']:
+                if 'serial_number' in interface and interface['serial_number']:
                     if interface['serial_number'] == com.serial_number:
-                        return com.device
+                        yield (interface['serial_number'], com.device)
                 else:
-                   return com.device
-        
-        return None
+                   yield (com.serial_number, com.device)
 
     class Handler(Communicable.Handler):    
 
         def __init__(self):
             Communicable.Handler.__init__(self)
-            self.log_args = {'class_name':self.__class__.__module__ + '.' + self.__class__.__name__}
-            self.logger = logging.getLogger('brest')
 
             self.taken = []
 
         def mark_taken(self, interface):
-            self.taken.append(interface)
+            self.taken.append(interface['port'])
 
         def is_taken(self, interface):
-            for t in self.taken:
-                if interface['port'] == t['port']:
+            for taken_port in self.taken:
+                if interface['port'] == taken_port:
                     return True
             return False
 
         def probe(self, interface, coms = None):
-            coms = serial.tools.list_ports.comports()
             ports = []
 
-            for interface_ in self.__serial_numbers_to_interfaces(interface):
-                port_ = SerialCommunicable.serial_probe(interface_, coms)
-                if port_ and not self.is_taken({**interface, 'port': port_}):
-                    ports.append(port_)
+            port_gen = SerialCommunicable.serial_probe(interface)
+            for port in port_gen:
+                if not self.is_taken({'port': port[1]}):
+                    ports.append(port)
 
-            if ports:
-                return ports if len(ports) > 1 else ports[0]
-            else:
-                return None
+            print(ports)
 
         def get_available(self, class_name, interface, connected):
             resources = []
-            for interface_ in self.__serial_numbers_to_interfaces(interface):
-                interface_['port'] = SerialCommunicable.serial_probe(interface_, connected[0])
-                if interface_['port'] and not self.is_taken(interface_):
-                    resource = {'class_name':class_name, 'interface':interface_}
+
+            port_gen = SerialCommunicable.serial_probe(interface, connected[0])
+            for port in port_gen:
+                interface_ = dict(interface)
+                interface_['serial_number'] = port[0]
+                interface_['port'] = port[1]
+                if not self.is_taken(interface_):
+                    resource = {'class_name': class_name, 'interface': interface_}
                     resources.append(resource)
+
             return resources
 
-        def complete_interface(self, params, connected):
-            interface = params['interface']
+        def complete_interface(self, interface, connected):
             if 'port' not in interface:
-                if isinstance(interface['serial_number'], list):
-                    self.logger.warning(f'Multiple serial numbers given at `{params["name"]}`. Choosing first available', extra=self.log_args)
-                    available = self.get_available('', interface, connected)
-                    if available:
-                        port_ = available[0]['interface']['port']
-                    else:
-                        self.logger.error(f'No `{params["class_name"]}` is available', extra=self.log_args)
-                        raise SystemExit
-                else:
-                    port_ = SerialCommunicable.serial_probe(interface, connected[0])
-                    if not port_:
-                        self.logger.error(f'Resource `{params["name"]}` doesn\'t seem to be connected to the system', extra=self.log_args)
-                        raise SystemExit
+                port_gen = SerialCommunicable.serial_probe(interface, connected[0])
+                port = next(port_gen, None)
+                while(port is not None and self.is_taken({'port': port[1]})):
+                    port = next(port_gen, None)
 
-                interface['port'] = port_
-        
+                if port is not None:
+                    if 'serial_number' not in interface:
+                        interface['serial_number'] = port[0]
+                    interface['port'] = port[1]
+                else:
+                    raise Exception('Port not found')
             return interface
 
         def match_interface(self, interface, known_interface):
             return interface['vid'] == known_interface['vid'] and interface['pid'] == known_interface['pid']
-
-        def __serial_numbers_to_interfaces(self, interface):
-            '''
-            If given interface has multiple serial numbers, return list of interfaces with single serial number.
-            '''
-
-            interfaces = []
-
-            if isinstance(interface['serial_number'], list):
-                for i in range(len(interface['serial_number'])):
-                    interface_ = dict(interface)
-                    interface_['serial_number'] = interface['serial_number'][i]
-                    interfaces.append(interface_)
-                return interfaces
-            else:
-                return [interface] 

@@ -5,7 +5,7 @@ from serial import SerialException
 
 class Pli(Loads, SerialCommunicable):
 
-    Loads.KNOWN['Pli'] = {'type':'serial', 'baudrate':115200, 'vid':0x0403, 'pid':0x06001, 'serial_number':'FT99QOL2A'}
+    Loads.KNOWN['Pli'] = {'type':'serial', 'baudrate':115200, 'vid':0x0403, 'pid':0x06001}
 
     class Commands():
         INFO_GET    = Command("*IDN?",   False, True)

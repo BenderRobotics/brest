@@ -18,7 +18,7 @@ from serial import SerialException
 
 class Tenma(Supplies, SerialCommunicable):
 
-    Supplies.KNOWN['Tenma'] = {'type':'serial', 'vid':0x416, 'pid':0x5011, 'serial_number':None}
+    Supplies.KNOWN['Tenma'] = {'type':'serial', 'vid':0x416, 'pid':0x5011}
 
     class Commands():
         GET_INFO    = Command('*IDN?',   False, True)
@@ -70,10 +70,8 @@ class Tenma(Supplies, SerialCommunicable):
         if self.MAX_VOLTAGE and value > self.MAX_VOLTAGE:
             self.logger.warning(f'Value {value} exceeded maximum voltage level', extra=self.log_args)
         else:
-            received = self.trancieve(Tenma.Commands.SET_VOLTAGE, value)
-            if value != float(received):
-                self.logger.warning(f'Supply was not able to set voltage to {value}', extra=self.log_args)
-
+            self.trancieve(Tenma.Commands.SET_VOLTAGE, value)
+            
     @property
     def current(self, channel = 1):
         return float(self.trancieve(Tenma.Commands.GET_CURRENT))
@@ -83,10 +81,8 @@ class Tenma(Supplies, SerialCommunicable):
         if self.MAX_CURRENT and value > self.MAX_CURRENT:
             self.logger.warning(f'Value {value} exceeded maximum current level', extra=self.log_args)
         else:
-            received = self.trancieve(Tenma.Commands.SET_CURRENT, value)
-            if value != float(received):
-                self.logger.warning(f'Supply was not able to set current to {value}', extra=self.log_args)
-
+            self.trancieve(Tenma.Commands.SET_CURRENT, value)
+            
     def enable_protection(self, protection_type, channel = 1):
         if protection_type == Supplies.Protection.OVP:
             command = Tenma.Commands.EN_OVP

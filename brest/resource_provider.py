@@ -29,7 +29,7 @@ class ResourceProvider:
 
     def probe(self, resource, coms = None):
         '''
-        Checks if resource is present in the system, and returns its port's name.
+        Checks if resource is present in the system, and prints its interface.
         '''
 
         interface = None
@@ -38,10 +38,9 @@ class ResourceProvider:
                 interface = resources[resource]
         if interface is None:
             self.logger.warning(f'Resource `{resource}` not found in known', extra=self.log_args)
-            return None
 
         handler = self.__get_interface_handler(interface['type'])
-        return handler.probe(interface)
+        handler.probe(interface)
 
     def available(self, group = None):
         '''
@@ -123,7 +122,11 @@ class ResourceProvider:
                 
                 # check if interface has parameters necessary for creation
                 handler = self.__get_interface_handler(params['interface']['type'])
-                params['interface'] = handler.complete_interface(params, connected)
+                try:
+                    params['interface'] = handler.complete_interface(params['interface'], connected)
+                except Exception as e:
+                    self.logger.error(f'Resource `{params["name"]}` doesn\'t seem to be connected to the system. {str(e)}', extra=self.log_args)
+                    raise SystemExit
 
                 constructed.append(self.construct(params))
         return constructed
