@@ -1,3 +1,5 @@
+import logging
+
 from brest.cameras import Cameras
 
 class GenericCamera(Cameras):
@@ -6,13 +8,23 @@ class GenericCamera(Cameras):
 
     def __init__(self, kwargs):
         Cameras.__init__(self)
+        self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
+        self.logger = logging.getLogger('brest')
+
         self.parse_args(kwargs)
-        import cv2
+
+        try:
+            import cv2
+        except ModuleNotFoundError:
+            self.logger.error('To use this camera you have to install `opencv-python` module', extra=self.log_args)
+            raise SystemExit
+
         self._cam = cv2.VideoCapture(kwargs['interface']['index'])
         self.acquire_images()
 
     def __del__(self):
-        self.cam.release()
+        if self.cam:
+            self.cam.release()
 
     def acquire_image(self):
         return self.cam.read()[1]

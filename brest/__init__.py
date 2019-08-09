@@ -49,7 +49,7 @@ class Resources():
             if r:
                 self.resources[r.name] = r
             else:
-                self.logger.error('All resources could\'t be initialized', extra=self.log_args)
+                self.logger.error('Could\'t initialized all resources', extra=self.log_args)
                 raise SystemExit        
         
         self.logger.info(f'All resources successfully initialized\n{str(self)}', extra=self.log_args)

@@ -111,6 +111,7 @@ class ResourceProvider:
                         class_name = self.__find_class_by_interface(params['interface'])
                         if class_name:
                             params['class_name'] = class_name
+                            params['interface'] = {**resources[class_name], **params['interface']}
                         else:
                             self.logger.error(f'Class for `{alias}`\'s interface not found', extra=self.log_args)
                             raise SystemExit                      
