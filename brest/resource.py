@@ -1,3 +1,5 @@
+import logging
+
 class Resource():
     '''
     Base class for representing resource by name.
@@ -6,6 +8,9 @@ class Resource():
     cnt = 0
 
     def __init__(self):
+        self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
+        self.logger = logging.getLogger('brest')
+        
         self.__name = 'resource_' + str(Resource.cnt)
         Resource.cnt += 1
 

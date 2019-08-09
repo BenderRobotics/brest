@@ -1,3 +1,6 @@
+class CommunicableError(Exception):
+    pass
+
 class Communicable():
     '''
     Base class for communication interfaces.
@@ -17,19 +20,19 @@ class Communicable():
 
         raise NotImplementedError('This interface doesn\'t support disconnection')
 
-    def check_connecion(self):
+    def check_connection(self):
         '''
         Checks if connection is able to send a receive messages.
         '''
 
         raise NotImplementedError('This interface doesn\'t implement connection check')
 
-    def trancieve(self, command, value = None):
+    def transceive(self, data, response):
         '''
         Sends and receives message in blocking mode.
         '''
 
-        raise NotImplementedError('This interface doesn\'t support trancieve communication')
+        raise NotImplementedError('This interface doesn\'t support transceive communication')
 
     def send_command_async(self, command, modifire = None, callback = None):
         '''

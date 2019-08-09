@@ -9,45 +9,16 @@ class SerialCommunicable(Communicable):
     Represents a serial communication
     '''
 
-    ENCODING = 'utf-8'
-
     def __init__(self, kwargs):
         super().__init__()
-        self.log_args = {'class_name':self.__class__.__module__ + '.' + self.__class__.__name__}
-        self.logger = logging.getLogger('brest')
-        self.message_suffix = '' #TODO: Dont forget to mention in the documentation
+        self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
+        self.logger = logging.getLogger('brest')        
         
         serial_args = self.__filter_serial_args(kwargs)
         if 'port' in serial_args and serial_args['port'] != None:
             self.com = serial.Serial(**serial_args)
         else:
-            raise ValueError('Missing PORT definition')
-
-    def trancieve(self, command, value = None):
-        message = command.cmd
-
-        if command.modifier_required:
-            if value:
-                if message[-1] == '?':
-                    message = message[:-1] + ':' + str(value)
-                else:
-                    message = message + str(value)
-            else:
-                self.logger.warning('Command requires value, but value is missing. Message is not sent.', extra=self.log_args)
-                return
-
-        message += self.message_suffix
-        self.com.write(message.encode(SerialCommunicable.ENCODING))
-
-        if command.response_expected:
-            received = ''
-            while True:
-                char = str(self.com.read(), SerialCommunicable.ENCODING)
-                received += char
-                if '\n' == char or char is None or '' == char:
-                    break
-            
-            return received
+            raise ValueError('Missing port definition')
 
     def __filter_serial_args(self, kwargs):
         '''
@@ -129,8 +100,9 @@ class SerialCommunicable(Communicable):
                         interface['serial_number'] = port[0]
                     interface['port'] = port[1]
                 else:
-                    raise Exception('Available port not found')
+                    raise LookupError('Available port not found')
             return interface
 
         def match_interface(self, interface, known_interface):
+            # Dvě třídy stejné vid, pid a liší se v serial_number
             return interface['vid'] == known_interface['vid'] and interface['pid'] == known_interface['pid']

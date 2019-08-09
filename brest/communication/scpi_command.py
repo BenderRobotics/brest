@@ -1,4 +1,4 @@
-class Command():
+class SCPICommand():
     '''
     Class that wraps plaintext commands, holding additional info
     '''

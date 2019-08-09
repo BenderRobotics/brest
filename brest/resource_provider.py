@@ -7,8 +7,7 @@ import brest.loads
 import brest.cameras
 
 from brest import Resource
-from brest.communication import SerialCommunicable
-from brest.communication import CameraCommunicable
+from brest.communication import CommunicableError, SerialCommunicable, CameraCommunicable
 
 class ResourceProvider:
     '''
@@ -125,7 +124,7 @@ class ResourceProvider:
                 handler = self.__get_interface_handler(params['interface']['type'])
                 try:
                     params['interface'] = handler.complete_interface(params['interface'], connected)
-                except Exception as e:
+                except LookupError as e:
                     self.logger.error(f'Resource `{params["name"]}` doesn\'t seem to be connected to the system. {str(e)}', extra=self.log_args)
                     raise SystemExit
 
@@ -137,6 +136,9 @@ class ResourceProvider:
 
     def availableLoads(self):
         return self.available('Loads')
+
+    def availableCameras(self):
+        return self.available('Cameras')
 
     def __refresh_connected(self):
         return (serial.tools.list_ports.comports(), CameraCommunicable.list_cameras())
@@ -175,6 +177,6 @@ class ResourceProvider:
             handler = self.__get_interface_handler(kwargs['interface']['type'])
             handler.mark_taken(kwargs['interface'])
             return instance
-        except (NotImplementedError, ValueError, serial.SerialException) as e:            
+        except (NotImplementedError, ValueError, CommunicableError, serial.SerialException) as e:            
             self.logger.error(message + str(e), extra=self.log_args)
             return None

@@ -12,9 +12,9 @@
 import serial
 
 from brest.supplies import Supplies
-from brest.communication import SerialCommunicable
+from brest.communication import SCPICommunicalbe
 
-class Virsup(Supplies, SerialCommunicable):
+class Virsup(Supplies, SCPICommunicalbe):
     '''
     Virtual power Supplies class for demonstration purposes.
     '''
@@ -23,7 +23,7 @@ class Virsup(Supplies, SerialCommunicable):
 
     def __init__(self, kwargs):
         Supplies.__init__(self)
-        SerialCommunicable.__init__(self, kwargs['interface'])
+        SCPICommunicalbe.__init__(self, kwargs['interface'])
         
         self.parse_args(kwargs)
         self.__detect()
@@ -35,10 +35,10 @@ class Virsup(Supplies, SerialCommunicable):
     @voltage.setter
     def voltage(self, value, channel = 1):
         if self.MAX_VOLTAGE and value > self.MAX_VOLTAGE:
-            self._voltage = self.MAX_VOLTAGE
-            print('Voltage cut to {}'.format(self.MAX_VOLTAGE))
+            self.logger.warning(f'Value {value} exceeded maximum voltage level', extra=self.log_args)
         else:
             self._voltage = value
+            self.logger.info(f'Voltage set to {value}', extra=self.log_args)
 
     @property
     def current(self, channel = 1):
@@ -47,20 +47,20 @@ class Virsup(Supplies, SerialCommunicable):
     @current.setter
     def current(self, value, channel = 1):
         if self.MAX_CURRENT and value > self.MAX_CURRENT:
-            self._current = self.MAX_CURRENT
-            print('Current cut to {}'.format(self.MAX_CURRENT))
+            self.logger.warning(f'Value {value} exceeded maximum current level', extra=self.log_args)
         else:
             self._current = value
+            self.logger.info(f'Current set to {value}', extra=self.log_args)
 
     def __detect(self):
-        print ('Detected generic virtual supply.')
+        self.logger.info('Detected virtual supply', extra=self.log_args)
 
     def connect(self):
         if self.com and not self.com.isOpen():
             self.com.open()
-            print('Connected to virtual supply.')
+            self.logger.info('Connected to virtual supply', extra=self.log_args)
 
     def disconnect(self):
         if self.com and self.com.isOpen():
             self.com.close()
-            print("Disconnected from virtual supply.")
+            self.logger.info('Disconnected from virtual supply', extra=self.log_args)

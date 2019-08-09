@@ -29,7 +29,7 @@ class CameraCommunicable(Communicable):
 
         raise NotImplementedError('This interface doesn\'t implement connection check')
 
-    def trancieve(self, command, value = None):
+    def trancieve(self, data, response):
         '''
         Sends and receives message in blocking mode.
         '''
