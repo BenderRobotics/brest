@@ -38,3 +38,37 @@ def coloredHandlerFactory():
         log_stream = sys.stdout
 
     return ColoredStreamHandler(log_stream)
+
+DEFAULT_LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'base': {
+            'format': '[%(asctime)s][%(levelname)s] : %(class_name)s.%(funcName)s() -> %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'INFO',
+            'formatter': 'base',
+            'stream': 'ext://sys.stdout',
+        },
+        'console_dbg': {
+            '()': 'brest.log.coloredHandlerFactory',
+            'level': 'DEBUG',
+            'formatter': 'base',
+        },
+    },
+    'loggers': {
+        'brest': {
+            'level': 'DEBUG',
+            'handlers': ['console_dbg'],
+            'propagate': False
+        },
+        'root': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+        },
+    },
+}

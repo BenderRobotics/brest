@@ -15,10 +15,9 @@ class CameraCommunicable(Communicable):
 
         index = 0
         for cam in cams:
-            if cam.Service == 'usbvideo':
-                p_device_id = CameraCommunicable.__parse_device_id(cam.DeviceID)
-                yield (p_device_id[2], index)
-                index += 1
+            p_device_id = CameraCommunicable.__parse_device_id(cam.DeviceID)
+            yield (p_device_id[2], index)
+            index += 1
 
     @staticmethod
     def list_cameras():

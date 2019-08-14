@@ -29,7 +29,7 @@ class ResourceProvider:
             'camera': CameraCommunicable.Handler(),
         }
 
-    def probe(self, resource, coms = None):
+    def probe(self, resource):
         '''
         Checks if resource is present in the system, and prints its interface.
         '''

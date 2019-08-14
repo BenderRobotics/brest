@@ -2,7 +2,7 @@ from .config import Config
 from .resource import Resource
 from .resource_provider import ResourceProvider
 
-__all__ = ['Config', 'Resource', 'Resources', 'ResourceProvider']
+__all__ = ['Config', 'Resource', 'Resources', 'ResourceProvider', 'overwrite_log_config']
 
 class Resources():
     '''
@@ -55,11 +55,24 @@ class Resources():
         self.logger.info(f'All resources successfully initialized\n{str(self)}', extra=self.log_args)
 
 # Set up brest logging facility
-import yaml
 import brest.log
 import logging.config
 
-with open('log_config.yaml') as stream:
-    logging_cfg = yaml.load(stream, Loader=yaml.SafeLoader)
-logging.config.dictConfig(logging_cfg)
-del logging_cfg
+logging.config.dictConfig(log.DEFAULT_LOGGING)
+
+def overwrite_log_config(config_dict):
+    custom_config = dict(log.DEFAULT_LOGGING)
+    for ov_key, ov_value in config_dict.items():
+        __apply_overwrite(custom_config, ov_key, ov_value)
+    logging.config.dictConfig(custom_config)
+    print(custom_config)
+
+def __apply_overwrite(node, key, value):
+    if isinstance(value, dict):
+        for item in value:
+            if key in node:
+                __apply_overwrite(node[key], item, value[item])
+            else:
+                node[key] = value
+    else:
+        node[key] = value
