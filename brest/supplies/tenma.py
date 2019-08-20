@@ -16,7 +16,7 @@ from contextlib import suppress
 
 class Tenma(Supplies, SCPICommunicalbe):
 
-    Supplies.KNOWN['Tenma'] = {'type':'serial', 'vid':0x416, 'pid':0x5011}
+    Supplies.KNOWN['Tenma'] = {'type':'serial', 'timeout': 0.1, 'vid':0x416, 'pid':0x5011}
 
     class Commands():
         GET_INFO    = SCPICommand('*IDN?',   False, True)

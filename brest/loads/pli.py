@@ -3,7 +3,7 @@ from brest.communication import SCPICommunicalbe, SCPICommand, CommunicableError
 
 class Pli(Loads, SCPICommunicalbe):
 
-    Loads.KNOWN['Pli'] = {'type':'serial', 'baudrate':115200, 'vid':0x0403, 'pid':0x06001}
+    Loads.KNOWN['Pli'] = {'type':'serial', 'timeout': 0.1, 'baudrate':115200, 'vid':0x0403, 'pid':0x06001}
 
     class Commands():
         INFO_GET    = SCPICommand("*IDN?",   False, True)
