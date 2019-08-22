@@ -1,3 +1,9 @@
+# Set up brest logging facility
+import brest.log
+import logging.config
+
+logging.config.dictConfig(log.DEFAULT_LOGGING)
+
 from .config import Config
 from .resource import Resource
 from .resource_provider import ResourceProvider
@@ -49,16 +55,10 @@ class Resources():
             if r:
                 self.resources[r.name] = r
             else:
-                self.logger.error('Could\'t initialized all resources', extra=self.log_args)
+                self.logger.error('Could\'t initialize all resources', extra=self.log_args)
                 raise SystemExit        
         
         self.logger.info(f'All resources successfully initialized\n{str(self)}', extra=self.log_args)
-
-# Set up brest logging facility
-import brest.log
-import logging.config
-
-logging.config.dictConfig(log.DEFAULT_LOGGING)
 
 def overwrite_log_config(config_dict):
     custom_config = dict(log.DEFAULT_LOGGING)

@@ -4,7 +4,7 @@ from brest.cameras import Cameras
 
 class GenericCamera(Cameras):
 
-    Cameras.KNOWN['GenericCamera'] = {'type': 'camera'}
+    Cameras.KNOWN['GenericCamera'] = {'type': 'camera', 'lib': 'cv2'}
 
     def __init__(self, kwargs):
         Cameras.__init__(self)
@@ -16,8 +16,7 @@ class GenericCamera(Cameras):
         try:
             import cv2
         except ModuleNotFoundError:
-            self.logger.error('To use this camera you have to install `opencv-python` module', extra=self.log_args)
-            raise SystemExit
+            raise ModuleNotFoundError(f'To use {self.__class__.__name__} class you have to install `opencv-python` module')
 
         self._cam = cv2.VideoCapture(kwargs['interface']['index'])
         self.acquire_images()

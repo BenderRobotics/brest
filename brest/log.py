@@ -43,21 +43,20 @@ DEFAULT_LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'base': {
+        'brest_base_f': {
             'format': '[%(asctime)s][%(levelname)s] : %(class_name)s.%(funcName)s() -> %(message)s',
         },
     },
     'handlers': {
         'console': {
-            'class': 'logging.StreamHandler',
+            '()': 'brest.log.coloredHandlerFactory',
             'level': 'INFO',
-            'formatter': 'base',
-            'stream': 'ext://sys.stdout',
+            'formatter': 'brest_base_f',
         },
         'console_dbg': {
             '()': 'brest.log.coloredHandlerFactory',
             'level': 'DEBUG',
-            'formatter': 'base',
+            'formatter': 'brest_base_f',
         },
     },
     'loggers': {

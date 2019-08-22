@@ -92,10 +92,15 @@ class ResourceProvider:
             cfg = config.get_config_for(group)
             if not cfg:
                 continue
-
+            
             # iterate over resources in config group
             for alias, params in cfg.items():
                 params['name'] = alias
+
+                # check if class is available for brest
+                if params['class_name'] not in resources:
+                    self.logger.error(f'Class `{params["class_name"]}` is not known to Brest', extra=self.log_args)
+                    raise SystemExit
 
                 # check what is defined
                 if 'interface' in params:
@@ -177,6 +182,6 @@ class ResourceProvider:
             handler = self.__get_interface_handler(kwargs['interface']['type'])
             handler.mark_taken(kwargs['interface'])
             return instance
-        except (NotImplementedError, ValueError, CommunicableError, serial.SerialException) as e:            
+        except (NotImplementedError, ModuleNotFoundError, ValueError, CommunicableError, serial.SerialException) as e:            
             self.logger.error(message + str(e), extra=self.log_args)
             return None
