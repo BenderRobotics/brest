@@ -86,16 +86,19 @@ class ResourceProvider:
         connected = self.__refresh_connected()
         constructed = []
 
-        # iterate over known resources
-        for group, resources in self.knowns.items():
+        # iterate over config resources
+        for group, config_resources in config:
 
-            # get config for each group of resources
-            cfg = config.get_config_for(group)
-            if not cfg:
-                continue
-            
+            # check if config group is known to Brest
+            if group not in self.knowns:
+                self.logger.error(f'Group `{group}` is not known to Brest', extra=self.log_args)
+                raise SystemExit
+
+            # get all resources known by Brest in config group
+            resources = self.knowns[group] 
+
             # iterate over resources in config group
-            for alias, params in cfg.items():
+            for alias, params in config_resources.items():
                 params['name'] = alias
 
                 # check if class is available for brest
@@ -153,7 +156,7 @@ class ResourceProvider:
         if interface_type in self.seekers:
             return self.seekers[interface_type]
         else:
-            # self.logger.error('Unknown interface')
+            self.logger.error(f'Interface type `{interface_type}` is not known to Brest')
             raise SystemExit
 
     def __find_class_by_interface(self, interface):

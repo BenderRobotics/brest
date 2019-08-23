@@ -13,6 +13,7 @@ import os
 import logging
 
 from yaml import load, Loader
+from yaml.parser import ParserError
 
 class Config():
     '''
@@ -24,7 +25,7 @@ class Config():
     BREST_CONFIG      = os.path.join(BREST_CONFIG_PATH, BREST_CONFIG_NAME)
 
     def __init__(self, project, config_path = BREST_CONFIG):
-        self.log_args = {'class_name':self.__class__.__module__ + '.' + self.__class__.__name__}
+        self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
         self.config = None
@@ -34,6 +35,9 @@ class Config():
 
         self._parse(config_path)
 
+    def __iter__(self):
+        return iter(self.config[self.project].items())
+
     def _parse(self, config_path):
         '''
         Parse config file as dictionary
@@ -41,21 +45,31 @@ class Config():
         try:
             with open(config_path, 'r') as stream:
                 self.config = load(stream, Loader=Loader)
-            self.is_valid = True
+            self._validate()
         except OSError as ex:
             self.logger.error(f'File `{ex.filename}` not found', extra=self.log_args)
             raise SystemExit
+        except ParserError as ex:
+            self.logger.error(f'Error during config parsing:\n{str(ex)}', extra=self.log_args)
+            raise SystemExit
 
-    def get_config_for(self, resource):
+    def _validate(self):
         '''
-        Returns dict of resources parameters for given resource group indexed by custom name.
+        Validate the config file
         '''
-        params = {}
 
-        if self.project in self.config:
-            if resource in self.config[self.project]:
-                for name, _params in self.config[self.project][resource].items():
-                    if self.needed and name not in self.needed:
-                        continue # If user specified needed resources from config, skip the others
-                    params[name] = _params
-        return params
+        self.is_valid = True
+
+        if self.project not in self.config:
+            self.logger.error(f'Project `{self.project}` is not in the config', extra=self.log_args)
+            self.is_valid = False
+            return
+
+        for group, resources in self.config[self.project].items():
+            for name, params in resources.items():
+                if not params:
+                    self.logger.error(f'Resource `{name}` is missing any further definition', extra=self.log_args)
+                    self.is_valid = False    
+                elif 'class_name' not in params and 'interface' not in params:
+                    self.logger.error(f'Resource `{name}` is missing class_name or interface definition', extra=self.log_args)
+                    self.is_valid = False

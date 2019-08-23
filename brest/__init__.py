@@ -33,7 +33,7 @@ class Resources():
         if key in self.resources:
             return self.resources[key]
         else:
-            raise KeyError("Invalid key: {}".format(key))
+            raise KeyError(f'Invalid key: {key}')
 
     def __iter__(self):
         return iter(self.resources.items())
@@ -42,8 +42,8 @@ class Resources():
         cfg = Config(project)
         cfg.needed = needed
         if not cfg.is_valid:
-            self.logger.error('Can\'t construct any resource. Configure file is not valid')
-            return
+            self.logger.error('Configuration file is not valid', extra=self.log_args)
+            raise SystemExit
 
         rp = ResourceProvider()
 
