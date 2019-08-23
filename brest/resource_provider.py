@@ -24,12 +24,12 @@ class ResourceProvider:
             self.knowns[cls_.__name__] = cls_.KNOWN
 
         # All interface handlers
-        self.handlers = {
-            'serial': SerialCommunicable.Handler(),
-            'camera': CameraCommunicable.Handler(),
+        self.seekers = {
+            'serial': SerialCommunicable.Seeker(),
+            'camera': CameraCommunicable.Seeker(),
         }
 
-    def probe(self, resource):
+    def print_probe(self, resource):
         '''
         Checks if resource is present in the system, and prints its interface.
         '''
@@ -39,10 +39,11 @@ class ResourceProvider:
             if resource in resources:
                 interface = resources[resource]
         if interface is None:
-            self.logger.warning(f'Resource `{resource}` not found in known', extra=self.log_args)
+            self.logger.warning(f'Class `{resource}` is not known to Brest', extra=self.log_args)
+            return
 
-        handler = self.__get_interface_handler(interface['type'])
-        handler.probe(interface)
+        handler = self.__get_interface_seeker(interface['type'])
+        handler.print_probe(interface)
 
     def available(self, group = None):
         '''
@@ -58,7 +59,7 @@ class ResourceProvider:
                 continue
 
             for class_name, interface in resources.items():
-                handler = self.__get_interface_handler(interface['type'])
+                handler = self.__get_interface_seeker(interface['type'])
                 resources = handler.get_available(class_name, interface, connected)
                 if resources:
                     available.extend(resources)                
@@ -98,7 +99,7 @@ class ResourceProvider:
                 params['name'] = alias
 
                 # check if class is available for brest
-                if params['class_name'] not in resources:
+                if 'class_name' in params and params['class_name'] not in resources:
                     self.logger.error(f'Class `{params["class_name"]}` is not known to Brest', extra=self.log_args)
                     raise SystemExit
 
@@ -126,7 +127,7 @@ class ResourceProvider:
                     params['interface'] = dict(resources[params['class_name']])
                 
                 # check if interface has parameters necessary for creation
-                handler = self.__get_interface_handler(params['interface']['type'])
+                handler = self.__get_interface_seeker(params['interface']['type'])
                 try:
                     params['interface'] = handler.complete_interface(params['interface'], connected)
                 except LookupError as e:
@@ -136,21 +137,21 @@ class ResourceProvider:
                 constructed.append(self.construct(params))
         return constructed
 
-    def availableSupplies(self):
-        return self.available('Supplies')
+    def print_available(self, group = None):
+        if group:
+            av = self.available(group)
+        else:
+            av = self.available()
 
-    def availableLoads(self):
-        return self.available('Loads')
-
-    def availableCameras(self):
-        return self.available('Cameras')
+        for a in av:
+            print(a)
 
     def __refresh_connected(self):
         return (serial.tools.list_ports.comports(), CameraCommunicable.list_cameras())
 
-    def __get_interface_handler(self, interface_type):
-        if interface_type in self.handlers:
-            return self.handlers[interface_type]
+    def __get_interface_seeker(self, interface_type):
+        if interface_type in self.seekers:
+            return self.seekers[interface_type]
         else:
             # self.logger.error('Unknown interface')
             raise SystemExit
@@ -162,9 +163,14 @@ class ResourceProvider:
 
         for _, resources in self.knowns.items():
             for class_name, interface_ in resources.items():
-                handler = self.__get_interface_handler(interface_['type'])
+
+                if interface['type'] != interface_['type']:
+                    continue 
+
+                handler = self.__get_interface_seeker(interface_['type'])
                 if handler.match_interface(interface, interface_):
                     return class_name
+                    
         return None
 
     def __construct(self, module_name, kwargs):
@@ -179,7 +185,7 @@ class ResourceProvider:
 
         try:
             instance = class_(kwargs)
-            handler = self.__get_interface_handler(kwargs['interface']['type'])
+            handler = self.__get_interface_seeker(kwargs['interface']['type'])
             handler.mark_taken(kwargs['interface'])
             return instance
         except (NotImplementedError, ModuleNotFoundError, ValueError, CommunicableError, serial.SerialException) as e:            

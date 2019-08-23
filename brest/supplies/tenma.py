@@ -10,7 +10,7 @@
 #  Copyright 2019 Bender Robotics
 
 from brest.supplies import Supplies
-from brest.communication import SCPICommunicalbe, SCPICommand, CommunicableError
+from brest.communication import SCPICommunicalbe, SCPICommand, SCPIValueCommand, CommunicableError
 
 from contextlib import suppress
 
@@ -19,20 +19,20 @@ class Tenma(Supplies, SCPICommunicalbe):
     Supplies.KNOWN['Tenma'] = {'type':'serial', 'timeout': 0.1, 'vid':0x416, 'pid':0x5011}
 
     class Commands():
-        GET_INFO    = SCPICommand('*IDN?',   False, True)
-        GET_STATUS  = SCPICommand('STATUS?', False, True)
-        SET_VOLTAGE = SCPICommand('VSET1?',  True,  True)
-        GET_VOLTAGE = SCPICommand('VOUT1?',  False, True)
-        SET_CURRENT = SCPICommand('ISET1?',  True,  True)
-        GET_CURRENT = SCPICommand('IOUT1?',  False, True)
-        EN_OUTPUT   = SCPICommand('OUT1',    False, False)
-        DIS_OUTPUT  = SCPICommand('OUT0',    False, False)
-        EN_OVP      = SCPICommand('OVP1',    False, False)
-        DIS_OVP     = SCPICommand('OVP0',    False, False)
-        EN_OCP      = SCPICommand('OCP1',    False, False)
-        DIS_OCP     = SCPICommand('OCP0',    False, False)
-        RECALL      = SCPICommand('RCL1',    False, False)
-        SAVE        = SCPICommand('SAV1',    False, False)
+        GET_INFO    = SCPICommand('*IDN?')
+        GET_STATUS  = SCPICommand('STATUS?')
+        SET_VOLTAGE = SCPIValueCommand('VSET1')
+        GET_VOLTAGE = SCPICommand('VOUT1?')
+        SET_CURRENT = SCPIValueCommand('ISET1')
+        GET_CURRENT = SCPICommand('IOUT1?')
+        EN_OUTPUT   = SCPICommand('OUT1')
+        DIS_OUTPUT  = SCPICommand('OUT0')
+        EN_OVP      = SCPICommand('OVP1')
+        DIS_OVP     = SCPICommand('OVP0')
+        EN_OCP      = SCPICommand('OCP1')
+        DIS_OCP     = SCPICommand('OCP0')
+        RECALL      = SCPICommand('RCL1')
+        SAVE        = SCPICommand('SAV1')
 
     Models = [
         Supplies.Model('TENMA 72-2535', 1, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
@@ -68,7 +68,8 @@ class Tenma(Supplies, SCPICommunicalbe):
         if self.MAX_VOLTAGE and value > self.MAX_VOLTAGE:
             self.logger.warning(f'Value {value} exceeded maximum voltage level', extra=self.log_args)
         else:
-            self.transceive(Tenma.Commands.SET_VOLTAGE, value)
+            Tenma.Commands.SET_VOLTAGE.val = value
+            self.transceive(Tenma.Commands.SET_VOLTAGE)
             
     @property
     def current(self, channel = 1):
@@ -79,7 +80,8 @@ class Tenma(Supplies, SCPICommunicalbe):
         if self.MAX_CURRENT and value > self.MAX_CURRENT:
             self.logger.warning(f'Value {value} exceeded maximum current level', extra=self.log_args)
         else:
-            self.transceive(Tenma.Commands.SET_CURRENT, value)
+            Tenma.Commands.SET_CURRENT.val = value
+            self.transceive(Tenma.Commands.SET_CURRENT)
             
     def enable_protection(self, protection_type, channel = 1):
         if protection_type == Supplies.Protection.OVP:

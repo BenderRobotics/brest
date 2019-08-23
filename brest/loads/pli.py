@@ -1,20 +1,20 @@
 from brest.loads import Loads
-from brest.communication import SCPICommunicalbe, SCPICommand, CommunicableError
+from brest.communication import SCPICommunicalbe, SCPICommand, SCPIValueCommand, CommunicableError
 
 class Pli(Loads, SCPICommunicalbe):
 
-    Loads.KNOWN['Pli'] = {'type':'serial', 'timeout': 0.1, 'baudrate':115200, 'vid':0x0403, 'pid':0x06001}
+    Loads.KNOWN['Pli'] = {'type': 'serial', 'timeout': 0.1, 'baudrate': 115200, 'vid': 0x0403, 'pid': 0x06001}
 
     class Commands():
-        INFO_GET    = SCPICommand("*IDN?",   False, True)
-        CLEAR       = SCPICommand("*CLS",    False, False)
-        RESET       = SCPICommand("*RST",    False, False)
-        SELF_TEST   = SCPICommand("*TST?",   False, True)
-        CURR_SET    = SCPICommand("CURR",    True,  False)
-        CURR_GET    = SCPICommand("CURR?",   False, True)
-        INPUT_ON    = SCPICommand("INP ON",  False, False)
-        INPUT_OFF   = SCPICommand("INP OFF", False, False)
-        INPUT_GET   = SCPICommand("INP?",    False, True) 
+        INFO_GET    = SCPICommand("*IDN?")
+        CLEAR       = SCPICommand("*CLS")
+        RESET       = SCPICommand("*RST")
+        SELF_TEST   = SCPICommand("*TST?")
+        CURR_SET    = SCPIValueCommand("CURR")
+        CURR_GET    = SCPICommand("CURR?")
+        INPUT_ON    = SCPICommand("INP ON")
+        INPUT_OFF   = SCPICommand("INP OFF")
+        INPUT_GET   = SCPICommand("INP?")
 
     def __init__(self, kwargs):
         Loads.__init__(self)
@@ -36,7 +36,8 @@ class Pli(Loads, SCPICommunicalbe):
 
     @current.setter
     def current(self, value):
-        self.transceive(Pli.Commands.INPUT_ON, value)
+        Pli.Commands.CURR_SET.val = value
+        self.transceive(Pli.Commands.CURR_SET)
 
     def get_info(self):
         return self.transceive(Pli.Commands.INFO_GET)

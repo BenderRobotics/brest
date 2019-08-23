@@ -9,6 +9,8 @@ class SerialCommunicable(Communicable):
     Represents a serial communication
     '''
 
+    TAKEN = [] # Touples containing resource and its bound port
+
     def __init__(self, kwargs):
         super().__init__()
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
@@ -19,6 +21,13 @@ class SerialCommunicable(Communicable):
             self.com = serial.Serial(**serial_args)
         else:
             raise ValueError('Missing port definition')
+
+    def write_raw(self, data):
+        self.com.write(data)
+
+    def read_raw(self, expected='', size = None):
+        received = self.com.read_until(expected, size)
+        return received
 
     def __filter_serial_args(self, kwargs):
         '''
@@ -32,7 +41,7 @@ class SerialCommunicable(Communicable):
         return serial_args
 
     @staticmethod
-    def serial_probe(interface, coms = None):
+    def probe(interface, coms = None):
         '''
         Checks wheter given supply is connected to the host system and returns serial number and port name in a tuple.
         '''
@@ -48,26 +57,24 @@ class SerialCommunicable(Communicable):
                 else:
                    yield (com.serial_number, com.device)
 
-    class Handler(Communicable.Handler):    
+    class Seeker(Communicable.Seeker):    
 
         def __init__(self):
-            Communicable.Handler.__init__(self)
-
-            self.taken = []
+            Communicable.Seeker.__init__(self)
 
         def mark_taken(self, interface):
-            self.taken.append(interface['port'])
+            SerialCommunicable.TAKEN.append(interface['port'])
 
         def is_taken(self, interface):
-            for taken_port in self.taken:
+            for taken_port in SerialCommunicable.TAKEN:
                 if interface['port'] == taken_port:
                     return True
             return False
 
-        def probe(self, interface, coms = None):
+        def print_probe(self, interface, coms = None):
             ports = []
 
-            port_gen = SerialCommunicable.serial_probe(interface)
+            port_gen = SerialCommunicable.probe(interface)
             for port in port_gen:
                 if not self.is_taken({'port': port[1]}):
                     ports.append(port)
@@ -77,7 +84,7 @@ class SerialCommunicable(Communicable):
         def get_available(self, class_name, interface, connected):
             resources = []
 
-            port_gen = SerialCommunicable.serial_probe(interface, connected[0])
+            port_gen = SerialCommunicable.probe(interface, connected[0])
             for port in port_gen:
                 interface_ = dict(interface)
                 interface_['serial_number'] = port[0]
@@ -90,7 +97,7 @@ class SerialCommunicable(Communicable):
 
         def complete_interface(self, interface, connected):
             if 'port' not in interface:
-                port_gen = SerialCommunicable.serial_probe(interface, connected[0])
+                port_gen = SerialCommunicable.probe(interface, connected[0])
                 port = next(port_gen, None)
                 while(port is not None and self.is_taken({'port': port[1]})):
                     port = next(port_gen, None)

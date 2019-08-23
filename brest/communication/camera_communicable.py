@@ -1,11 +1,14 @@
+import logging
 import win32com.client
 
 from brest.communication import Communicable
 
 class CameraCommunicable(Communicable):
 
+    TAKEN = []
+
     @staticmethod
-    def camera_probe(interface, cams):
+    def camera_probe(interface, cams = None):
         '''
         Check wheter given camera is connected to the host system and returns serial number and index in a tuple.
         '''
@@ -40,26 +43,30 @@ class CameraCommunicable(Communicable):
         serial_number = splitted[3]
         return (vid, pid, serial_number)
 
-    class Handler(Communicable.Handler):
+    class Seeker(Communicable.Seeker):
         '''
         Base class for interface creation and probing.
         '''
 
         def __init__(self):
-            Communicable.Handler.__init__(self)
-
-            self.taken = []
+            Communicable.Seeker.__init__(self)
+            self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
+            self.logger = logging.getLogger('brest')
 
         def mark_taken(self, interface):
-            self.taken.append(interface['index'])
+            CameraCommunicable.TAKEN.append(interface['index'])
 
         def is_taken(self, interface):
-            for taken_index in self.taken:
+            for taken_index in CameraCommunicable.TAKEN:
                 if interface['index'] == taken_index:
                     return True
             return False
 
-        def probe(self, interface, coms = None):
+        def print_probe(self, interface, coms = None):
+            if interface['lib'] != 'cv2':
+                self.logger.warning('Probing only cv2 operable cameras is supported', extra=self.log_args)
+                return
+
             indexes = []
 
             cam_gen = CameraCommunicable.camera_probe(interface)
@@ -70,6 +77,10 @@ class CameraCommunicable(Communicable):
             print(indexes)
             
         def get_available(self, class_name, interface, connected):
+            if interface['lib'] != 'cv2':
+                self.logger.warning('Listing only cv2 operable cameras is supported', extra=self.log_args)
+                return []
+
             resources = []
 
             cam_gen = CameraCommunicable.camera_probe(interface, cams=connected[1])
@@ -85,6 +96,11 @@ class CameraCommunicable(Communicable):
 
         def complete_interface(self, interface, connected):
             if 'index' not in interface:
+
+                if interface['lib'] != 'cv2':
+                    self.logger.error('Interface completition not supported on non cv2 cameras', extra=self.log_args)
+                    raise SystemExit
+
                 index_gen = CameraCommunicable.camera_probe(interface, connected[1])
                 index = next(index_gen, None)
                 while(index is not None and self.is_taken({'port': index[1]})):
@@ -99,4 +115,4 @@ class CameraCommunicable(Communicable):
             return interface
 
         def match_interface(self, interface, known_interface):
-            return interface['index'] == known_interface['index']
+            return interface['lib'] == interface['lib'] and interface['index'] == known_interface['index']
