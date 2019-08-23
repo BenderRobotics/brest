@@ -24,14 +24,13 @@ class Backfly(Cameras):
             import tempfile
         except ModuleNotFoundError:
             raise ModuleNotFoundError(f'To use {self.__class__.__name__} class you have to install `tempfile` module')
-
-        self.parse_args(kwargs)        
+        self.parse_args(kwargs)
 
         # Retrieve singleton reference to system object
-        system = PySpin.System.GetInstance()
+        self.system = PySpin.System.GetInstance()
 
         # Retrieve list of cameras from the system
-        cam_list = system.GetCameras()
+        cam_list = self.system.GetCameras()
 
         num_cameras = cam_list.GetSize()
 
@@ -41,7 +40,7 @@ class Backfly(Cameras):
             cam_list.Clear()
 
             # Release system instance
-            system.ReleaseInstance()
+            self.system.ReleaseInstance()
 
             self.logger.error('No cameras connected', extra=self.log_args)
             raise SystemExit
@@ -55,7 +54,7 @@ class Backfly(Cameras):
 
     def __del__(self):
         # Deinitialize camera
-        if self.cam:
+        if self.cam is not None:
             self.cam.DeInit()
 
     def configure_trigger(self,triger):
@@ -218,21 +217,21 @@ class Backfly(Cameras):
 
             if PySpin.IsAvailable(node_device_information) and PySpin.IsReadable(node_device_information):
                 features = node_device_information.GetFeatures()
+                info = ''
                 for feature in features:
                     node_feature = PySpin.CValuePtr(feature)
-                    return('%s: %s' % (node_feature.GetName(),
+                    info += ('%s: %s\n' % (node_feature.GetName(),
                                       node_feature.ToString() if PySpin.IsReadable(node_feature) else 'Node not readable'))
+                return info
 
             else:
-                return 'Device control information not available'
+                return ('Device control information not available')
 
         except PySpin.SpinnakerException as ex:
             self.logger.error(f'Error occured during camera info retrieving: {str(ex)}')
             raise SystemExit
 
     def __inittrg(self, triger):
-        import PySpin
-        
         try:
             err = False
 
