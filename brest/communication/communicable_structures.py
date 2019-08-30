@@ -37,6 +37,7 @@ class CommunicationStructure(Packable):
         self.packable_full = []    
         self.full = True
         self.value_ = self
+        self.lengths_ = {}
 
     def __eq__(self, other):
         for pair in zip(self.get_packable_attributes(True), other.get_packable_attributes(True)):
@@ -44,13 +45,14 @@ class CommunicationStructure(Packable):
                 return False
         return True
 
-    def add(self, name, value, full_only = False):
+    def add(self, name, value, full_only = False, attr_len = None):
         '''
-        Adds packable type as an atribute. Name can\'t be `value_` which is reserved for internal values.
+        Adds packable type as an atribute. Name cant\'t be `value_` or `lengths_` which are reserved for internal values.
+        If attr_len is specified, value is treated as a length for another atribute.
         '''
 
-        if name == 'value_':
-            self.logger.error('Name can\'t be `value_` which is reserved for internal values', extra=self.log_args)
+        if name in ['value_', 'lengths_']:
+            self.logger.error(f'Name can\'t be `{name}` which is reserved for internal values', extra=self.log_args)
             raise SystemExit
 
         if not issubclass(value.__class__, Packable):
@@ -66,6 +68,18 @@ class CommunicationStructure(Packable):
         )
         self.packable_full.append(name) if full_only else self.packable.append(name)
 
+        if attr_len:
+            self.lengths_[name] = attr_len
+
+    def change(self, name, new_value):
+        internal_name = '_' + name
+
+        if not getattr(self, internal_name, None):
+            self.logger.error(f'Attribute {name} not found in {self.__class__.__name__}', extra=self.log_args)
+            raise SystemExit
+
+        setattr(self, internal_name, new_value)
+
     def get_packable_attributes(self, full):
         attrs = []
         for attr_name in self.packable:
@@ -74,6 +88,11 @@ class CommunicationStructure(Packable):
             for attr_name in self.packable_full:
                 attrs.append(getattr(self, '_' + attr_name))
         return attrs
+
+    def get_packable_attributes_with_names(self, full):
+        attrs = self.get_packable_attributes(full)        
+        attrs_names = self.packable + self.packable_full if full else self.packable
+        return zip(attrs_names, attrs)
 
     def pack(self, data = None, offset = 0):
         if data == None:
@@ -93,3 +112,17 @@ class CommunicationStructure(Packable):
             offset = attr.unpack(data, offset)
 
         return offset
+
+class CommunicationFrame(CommunicationStructure):
+
+    def __init__(self, byteorder='>'):
+        CommunicationStructure.__init__(self, byteorder)
+
+    def change_data_type(self, msg_type):
+        pass
+
+    def get_data(self):
+        pass
+
+    def set_data(self, *args, **kwargs):
+        pass

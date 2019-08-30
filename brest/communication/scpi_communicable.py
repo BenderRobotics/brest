@@ -39,4 +39,4 @@ class SCPIValueCommand(CommunicationStructure):
     def __init__(self, command, value = None):
         CommunicationStructure.__init__(self)
         self.add('cmd', str_t(command + ':'))
-        self.add('val', str_t(value))
+        self.add('value', str_t(value))

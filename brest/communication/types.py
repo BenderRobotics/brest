@@ -220,6 +220,27 @@ class bit_nlist_t(Packable):
                 bit = 0
         return offset
 
+class checksum_t(Packable):
+
+    def __init__(self, type_t, checksum_func):
+        Packable.__init__(self)
+        self.type_t = type_t()
+        self.size = self.type_t.size
+        self.checksum_func = checksum_func
+
+    @property
+    def value_(self):
+        return self.type_t.value_
+
+    def pack(self, data, offset):
+        self.type_t.value_ = self.checksum_func(data)
+        offset = self.type_t.pack(data, offset)
+        return offset
+
+    def unpack(self, data, offset):
+        offset = self.type_t.unpack(data, offset)
+        return offset
+
 class pad_t(Packable):
     '''
     Pads the offset to the first full byte.

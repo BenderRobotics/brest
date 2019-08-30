@@ -5,6 +5,7 @@ import serial.tools.list_ports
 import brest.supplies
 import brest.loads
 import brest.cameras
+import brest.interfaces
 
 from brest import Resource
 from brest.communication import CommunicableError, SerialCommunicable, CameraCommunicable
@@ -85,14 +86,15 @@ class ResourceProvider:
         '''
         connected = self.__refresh_connected()
         constructed = []
+        constructed_aliases = []
 
         # iterate over config resources
         for group, config_resources in config:
 
             # check if config group is known to Brest
             if group not in self.knowns:
-                self.logger.error(f'Group `{group}` is not known to Brest', extra=self.log_args)
-                raise SystemExit
+                self.logger.warning(f'Group `{group}` is not known to Brest. Resources in the `{group}` group won\'t be constructed', extra=self.log_args)
+                continue
 
             # get all resources known by Brest in config group
             resources = self.knowns[group] 
@@ -100,6 +102,10 @@ class ResourceProvider:
             # iterate over resources in config group
             for alias, params in config_resources.items():
                 params['name'] = alias
+
+                # check if needed is defined an filter resources
+                if config.needed and alias not in config.needed:
+                    continue
 
                 # check if class is available for brest
                 if 'class_name' in params and params['class_name'] not in resources:
@@ -138,6 +144,15 @@ class ResourceProvider:
                     raise SystemExit
 
                 constructed.append(self.construct(params))
+                constructed_aliases.append(params['name'])
+                
+        # check if needed resources were truly created
+        if config.needed:
+            for needed_resource in config.needed:
+                if needed_resource not in constructed_aliases:
+                    self.logger.error(f'Couldn\'t create all needed resources', extra=self.log_args)
+                    raise SystemExit
+
         return constructed
 
     def print_available(self, group = None):

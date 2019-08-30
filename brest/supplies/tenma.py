@@ -68,7 +68,7 @@ class Tenma(Supplies, SCPICommunicalbe):
         if self.MAX_VOLTAGE and value > self.MAX_VOLTAGE:
             self.logger.warning(f'Value {value} exceeded maximum voltage level', extra=self.log_args)
         else:
-            Tenma.Commands.SET_VOLTAGE.val = value
+            Tenma.Commands.SET_VOLTAGE.value = value
             self.transceive(Tenma.Commands.SET_VOLTAGE)
             
     @property
@@ -80,7 +80,7 @@ class Tenma(Supplies, SCPICommunicalbe):
         if self.MAX_CURRENT and value > self.MAX_CURRENT:
             self.logger.warning(f'Value {value} exceeded maximum current level', extra=self.log_args)
         else:
-            Tenma.Commands.SET_CURRENT.val = value
+            Tenma.Commands.SET_CURRENT.value = value
             self.transceive(Tenma.Commands.SET_CURRENT)
             
     def enable_protection(self, protection_type, channel = 1):

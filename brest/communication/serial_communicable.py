@@ -10,9 +10,8 @@ class SerialCommunicable(Communicable):
     '''
 
     TAKEN = [] # Touples containing resource and its bound port
-
+    
     def __init__(self, kwargs):
-        super().__init__()
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')        
         
@@ -26,7 +25,10 @@ class SerialCommunicable(Communicable):
         self.com.write(data)
 
     def read_raw(self, expected='', size = None):
-        received = self.com.read_until(expected, size)
+        if size:
+            received = self.com.read(size)
+        else:
+            received = self.com.read_until(expected, size)
         return received
 
     def __filter_serial_args(self, kwargs):

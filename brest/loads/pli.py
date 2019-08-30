@@ -36,7 +36,7 @@ class Pli(Loads, SCPICommunicalbe):
 
     @current.setter
     def current(self, value):
-        Pli.Commands.CURR_SET.val = value
+        Pli.Commands.CURR_SET.value = value
         self.transceive(Pli.Commands.CURR_SET)
 
     def get_info(self):

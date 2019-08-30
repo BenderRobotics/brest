@@ -23,6 +23,9 @@ class Resources():
         self.instantiate(project, config, needed)
 
     def __str__(self):
+        if not self.resources:
+            return str(self.__class__)
+            
         just = max([len(k) for k in self.resources.keys()]) + 1
         s = '%s: {\n    ' % self.__class__.__name__
         s += '\n    '.join(['%s: %s' % (str(k).ljust(just), str(self.resources[k])) for k in sorted(self.resources)])
@@ -58,14 +61,16 @@ class Resources():
                 self.logger.error('Could\'t initialize all resources', extra=self.log_args)
                 raise SystemExit        
         
-        self.logger.info(f'All resources successfully initialized\n{str(self)}', extra=self.log_args)
+        if self.resources:
+            self.logger.info(f'All resources successfully initialized\n{str(self)}', extra=self.log_args)
+        else:
+            self.logger.warning('No resources were initialized', extra=self.log_args)
 
 def overwrite_log_config(config_dict):
     custom_config = dict(log.DEFAULT_LOGGING)
     for ov_key, ov_value in config_dict.items():
         __apply_overwrite(custom_config, ov_key, ov_value)
     logging.config.dictConfig(custom_config)
-    print(custom_config)
 
 def __apply_overwrite(node, key, value):
     if isinstance(value, dict):
