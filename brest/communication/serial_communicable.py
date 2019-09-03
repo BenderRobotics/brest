@@ -51,18 +51,29 @@ class SerialCommunicable(Communicable):
         if not coms:
             coms = serial.tools.list_ports.comports()
 
-        for com in coms:
-            if com.vid == interface['vid'] and com.pid == interface['pid']:
-                if 'serial_number' in interface and interface['serial_number']:
-                    if interface['serial_number'] == com.serial_number:
-                        yield (interface['serial_number'], com.device)
-                else:
-                   yield (com.serial_number, com.device)
+        if 'vid' in interface and 'pid' in interface:
+            for com in coms:
+                if com.vid == interface['vid'] and com.pid == interface['pid']:
+                    if 'serial_number' in interface and interface['serial_number']:
+                        if interface['serial_number'] == com.serial_number:
+                            yield (interface['serial_number'], com.device)
+                    else:
+                        yield (com.serial_number, com.device)
+        else:
+            if 'serial_number' in interface:
+                for com in coms:
+                    if com.serial_number == interface['serial_number']:
+                        yield (com.serial_number, com.device)
+            else:
+                logging.getLogger('brest').warning(f'Missing vid, pid or serial number definition in the interface: {str(interface)}', extra={'class_name': 'SerialCommunicable'})
+                pass
 
-    class Seeker(Communicable.Seeker):    
+    class Seeker(Communicable.Seeker):
 
         def __init__(self):
             Communicable.Seeker.__init__(self)
+            self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
+            self.logger = logging.getLogger('brest')
 
         def mark_taken(self, interface):
             SerialCommunicable.TAKEN.append(interface['port'])
@@ -113,5 +124,13 @@ class SerialCommunicable(Communicable):
             return interface
 
         def match_interface(self, interface, known_interface):
-            # Dvě třídy stejné vid, pid a liší se v serial_number
-            return interface['vid'] == known_interface['vid'] and interface['pid'] == known_interface['pid']
+            if 'vid' in interface and 'vid' in known_interface and 'pid' in interface and 'pid' in known_interface:
+                if 'serial_number' in interface and 'serial_number' in known_interface:
+                    return interface['vid'] == known_interface['vid'] and interface['pid'] == known_interface['pid'] and interface['serial_number'] == known_interface['serial_number']
+                else:
+                    return interface['vid'] == known_interface['vid'] and interface['pid'] == known_interface['pid']
+            else:
+                if 'serial_number' in interface and 'serial_number' in known_interface:
+                    interface['serial_number'] == known_interface['serial_number']
+                else:
+                    return False

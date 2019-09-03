@@ -73,3 +73,9 @@ class Config():
                 elif 'class_name' not in params and 'interface' not in params:
                     self.logger.error(f'Resource `{name}` is missing class_name or interface definition', extra=self.log_args)
                     self.is_valid = False
+                elif 'class_name' in params and not params['class_name']:
+                    self.logger.error(f'Resource `{name}` has empty class_name definition', extra=self.log_args)
+                    self.is_valid = False
+                elif 'interface' in params and not params['interface']:
+                    self.logger.error(f'Resource `{name}` has empty interface definition', extra=self.log_args)
+                    self.is_valid = False

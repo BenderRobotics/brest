@@ -11,16 +11,8 @@ class Resource():
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
         
-        self.__name = 'resource_' + str(Resource.cnt)
+        self.name = 'resource_' + str(Resource.cnt)
         Resource.cnt += 1
-
-    @property
-    def name(self):
-        return self.__name
-
-    @name.setter
-    def name(self, value):
-        self.__name = value
 
     def parse_args(self, kwargs):
         '''
@@ -31,4 +23,5 @@ class Resource():
             if hasattr(self, attr):
                 setattr(self, attr, value)
             else:
-                pass #TODO: Inform user about non existing attribute
+                if attr != 'interface':
+                    self.logger.warning(f'Class `{self.__class__.__name__}` don\'t have `{attr}` attribute', extra=self.log_args)

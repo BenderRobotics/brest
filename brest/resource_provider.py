@@ -55,7 +55,7 @@ class ResourceProvider:
         available = []
 
         for group_, resources in self.knowns.items():
-            # If we specified group of resources, skip all others
+            # If we have specified group of resources, skip all others
             if group and group_ != group:
                 continue
 
@@ -171,7 +171,7 @@ class ResourceProvider:
         if interface_type in self.seekers:
             return self.seekers[interface_type]
         else:
-            self.logger.error(f'Interface type `{interface_type}` is not known to Brest')
+            self.logger.error(f'Interface type `{interface_type}` is not known to Brest', extra=self.log_args)
             raise SystemExit
 
     def __find_class_by_interface(self, interface):
