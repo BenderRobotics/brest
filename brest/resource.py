@@ -24,4 +24,4 @@ class Resource():
                 setattr(self, attr, value)
             else:
                 if attr != 'interface':
-                    self.logger.warning(f'Class `{self.__class__.__name__}` don\'t have `{attr}` attribute', extra=self.log_args)
+                    self.logger.warning('Class `{}` don\'t have `{attr}` attribute'.format(self.__class__.__name__), extra=self.log_args)

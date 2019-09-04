@@ -52,7 +52,7 @@ class CommunicationStructure(Packable):
         '''
 
         if name in ['value_', 'lengths_']:
-            self.logger.error(f'Name can\'t be `{name}` which is reserved for internal values', extra=self.log_args)
+            self.logger.error('Name can\'t be `{}` which is reserved for internal values'.format(name), extra=self.log_args)
             raise SystemExit
 
         if not issubclass(value.__class__, Packable):
@@ -75,7 +75,7 @@ class CommunicationStructure(Packable):
         internal_name = '_' + name
 
         if not getattr(self, internal_name, None):
-            self.logger.error(f'Attribute {name} not found in {self.__class__.__name__}', extra=self.log_args)
+            self.logger.error('Attribute {} not found in {self.__class__.__name__}'.format(name), extra=self.log_args)
             raise SystemExit
 
         setattr(self, internal_name, new_value)

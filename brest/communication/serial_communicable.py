@@ -65,7 +65,7 @@ class SerialCommunicable(Communicable):
                     if com.serial_number == interface['serial_number']:
                         yield (com.serial_number, com.device)
             else:
-                logging.getLogger('brest').warning(f'Missing vid, pid or serial number definition in the interface: {str(interface)}', extra={'class_name': 'SerialCommunicable'})
+                logging.getLogger('brest').warning('Missing vid, pid or serial number definition in the interface: {}'.format(str(interface)), extra={'class_name': 'SerialCommunicable'})
                 pass
 
     class Seeker(Communicable.Seeker):

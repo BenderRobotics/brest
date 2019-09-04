@@ -93,13 +93,8 @@ class ResourceProvider:
 
             # check if config group is known to Brest
             if group not in self.knowns:
-<<<<<<< HEAD
-                self.logger.warning(f'Group `{group}` is not known to Brest. Resources in the `{group}` group won\'t be constructed', extra=self.log_args)
+                self.logger.warning('Group `{}` is not known to Brest. Resources in the `{}` group won\'t be constructed'.format(group, group), extra=self.log_args)
                 continue
-=======
-                self.logger.error('Group `{}` is not known to Brest'.format(group), extra=self.log_args)
-                raise SystemExit
->>>>>>> feature/2201-ci-cd
 
             # get all resources known by Brest in config group
             resources = self.knowns[group] 
@@ -155,7 +150,7 @@ class ResourceProvider:
         if config.needed:
             for needed_resource in config.needed:
                 if needed_resource not in constructed_aliases:
-                    self.logger.error(f'Couldn\'t create all needed resources', extra=self.log_args)
+                    self.logger.error('Couldn\'t create all needed resources', extra=self.log_args)
                     raise SystemExit
 
         return constructed
@@ -176,11 +171,7 @@ class ResourceProvider:
         if interface_type in self.seekers:
             return self.seekers[interface_type]
         else:
-<<<<<<< HEAD
-            self.logger.error(f'Interface type `{interface_type}` is not known to Brest', extra=self.log_args)
-=======
-            self.logger.error('Interface type `{}` is not known to Brest'.format(interface_type))
->>>>>>> feature/2201-ci-cd
+            self.logger.error('Interface type `{}` is not known to Brest'.format(interface_type), extra=self.log_args)
             raise SystemExit
 
     def __find_class_by_interface(self, interface):

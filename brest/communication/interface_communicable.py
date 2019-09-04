@@ -40,7 +40,7 @@ class InterfaceCommunicable(SerialCommunicable):
         try:
             rec_frame.unpack()
         except struct.error as ex:
-            self.logger.error(f'Error during frame unpacking: {str(ex)}', extra=self.log_args)
+            self.logger.error('Error during frame unpacking: {}'.format(str(ex)), extra=self.log_args)
             return None
         self.on_frame_unpacked(frame, rec_frame)
 
@@ -58,14 +58,14 @@ class InterfaceCommunicable(SerialCommunicable):
         Method which muset be implemented. Should read correct number of bytes into frame.raw_data.
         '''
 
-        raise NotImplementedError(f'{self.__class__.__name__} must implement _read_raw_frame(self, frame) method')
+        raise NotImplementedError('{} must implement _read_raw_frame(self, frame) method'.format(self.__class__.__name__))
         
     def get_frame(self, *args, **kwargs):
         '''
         Method which must be implemented. Shoud return new or deep copy of a frame used in the communication.
         '''
 
-        raise NotImplementedError(f'{self.__class__.__name__} must implement get_frame(self, frame) method')
+        raise NotImplementedError('{} must implement get_frame(self, frame) method'.format(self.__class__.__name__))
 
     # --------- future implementation ------------
 
