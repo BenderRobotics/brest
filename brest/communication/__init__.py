@@ -17,7 +17,7 @@ __all__ = [
     'SerialCommunicable',
     'SCPICommunicalbe',
     'SCPICommand',
-    'SCPIValueCommand'
+    'SCPIValueCommand',
     'CameraCommunicable',
     'InterfaceCommunicable',
     'types',

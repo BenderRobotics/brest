@@ -16,7 +16,7 @@ class GenericCamera(Cameras):
         try:
             import cv2
         except ModuleNotFoundError:
-            raise ModuleNotFoundError(f'To use {self.__class__.__name__} class you have to install `opencv-python` module')
+            raise ModuleNotFoundError('To use {} class you have to install `opencv-python` module'.format(self.__class__.__name__))
 
         self._cam = cv2.VideoCapture(kwargs['interface']['index'])
         self.acquire_images()

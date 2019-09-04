@@ -35,10 +35,10 @@ class Virsup(Supplies, SCPICommunicalbe):
     @voltage.setter
     def voltage(self, value, channel = 1):
         if self.MAX_VOLTAGE and value > self.MAX_VOLTAGE:
-            self.logger.warning(f'Value {value} exceeded maximum voltage level', extra=self.log_args)
+            self.logger.warning('Value {} exceeded maximum voltage level'.format(value), extra=self.log_args)
         else:
             self._voltage = value
-            self.logger.info(f'Voltage set to {value}', extra=self.log_args)
+            self.logger.info('Voltage set to {}'.format(value), extra=self.log_args)
 
     @property
     def current(self, channel = 1):
@@ -47,10 +47,10 @@ class Virsup(Supplies, SCPICommunicalbe):
     @current.setter
     def current(self, value, channel = 1):
         if self.MAX_CURRENT and value > self.MAX_CURRENT:
-            self.logger.warning(f'Value {value} exceeded maximum current level', extra=self.log_args)
+            self.logger.warning('Value {} exceeded maximum current level'.format(value), extra=self.log_args)
         else:
             self._current = value
-            self.logger.info(f'Current set to {value}', extra=self.log_args)
+            self.logger.info('Current set to {}'.format(value), extra=self.log_args)
 
     def __detect(self):
         self.logger.info('Detected virtual supply', extra=self.log_args)

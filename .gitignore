@@ -6,4 +6,4 @@ dist
 *.pyc
 *.egg-info
 *.whl
-test*
+test.py

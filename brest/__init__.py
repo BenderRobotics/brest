@@ -43,7 +43,7 @@ class Resources():
         if key in self.resources:
             return self.resources[key]
         else:
-            raise KeyError(f'Invalid key: {key}')
+            raise KeyError('Invalid key: {}'.format(key))
 
     def __iter__(self):
         return iter(self.resources.items())
@@ -69,7 +69,7 @@ class Resources():
                 raise SystemExit        
         
         if self.resources:
-            self.logger.info(f'All resources successfully initialized\n{str(self)}', extra=self.log_args)
+            self.logger.info('All resources successfully initialized\n{}'.format(str(self)), extra=self.log_args)
         else:
             self.logger.warning('No resources were initialized', extra=self.log_args)
 

@@ -15,15 +15,15 @@ class Backfly(Cameras):
         try:
             import cv2
         except ModuleNotFoundError:
-            raise ModuleNotFoundError(f'To use {self.__class__.__name__} class you have to install `opencv-python` module')
+            raise ModuleNotFoundError('To use {} class you have to install `opencv-python` module'.format(self.__class__.__name__))
         try:
             import PySpin
         except ModuleNotFoundError:
-            raise ModuleNotFoundError(f'To use {self.__class__.__name__} class you have to install `PySpin` module')
+            raise ModuleNotFoundError('To use {} class you have to install `PySpin` module'.format(self.__class__.__name__))
         try:
             import tempfile
         except ModuleNotFoundError:
-            raise ModuleNotFoundError(f'To use {self.__class__.__name__} class you have to install `tempfile` module')
+            raise ModuleNotFoundError('To use {} class you have to install `tempfile` module'.format(self.__class__.__name__))
         self.parse_args(kwargs)
 
         # Retrieve singleton reference to system object
@@ -46,8 +46,7 @@ class Backfly(Cameras):
             raise SystemExit
 
         # Run example on each camera
-
-        self._cam = cam_list[kwargs['interface']['index']]             # volba kamery
+        self._cam = cam_list[kwargs['interface']['index']] # volba kamery
         cam_list.Clear()
         self.__inittrg(triger)
         self.acquire_image()
@@ -114,7 +113,7 @@ class Backfly(Cameras):
 
 
         except PySpin.SpinnakerException as ex:
-            self.logger.warning(f'Error occured during trigger configuration: {str(ex)}', extra=self.log_args)
+            self.logger.warning('Error occured during trigger configuration: {}'.format(str(ex)), extra=self.log_args)
             return False
 
         return result
@@ -146,13 +145,13 @@ class Backfly(Cameras):
             img = cv2.imread(temp)
             #  Ensure image completion
             if image_result.IsIncomplete():
-                self.logger.warning(f'Image incomplete with image status: {image_result.GetImageStatus()}', extra=self.log_args)
+                self.logger.warning('Image incomplete with image status: {}'.format(image_result.GetImageStatus()), extra=self.log_args)
 
             # End acquisition
             self.cam.EndAcquisition()
 
         except PySpin.SpinnakerException as ex:
-            self.logger.error(f'Error occured during image acquisition: {str(ex)}')
+            self.logger.error('Error occured during image acquisition: {}'.format(str(ex)))
             raise SystemExit
 
         return img
@@ -189,7 +188,7 @@ class Backfly(Cameras):
             self.cam.TriggerMode.SetValue(PySpin.TriggerMode_Off)
 
         except PySpin.SpinnakerException as ex:
-            self.logger.warning(f'Error occured during trigger reset: {str(ex)}')
+            self.logger.warning('Error occured during trigger reset: {}'.format(str(ex)))
             return False
 
         return result
@@ -228,7 +227,7 @@ class Backfly(Cameras):
                 return ('Device control information not available')
 
         except PySpin.SpinnakerException as ex:
-            self.logger.error(f'Error occured during camera info retrieving: {str(ex)}')
+            self.logger.error('Error occured during camera info retrieving: {}'.format(str(ex)))
             raise SystemExit
 
     def __inittrg(self, triger):
@@ -245,5 +244,5 @@ class Backfly(Cameras):
             self.configure_trigger(triger)
 
         except PySpin.SpinnakerException as ex:
-            self.logger.error(f'Error occured during camera and trigger initialization: {str(ex)}')
+            self.logger.error('Error occured during camera and trigger initialization: {}'.format(str(ex)))
             raise SystemExit

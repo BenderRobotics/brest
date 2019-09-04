@@ -47,10 +47,10 @@ class Config():
                 self.config = load(stream, Loader=Loader)
             self._validate()
         except OSError as ex:
-            self.logger.error(f'File `{ex.filename}` not found', extra=self.log_args)
+            self.logger.error('File `{}` not found'.format(ex.filename), extra=self.log_args)
             raise SystemExit
         except ParserError as ex:
-            self.logger.error(f'Error during config parsing:\n{str(ex)}', extra=self.log_args)
+            self.logger.error('Error during config parsing:\n{}'.format(ex), extra=self.log_args)
             raise SystemExit
 
     def _validate(self):
@@ -61,21 +61,21 @@ class Config():
         self.is_valid = True
 
         if self.project not in self.config:
-            self.logger.error(f'Project `{self.project}` is not in the config', extra=self.log_args)
+            self.logger.error('Project `{}` is not in the config'.format(self.project), extra=self.log_args)
             self.is_valid = False
             return
 
         for group, resources in self.config[self.project].items():
             for name, params in resources.items():
                 if not params:
-                    self.logger.error(f'Resource `{name}` is missing any further definition', extra=self.log_args)
+                    self.logger.error('Resource `{}` is missing any further definition'.format(name), extra=self.log_args)
                     self.is_valid = False    
                 elif 'class_name' not in params and 'interface' not in params:
-                    self.logger.error(f'Resource `{name}` is missing class_name or interface definition', extra=self.log_args)
+                    self.logger.error('Resource `{}` is missing class_name or interface definition'.format(name), extra=self.log_args)
                     self.is_valid = False
                 elif 'class_name' in params and not params['class_name']:
-                    self.logger.error(f'Resource `{name}` has empty class_name definition', extra=self.log_args)
+                    self.logger.error('Resource `{}` has empty class_name definition'.format(name), extra=self.log_args)
                     self.is_valid = False
                 elif 'interface' in params and not params['interface']:
-                    self.logger.error(f'Resource `{name}` has empty interface definition', extra=self.log_args)
+                    self.logger.error('Resource `{}` has empty interface definition'.format(name), extra=self.log_args)
                     self.is_valid = False

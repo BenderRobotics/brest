@@ -56,7 +56,7 @@ class CommunicationStructure(Packable):
             raise SystemExit
 
         if not issubclass(value.__class__, Packable):
-            self.logger.error(f'Value in `{name}` must derive from Packable class', extra=self.log_args)
+            self.logger.error('Value in `{}` must derive from Packable class'.format(name), extra=self.log_args)
             raise SystemExit
 
         internal_name = '_' + name

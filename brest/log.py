@@ -29,9 +29,9 @@ class ColoredStreamHandler(StreamHandler):
 
 def coloredHandlerFactory():
     on_windows = platform.system() == 'Windows'
-    on_appveyor = os.environ.get('APPVEYOR', False)
+    on_gitlab_ci = os.environ.get('GITLAB_CI', False)
 
-    if on_windows and not on_appveyor:
+    if on_windows and not on_gitlab_ci:
         log_stream = wrap_stream(sys.stdout, None, None, None, True)
     else:
         log_stream = sys.stdout

@@ -40,7 +40,7 @@ class ResourceProvider:
             if resource in resources:
                 interface = resources[resource]
         if interface is None:
-            self.logger.warning(f'Class `{resource}` is not known to Brest', extra=self.log_args)
+            self.logger.warning('Class `{}` is not known to Brest'.format(resource), extra=self.log_args)
             return
 
         handler = self.__get_interface_seeker(interface['type'])
@@ -77,7 +77,7 @@ class ResourceProvider:
                 if subcls_.__name__ == kwargs['class_name']:
                     return self.__construct(subcls_.__module__, kwargs)
 
-        self.logger.warning(f'Can\'t construct class `{kwargs["class_name"]}`. Class is not subclass of any resource', extra=self.log_args)
+        self.logger.warning('Can\'t construct class `{}`. Class is not subclass of any resource'.format(kwargs['class_name']), extra=self.log_args)
         return None
 
     def construct_config(self, config):
@@ -93,8 +93,13 @@ class ResourceProvider:
 
             # check if config group is known to Brest
             if group not in self.knowns:
+<<<<<<< HEAD
                 self.logger.warning(f'Group `{group}` is not known to Brest. Resources in the `{group}` group won\'t be constructed', extra=self.log_args)
                 continue
+=======
+                self.logger.error('Group `{}` is not known to Brest'.format(group), extra=self.log_args)
+                raise SystemExit
+>>>>>>> feature/2201-ci-cd
 
             # get all resources known by Brest in config group
             resources = self.knowns[group] 
@@ -109,7 +114,7 @@ class ResourceProvider:
 
                 # check if class is available for brest
                 if 'class_name' in params and params['class_name'] not in resources:
-                    self.logger.error(f'Class `{params["class_name"]}` is not known to Brest', extra=self.log_args)
+                    self.logger.error('Class `{}` is not known to Brest'.format(params['class_name']), extra=self.log_args)
                     raise SystemExit
 
                 # check what is defined
@@ -127,7 +132,7 @@ class ResourceProvider:
                             params['class_name'] = class_name
                             params['interface'] = {**resources[class_name], **params['interface']}
                         else:
-                            self.logger.error(f'Class for `{alias}`\'s interface not found', extra=self.log_args)
+                            self.logger.error('Class for `{}`\'s interface not found'.format(alias), extra=self.log_args)
                             raise SystemExit                      
                 else:
                     
@@ -140,7 +145,7 @@ class ResourceProvider:
                 try:
                     params['interface'] = handler.complete_interface(params['interface'], connected)
                 except LookupError as e:
-                    self.logger.error(f'Resource `{params["name"]}` doesn\'t seem to be connected to the system. {str(e)}', extra=self.log_args)
+                    self.logger.error('Resource `{}` doesn\'t seem to be connected to the system. {}'.format(params['name'], str(e)), extra=self.log_args)
                     raise SystemExit
 
                 constructed.append(self.construct(params))
@@ -171,7 +176,11 @@ class ResourceProvider:
         if interface_type in self.seekers:
             return self.seekers[interface_type]
         else:
+<<<<<<< HEAD
             self.logger.error(f'Interface type `{interface_type}` is not known to Brest', extra=self.log_args)
+=======
+            self.logger.error('Interface type `{}` is not known to Brest'.format(interface_type))
+>>>>>>> feature/2201-ci-cd
             raise SystemExit
 
     def __find_class_by_interface(self, interface):
@@ -198,7 +207,7 @@ class ResourceProvider:
 
         module = importlib.import_module(module_name)
         class_ = getattr(module, kwargs['class_name'])
-        message = f'Error durning `{kwargs["name"]}` construction. ' if 'name' in kwargs else f'Error durning `{kwargs["class_name"]}` construction. ' # Possible log message
+        message = 'Error durning `{}` construction. '.format(kwargs['name']) if 'name' in kwargs else 'Error durning `{}` construction. '.format(kwargs['class_name']) # Possible log message
         del kwargs['class_name']          # Avoid unnecessary warning about class_name not being a class atribute
 
         try:

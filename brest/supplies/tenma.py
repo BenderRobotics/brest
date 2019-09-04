@@ -66,7 +66,7 @@ class Tenma(Supplies, SCPICommunicalbe):
     @voltage.setter
     def voltage(self, value, channel = 1):
         if self.MAX_VOLTAGE and value > self.MAX_VOLTAGE:
-            self.logger.warning(f'Value {value} exceeded maximum voltage level', extra=self.log_args)
+            self.logger.warning('Value {} exceeded maximum voltage level'.format(value), extra=self.log_args)
         else:
             Tenma.Commands.SET_VOLTAGE.value = value
             self.transceive(Tenma.Commands.SET_VOLTAGE)
@@ -78,7 +78,7 @@ class Tenma(Supplies, SCPICommunicalbe):
     @current.setter
     def current(self, value, channel = 1):
         if self.MAX_CURRENT and value > self.MAX_CURRENT:
-            self.logger.warning(f'Value {value} exceeded maximum current level', extra=self.log_args)
+            self.logger.warning('Value {} exceeded maximum current level'.format(value), extra=self.log_args)
         else:
             Tenma.Commands.SET_CURRENT.value = value
             self.transceive(Tenma.Commands.SET_CURRENT)
@@ -89,7 +89,7 @@ class Tenma(Supplies, SCPICommunicalbe):
         elif protection_type == Supplies.Protection.OCP:
             command = Tenma.Commands.EN_OCP
         else:
-            self.logger.warning(f'Protection `{protection_type.name}` is not supported', extra=self.log_args)
+            self.logger.warning('Protection `{}` is not supported'.format(protection_type.name), extra=self.log_args)
         self.transceive(command)
 
     def disable_protection(self, protection_type, channel = 1):
@@ -98,7 +98,7 @@ class Tenma(Supplies, SCPICommunicalbe):
         elif protection_type == Supplies.Protection.OCP:
             command = Tenma.Commands.DIS_OCP
         else:
-            self.logger.warning(f'Protection `{protection_type.name}` is not supported', extra=self.log_args)
+            self.logger.warning('Protection `{}` is not supported'.format(protection_type.name), extra=self.log_args)
         self.transceive(command)
 
     def get_info(self):

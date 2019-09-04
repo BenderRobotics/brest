@@ -1,0 +1,26 @@
+image: python:3.5
+
+stages:
+  - build
+  - test
+  - doc
+  - deploy
+
+build-wheel:
+  stage: build
+  tags:
+    - docker
+  script:
+    - make
+  artifacts:
+    paths:
+      - "*.whl"
+    expire_in: 1 week
+
+test-unit:
+  stage: test
+  tags:
+    - docker
+  script:
+    - pip install -r requirements.txt
+    - python test_output.py

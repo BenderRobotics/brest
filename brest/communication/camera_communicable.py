@@ -1,5 +1,4 @@
 import logging
-import win32com.client
 
 from brest.communication import Communicable
 
@@ -24,6 +23,14 @@ class CameraCommunicable(Communicable):
 
     @staticmethod
     def list_cameras():
+        
+        import platform
+        if platform.system() != 'Windows':
+            logging.getLogger('brest').warning('Listing connected cameras is not supported besides windows. Any function including this operation will fail.', extra={'class_name': 'CameraCommunicable'})
+            return []
+        else:
+            import win32com.client
+
         cameras = []
         
         WMISerivce = win32com.client.Dispatch("WbemScripting.SWbemLocator")
