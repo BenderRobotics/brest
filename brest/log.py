@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.log
+    ~~~~~~~~~
+
+    This module implements logging facility for Brest.
+
+    :copyright: 2019 Bender Robotics
+"""
+
 import os
 import sys
 import platform
@@ -9,7 +19,7 @@ from logging import StreamHandler
 class ColoredStreamHandler(StreamHandler):
 
     def __init__(self, stream = None):
-        super().__init__(stream)
+        StreamHandler.__init__(self, stream)
 
     COLORS = {
         'DEBUG'  : Fore.CYAN,
@@ -27,7 +37,7 @@ class ColoredStreamHandler(StreamHandler):
         except:
             self.handleError(record)
 
-def coloredHandlerFactory():
+def colored_handler_factory():
     on_windows = platform.system() == 'Windows'
     on_gitlab_ci = os.environ.get('GITLAB_CI', False)
 
@@ -42,31 +52,31 @@ DEFAULT_LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'brest_base_f': {
+        'br_base_f': {
             'format': '[%(asctime)s][%(levelname)s] : %(class_name)s.%(funcName)s() -> %(message)s',
         },
     },
     'handlers': {
-        'console': {
-            '()': 'brest.log.coloredHandlerFactory',
+        'br_console_h': {
+            '()': 'brest.log.colored_handler_factory',
             'level': 'INFO',
-            'formatter': 'brest_base_f',
+            'formatter': 'br_base_f',
         },
-        'console_dbg': {
-            '()': 'brest.log.coloredHandlerFactory',
+        'br_console_dbg_h': {
+            '()': 'brest.log.colored_handler_factory',
             'level': 'DEBUG',
-            'formatter': 'brest_base_f',
+            'formatter': 'br_base_f',
         },
     },
     'loggers': {
         'brest': {
             'level': 'DEBUG',
-            'handlers': ['console_dbg'],
+            'handlers': ['br_console_dbg_h'],
             'propagate': False
         },
         'root': {
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['br_console_h'],
         },
     },
 }

@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.resource
+    ~~~~~~~~~~~~~~
+
+    This module implements base attributes and method for resource.
+
+    :copyright: 2019 Bender Robotics
+"""
+
 import logging
 
 class Resource():
@@ -5,16 +15,16 @@ class Resource():
     Base class for representing resource by name.
     '''
 
-    cnt = 0
+    _count = 0
 
     def __init__(self):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
         
-        self.name = 'resource_' + str(Resource.cnt)
-        Resource.cnt += 1
+        self.name = 'resource_' + str(Resource._count)
+        Resource._count += 1
 
-    def parse_args(self, kwargs):
+    def _parse_args(self, kwargs):
         '''
         If object has attribute specified in `kwargs` dict, sets its value.
         '''

@@ -7,16 +7,14 @@ all: $(TARGET)
 
 $(TARGET):
 	python setup.py bdist_wheel
-	mv dist/brest*.whl .
 
 clean:
 	rm -rf build
 	rm -rf dist
 	rm -rf *.egg-info
-	rm -rf *.whl
 
 install: $(TARGET)
-	pip install *.whl
+	pip install dist/*.whl
 
 uninstall:
 	pip uninstall brest -y

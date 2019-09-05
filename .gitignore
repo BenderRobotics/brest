@@ -1,9 +1,21 @@
+# python
 __pycache__
+
+# python wheel
 build
 dist
-.vs
-.pylintrc
 *.pyc
 *.egg-info
 *.whl
+
+# sphinx docs
+docs/_build
+
+# vs code
+.vs
+
+# vs code python extensions
+.pylintrc
+
+# misc
 test.py

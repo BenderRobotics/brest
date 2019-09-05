@@ -24,7 +24,7 @@ class Backfly(Cameras):
             import tempfile
         except ModuleNotFoundError:
             raise ModuleNotFoundError('To use {} class you have to install `tempfile` module'.format(self.__class__.__name__))
-        self.parse_args(kwargs)
+        self._parse_args(kwargs)
 
         # Retrieve singleton reference to system object
         self.system = PySpin.System.GetInstance()

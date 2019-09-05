@@ -3,7 +3,7 @@ image: python:3.5
 stages:
   - build
   - test
-  - doc
+  - docs
   - deploy
 
 build-wheel:
@@ -12,9 +12,10 @@ build-wheel:
     - docker
   script:
     - make
+    - pip install "dist/*.whl"
   artifacts:
     paths:
-      - "*.whl"
+      - "dist/*.whl"
     expire_in: 1 week
 
 test-unit:
@@ -22,5 +23,17 @@ test-unit:
   tags:
     - docker
   script:
-    - pip install -r requirements.txt
-    - python test_output.py
+    - python tests/test_output.py
+
+build-docs:
+  stage: docs
+  tags:
+    - docker
+  script:
+    - pip install sphinx
+    - cd docs
+    - make html
+  artifacts:
+    paths:
+      - "docs/_build/html/*"
+    expire_in: 1 week

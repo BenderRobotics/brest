@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.resource_provider
+    ~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module implements core functionality and provides means to resource probing and instantiation.
+
+    :copyright: 2019 Bender Robotics
+"""
+
 import logging
 import importlib
 import serial.tools.list_ports
@@ -7,7 +17,7 @@ import brest.loads
 import brest.cameras
 import brest.interfaces
 
-from brest import Resource
+from .resource import Resource
 from brest.communication import CommunicableError, SerialCommunicable, CameraCommunicable
 
 class ResourceProvider:
@@ -209,7 +219,7 @@ class ResourceProvider:
         module = importlib.import_module(module_name)
         class_ = getattr(module, kwargs['class_name'])
         message = 'Error durning `{}` construction. '.format(kwargs['name']) if 'name' in kwargs else 'Error durning `{}` construction. '.format(kwargs['class_name']) # Possible log message
-        del kwargs['class_name']          # Avoid unnecessary warning about class_name not being a class atribute
+        del kwargs['class_name']          # Avoid unnecessary warning about class_name not being a class attribute
 
         try:
             instance = class_(kwargs)

@@ -1,13 +1,12 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-#  @name:
-#   config.py
-#
-#  @brief:
-#
-#
-#  Copyright 2019 Bender Robotics
+"""
+    brest.config
+    ~~~~~~~~~~~~
+
+    This module implements configuration file parsing and validation.
+
+    :copyright: 2019 Bender Robotics
+"""
 
 import os
 import logging
@@ -20,9 +19,9 @@ class Config():
     Class that represents brest projects configuration file
     '''
 
-    BREST_CONFIG_PATH = os.path.expanduser('~/brest')
-    BREST_CONFIG_NAME = 'brest.yaml'
-    BREST_CONFIG      = os.path.join(BREST_CONFIG_PATH, BREST_CONFIG_NAME)
+    BREST_CONFIG_DIR = os.path.expanduser('~/.brest')
+    BREST_CONFIG_NAME = 'config.yaml'
+    BREST_CONFIG      = os.path.join(BREST_CONFIG_DIR, BREST_CONFIG_NAME)
 
     def __init__(self, project, config_path = BREST_CONFIG):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}

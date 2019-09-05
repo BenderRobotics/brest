@@ -25,7 +25,7 @@ class Virsup(Supplies, SCPICommunicalbe):
         Supplies.__init__(self)
         SCPICommunicalbe.__init__(self, kwargs['interface'])
         
-        self.parse_args(kwargs)
+        self._parse_args(kwargs)
         self.__detect()
 
     @property

@@ -21,7 +21,7 @@ class Pli(Loads, SCPICommunicalbe):
         SCPICommunicalbe.__init__(self, kwargs['interface'])
         self.message_suffix = '\n'
 
-        self.parse_args(kwargs)
+        self._parse_args(kwargs)
         self.check_connection()
 
     def enable(self):

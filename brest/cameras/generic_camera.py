@@ -11,7 +11,7 @@ class GenericCamera(Cameras):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
-        self.parse_args(kwargs)
+        self._parse_args(kwargs)
 
         try:
             import cv2
