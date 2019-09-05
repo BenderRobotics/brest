@@ -6,13 +6,17 @@ stages:
   - docs
   - deploy
 
+before_script:
+  - pip install dist/brest-0.0.1-py3-none-any.whl
+
 build-wheel:
   stage: build
   tags:
     - docker
+  before_script:
+    - echo
   script:
     - make
-    - pip install "dist/*.whl"
   artifacts:
     paths:
       - "dist/*.whl"
@@ -23,17 +27,21 @@ test-unit:
   tags:
     - docker
   script:
-    - python tests/test_output.py
+    - python tests/test_colorful_output.py
+  dependencies:
+    - build-wheel
 
 build-docs:
   stage: docs
   tags:
     - docker
   script:
-    - pip install sphinx
+    - pip install brest[docs]
     - cd docs
     - make html
   artifacts:
     paths:
       - "docs/_build/html/*"
     expire_in: 1 week
+  dependencies:
+    - build-wheel
