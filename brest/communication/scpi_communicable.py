@@ -11,6 +11,12 @@ class SCPICommunicalbe(SerialCommunicable):
         self.message_suffix = '' #TODO: Dont forget to mention in the documentation
 
     def write(self, message):
+        """Sends a message in a blocking mode.
+
+        :param message: Message to be sent
+        :type  message: :class:`~brest.communication.SCPICommand` or :class:`~brest.communication.SCPIValueCommand`
+        """
+
         message.pack()
         data = bytearray(message.raw_data) 
         if self.message_suffix:
@@ -18,6 +24,14 @@ class SCPICommunicalbe(SerialCommunicable):
         self.write_raw(data)
 
     def transceive(self, message):
+        """Sends and receive a message in a blocking mode.
+
+        :param message: Message to be sent
+        :type  message: :class:`~brest.communication.SCPICommand` or :class:`~brest.communication.SCPIValueCommand`
+        :return: Message from a device
+        :rtype: str
+        """
+
         self.write(message)
         received = self.read_raw()
         return received.decode(self.ENCODING)

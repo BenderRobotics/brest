@@ -11,9 +11,7 @@
 import logging
 
 class Resource():
-    '''
-    Base class for representing resource by name.
-    '''
+    """Base class for representing resource by name."""
 
     _count = 0
 
@@ -25,9 +23,11 @@ class Resource():
         Resource._count += 1
 
     def _parse_args(self, kwargs):
-        '''
-        If object has attribute specified in `kwargs` dict, sets its value.
-        '''
+        """If object has attribute specified in `kwargs` dict, sets its value.
+        
+        :param kwargs: A dictionary indexed by attribute names which contains attribute values from configuration file.
+        :type  kwargs: dict
+        """
 
         for attr, value in kwargs.items():
             if hasattr(self, attr):

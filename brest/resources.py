@@ -22,42 +22,47 @@ class Resources():
         from brest import Resources
         res = Resources(project_name)
 
-    :param project: Project name you want to instantiate defined in the config file.
+    `res` variable will be populated with constructed resources available through the `[]` operator::
+
+        res[resource_name]
+
+    :param project: A project name you want to instantiate defined in the config file
     :type project: str
-    :param config: Absolute path to config file in non standard location
+    :param config: An absolute path to config file in non standard location
     :type config: str
-    :param needed: List of resource names that should be instantiated. If nothing is provided, Brest will try to instantiate every resource in selected project.
+    :param needed: List of resource names that should be instantiated. If nothing is provided, Brest will try to instantiate every resource in selected project
     :type needed: list
 
+    .. versionadded:: 0.0.1
     """
 
     def __init__(self, project, config = Config.BREST_CONFIG, needed = []):
         self.log_args = {'class_name':self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
-        self.resources = {}
-        self.instantiate(project, config, needed)
+        self._resources = {}
+        self._instantiate(project, config, needed)
 
     def __str__(self):
-        if not self.resources:
+        if not self._resources:
             return str(self.__class__)
             
-        just = max([len(k) for k in self.resources.keys()]) + 1
+        just = max([len(k) for k in self._resources.keys()]) + 1
         s = '%s: {\n    ' % self.__class__.__name__
-        s += '\n    '.join(['%s: %s' % (str(k).ljust(just), str(self.resources[k])) for k in sorted(self.resources)])
+        s += '\n    '.join(['%s: %s' % (str(k).ljust(just), str(self._resources[k])) for k in sorted(self._resources)])
         s += "\n}"
         return s
 
     def __getitem__(self, key):
-        if key in self.resources:
-            return self.resources[key]
+        if key in self._resources:
+            return self._resources[key]
         else:
             raise KeyError('Invalid key: {}'.format(key))
 
     def __iter__(self):
-        return iter(self.resources.items())
+        return iter(self._resources.items())
 
-    def instantiate(self, project, config, needed):
+    def _instantiate(self, project, config, needed):
         cfg = Config(project)
         cfg.needed = needed
         if not cfg.is_valid:
@@ -72,12 +77,12 @@ class Resources():
         for r in res:
             # Failed object construction results in None being in the list
             if r:
-                self.resources[r.name] = r
+                self._resources[r.name] = r
             else:
                 self.logger.error('Couldn\'t initialize all resources', extra=self.log_args)
                 raise SystemExit        
         
-        if self.resources:
+        if self._resources:
             self.logger.info('All resources successfully initialized\n{}'.format(str(self)), extra=self.log_args)
         else:
             self.logger.warning('No resources were initialized', extra=self.log_args)

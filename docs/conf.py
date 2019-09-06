@@ -24,8 +24,14 @@ author = 'Bender Robotics'
 # ones.
 master_doc = 'index'
 extensions = [
-    "sphinx.ext.autodoc"
+    "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx"
 ]
+
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3/', None),
+    'pyserial': ('https://pyserial.readthedocs.io/en/latest/', None),
+}
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

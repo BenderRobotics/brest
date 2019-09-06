@@ -15,21 +15,37 @@ from yaml import load, Loader
 from yaml.parser import ParserError
 
 class Config():
-    '''
-    Class that represents brest projects configuration file
-    '''
+    """Class that represent parsed configuration file
+    
+    Serves as an unified input for some methods. Also provides constants indicating 
+    standard configuration filename and location. After you have successfully created
+    :class:`~brest.Config` object, you can check its validity using :attr:`~brest.Config.is_valid`
+    or set needed resources using :attr:`~brest.Config.needed`.
 
-    BREST_CONFIG_DIR = os.path.expanduser('~/.brest')
+    :param project: A project name you want to instantiate defined in the config file
+    :type  project: str
+    :param config_path: An absolute path to config file in non standard location
+    :type  config_path: str
+    """
+
+    #: Standard configuration file directory
+    BREST_CONFIG_DIR = os.path.join(os.path.expanduser('~'), '.brest')
+    #: Standard configuration filename
     BREST_CONFIG_NAME = 'config.yaml'
+    #: Standard configuration file path
     BREST_CONFIG      = os.path.join(BREST_CONFIG_DIR, BREST_CONFIG_NAME)
 
     def __init__(self, project, config_path = BREST_CONFIG):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
+        #: A dictionary which contains parsed config file
         self.config = None
+        #: Currently selected project name
         self.project = project
+        #: Indicates if parsed config file is valid for Brest
         self.is_valid = False
+        #: A list of needed resources aliases. 
         self.needed = []
 
         self._parse(config_path)

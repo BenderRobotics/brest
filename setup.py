@@ -28,8 +28,12 @@ setuptools.setup(
         'docs': [
             'sphinx',
         ],
-        'cameras': [
+        'cameras_win': [
+            'pywin32',
             'opencv-python',
-        ]
+        ],
+        'cameras_unix': [
+            'opencv-python',
+        ],
     }
 )

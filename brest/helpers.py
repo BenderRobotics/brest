@@ -12,9 +12,11 @@ from .log import DEFAULT_LOGGING
 from .config import Config
 
 def overwrite_log_config(config_dict):
-    '''
-    Method takes a logging configuration dictionary and merges it with the brest implicit configuration.
-    '''
+    """Method takes a logging configuration dictionary and merges it with the brest implicit configuration.
+    
+    :param config_dict: A dictionary with logging settings
+    :type  config_dict: dict
+    """
 
     custom_config = dict(log.DEFAULT_LOGGING)
     for ov_key, ov_value in config_dict.items():
@@ -32,12 +34,32 @@ def __apply_overwrite(node, key, value):
         node[key] = value
 
 def prepare_tests(test_suite, project, config=Config.BREST_CONFIG):
-    '''
-    Method takes test_suite object created using unittest.discover(). It collects
-    all needed resources from test, construct them and sets as class a attribute on
-    every test.
-    Returns Resources instance
-    '''
+    """Method that prepares tests to be used with Brest.
+    
+    It collects all needed resources from tests, construct them and sets as an class attribute on
+    every test. Folder hierarchy of tests must be::
+
+    tests
+    |- __init__.py
+    |- run_all.py
+    |- 10_general
+    |  |- __init__.py
+    |  |- test_MB_GEN_002.py
+    |  |- test_MB_GEN_004.py
+    |- 21_interface
+    |  |- __init__.py
+    |  |- test_MB_002.py
+    |  |- test_MB_003.py
+
+    :param test_suite: An object returned by :meth:`unittest.TestLoader.discover`
+    :type  test_suite: :class:`unittest.TestSuite`
+    :param project: A project name you want to instantiate defined in the config file
+    :type  project: str
+    :param config: An absolute path to config file in non standard location
+    :type  config: str
+    :return: Same object obtained through :class:`~brest.Resources` initialization
+    :rtype: :class:`~brest.Resources`
+    """
 
     # collect needed resources
     needed = []

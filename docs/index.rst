@@ -10,5 +10,7 @@ Welcome to Brest's documentation!
    :maxdepth: 2
 
    installation
-   quickstart
+   usage
+   supported
+   definitions
    api

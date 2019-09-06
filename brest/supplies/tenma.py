@@ -1,13 +1,12 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-#  @name:
-#   tenma.py
-#
-#  @brief:
-#   Tenma power supply fake class for demonstration purposes.
-#
-#  Copyright 2019 Bender Robotics
+"""
+    brest.supplies.Tenma
+    ~~~~~~~~~~~~~~~~~~~~
+
+    This module implements Tenma 72-25xx programmable power supply.
+
+    :copyright: 2019 Bender Robotics
+"""
 
 from brest.supplies import Supplies
 from brest.communication import SCPICommunicalbe, SCPICommand, SCPIValueCommand, CommunicableError
@@ -15,10 +14,34 @@ from brest.communication import SCPICommunicalbe, SCPICommand, SCPIValueCommand,
 from contextlib import suppress
 
 class Tenma(Supplies, SCPICommunicalbe):
+    """Tenma programmable single channel power supply.
 
-    Supplies.KNOWN['Tenma'] = {'type':'serial', 'timeout': 0.1, 'vid':0x416, 'pid':0x5011}
+    Supported models in 72 series: 2535, 2540, 2545, 2550
+
+    Implicit interface definition::
+
+        interface:
+            type:    'serial'
+            timeout: 0.1
+            vid:     0x416
+            pid:     0x5011
+
+    :param kwargs: Construction parameters
+    :type  kwargs: dict
+
+    """
+
+    #: Implicit interface definition
+    Supplies.KNOWN['Tenma'] = {
+        'type':'serial',
+        'timeout': 0.1,
+        'vid':0x416,
+        'pid':0x5011,
+        }
 
     class Commands():
+        """Available commands"""
+        #: Get info
         GET_INFO    = SCPICommand('*IDN?')
         GET_STATUS  = SCPICommand('STATUS?')
         SET_VOLTAGE = SCPIValueCommand('VSET1')

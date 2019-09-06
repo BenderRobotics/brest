@@ -21,9 +21,11 @@ from .resource import Resource
 from brest.communication import CommunicableError, SerialCommunicable, CameraCommunicable
 
 class ResourceProvider:
-    '''
-    Base class for specific resource providers.
-    '''
+    """Base class for resource managing.
+
+    Provides core functionality to Brest. It can be used for available resource listing,
+    its and configuration file instantiation.
+    """
 
     def __init__(self):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
@@ -41,9 +43,11 @@ class ResourceProvider:
         }
 
     def print_probe(self, resource):
-        '''
-        Checks if resource is present in the system, and prints its interface.
-        '''
+        """Checks if resource is present in the system, and prints its interface.
+        
+        :param resource: Class name of a resource you want to probe. To get available class names refer to the :ref:`supported`
+        :type  resource: str
+        """
 
         interface = None
         for _, resources in self.knowns.items():
@@ -57,9 +61,13 @@ class ResourceProvider:
         handler.print_probe(interface)
 
     def available(self, group = None):
-        '''
-        Searches for all available resources present in the system.
-        '''
+        """Searches for available resources.
+
+        :param group: Specified group of resources to searched for. To get available groups refer to the :ref:`supported`
+        :type  group: str
+        :return: List of dicts describing available resource
+        :rtype: list<dict>
+        """
 
         connected = self.__refresh_connected()
         available = []
@@ -78,9 +86,15 @@ class ResourceProvider:
         return available
 
     def construct(self, kwargs):
-        '''
-        Constructs a resource from given parameters.
-        '''
+        """Constructs a resource from given parameters.
+        
+        Parameter can be obtained through :meth:`~brest.ResourceProvider.available` method
+        or created by you in for if dict which must contains ``class_name`` and ``interface`` fields.
+        For available class names refer to :ref:`supported` and interface definition to :ref:`definitions`.
+
+        :param kwargs: Needed parameters for automated class instantiation
+        :type  kwargs: dict
+        """
 
         for cls_ in Resource.__subclasses__():
             for subcls_ in cls_.__subclasses__():
@@ -91,9 +105,11 @@ class ResourceProvider:
         return None
 
     def construct_config(self, config):
-        '''
-        Constructs all available resources described in config.
-        '''
+        """Constructs all available resources described in config
+        
+        :param config: Configuration object
+        :type  config: :class:`~brest.Config`
+        """
         connected = self.__refresh_connected()
         constructed = []
         constructed_aliases = []
@@ -166,6 +182,11 @@ class ResourceProvider:
         return constructed
 
     def print_available(self, group = None):
+        """Prints available resources
+        
+        :param group: Specified group of resources to be printed. To get available groups refer to the :ref:`supported`
+        :type group: str
+        """
 
         def print_av_dict(available_dict):
             print(available_dict['class_name'])

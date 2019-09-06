@@ -1,34 +1,46 @@
 from brest import Resource
 
 class Supplies(Resource):
-    '''
-    Base class for representing a supply.
-    '''
+    """Base class for representing a power supply."""
 
     KNOWN = {}
 
     class Protection():
-        '''
-        All available types of protection supported by Supplies class.
-        '''
+        """Enumeration of available types of protection supported by Supplies class."""
 
-        OCP     = 1 # Overcurrent protection
-        OVP     = 2 # Overvoltage protection
-        UVLO    = 4 # Undervoltage protection
-        OTP     = 8 # Overtemperature protection
+        #: Overcurrent protection
+        OCP     = 1
+        #: Overvoltage protection
+        OVP     = 2
+        #: Undervoltage protection
+        UVLO    = 4
+        #: Overtemperature protection
+        OTP     = 8
 
     class Kind():
-        '''
-        All supported kinds of power supplies, based on the output type.
-        '''
+        """Enumeration supported kinds of power supplies, based on the output type."""
 
-        FIXED           = 1 # Fixed power Supplies
-        PROGRAMMABLE    = 2 # Programmable power Supplies
+        #: Fixed power supply
+        FIXED           = 1
+        #: Programmable power supply
+        PROGRAMMABLE    = 2
 
     class Model():
-        '''
-        Model info.
-        '''
+        """Model info.
+        
+        :param idn: Identification string
+        :type  idn: str
+        :param channels: Number of channels
+        :type  channels: int
+        :param max_voltage: Maximum available voltage
+        :type  max_voltage: float
+        :param max_current: Maximum available current
+        :type  max_current: float
+        :param protection: Available protections
+        :type  protection: list of :class:`~brest.supplies.Supplies.Protection`
+        :param kind: Kind of supply
+        :type  kind: list of :class:`~brest.supplies.Supplies.Kind`
+        """
 
         def __init__(self, idn, channels, max_voltage, max_current, protection, kind):
             self.idn = idn
@@ -51,83 +63,71 @@ class Supplies(Resource):
         self.kind = None
 
     def enable(self, channel = 1):
-        '''
-        Enables power supply output.
-        '''
+        """Enables power supply output."""
 
         raise NotImplementedError('This supply cannot be enabled.')
 
     def disable(self, channel = 1):
-        '''
-        Disables power supply output.
-        '''
+        """Disables power supply output. """
 
         raise NotImplementedError('This supply cannot be disabled.')
 
     @property
     def voltage(self, channel = 1):
-        '''
-        Gets voltage. You can specifi channel.
-        '''
+        """Gets and sets voltage."""
 
         raise NotImplementedError('This supply is unable to measure output voltage.')
 
     @voltage.setter
     def voltage(self, value, channel = 1):
-        '''
-        Sets voltage. You can specifi channel.
-        '''
 
         raise NotImplementedError('This supply does not support different voltages.')
 
     @property
     def current(self, channel = 1):
-        '''
-        Gets current. You can specifi channel.
-        '''
+        """Gets and sets current."""
 
         raise NotImplementedError('This supply is unable to measure output current.')
 
     @current.setter
     def current(self, value, channel = 1):
-        '''
-        Sets current. You can specifi channel.
-        '''
 
         raise NotImplementedError('This supply does not support different current limits.')
 
     def enable_protection(self, protection_type, channel = 1):
-        '''
-        Enables given protection. You can specifi channel.
-        '''
+        """Enables given protection
+        
+        :param protection_type: Protection type you want to enable
+        :type  protection_type: :class:`~brest.supplies.Supplies.Protection`
+        """
 
         raise NotImplementedError('This supply has no means of output protection.')
 
     def disable_protection(self, protection_type, channel = 1):
-        '''
-        Disables given protection. You can specifi channel.
-        '''
+        """Disables given protection
+        
+        :param protection_type: Protection type you want to disable
+        :type  protection_type: :class:`~brest.supplies.Supplies.Protection`
+        """
 
         raise NotImplementedError('This supply has no means of output protection.')
 
     def get_info(self):
-        '''
-        Returns info string.
-        '''
+        """Returns info string."""
         
         raise NotImplementedError('This supply has no means of status detection.')
     
     def __detect(self, apply = True):
-        '''
-        Returns model info. Implicitly tries to apply model's electrical limits.
-        '''
+        """Returns model info. Implicitly tries to apply model's electrical limits."""
 
         raise NotImplementedError('This supply does not support specific model detection.')
 
     def _apply_model_specs(self, model):
-        '''
-        Aplies model info to the class.
-        '''
+        """Applies model info to the class.
+        
+        :param model: Model's specification you want to apply
+        :type  model: :class:`~brest.supplies.Supplies.Model`
+        """
 
         self.idn = model.idn
         self.CHANNELS = model.channels
