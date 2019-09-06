@@ -156,13 +156,23 @@ class ResourceProvider:
         return constructed
 
     def print_available(self, group = None):
+
+        def print_av_dict(available_dict):
+            print(available_dict['class_name'])
+            for name, value in available_dict['interface'].items():
+                print('\t{}: {}'.format(name, value))
+
         if group:
             av = self.available(group)
         else:
             av = self.available()
 
+        i = 0
         for a in av:
-            print(a)
+            print('[{}] '.format(i), end='')
+            print_av_dict(a)
+            print()
+            i += 1
 
     def __refresh_connected(self):
         return (serial.tools.list_ports.comports(), CameraCommunicable.list_cameras())
