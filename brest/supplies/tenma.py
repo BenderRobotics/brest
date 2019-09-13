@@ -9,12 +9,17 @@
 """
 
 from brest.supplies import Supplies
-from brest.communication import SCPICommunicalbe, SCPICommand, SCPIValueCommand, CommunicableError
+from brest.communication import SCPICommunicable, SCPICommand, SCPIValueCommand, CommunicableError
 
 from contextlib import suppress
 
-class Tenma(Supplies, SCPICommunicalbe):
+class Tenma(Supplies, SCPICommunicable):
     """Tenma programmable single channel power supply.
+
+    Derived from :class:`~brest.communication.Supplies`, :class:`~brest.communication.SCPICommunicable`
+
+    :param kwargs: Construction parameters
+    :type  kwargs: dict
 
     Supported models in 72 series: 2535, 2540, 2545, 2550
 
@@ -25,9 +30,6 @@ class Tenma(Supplies, SCPICommunicalbe):
             timeout: 0.1
             vid:     0x416
             pid:     0x5011
-
-    :param kwargs: Construction parameters
-    :type  kwargs: dict
 
     """
 
@@ -54,25 +56,33 @@ class Tenma(Supplies, SCPICommunicalbe):
         DIS_OVP     = SCPICommand('OVP0')
         EN_OCP      = SCPICommand('OCP1')
         DIS_OCP     = SCPICommand('OCP0')
-        RECALL      = SCPICommand('RCL1')
-        SAVE        = SCPICommand('SAV1')
+        RECALL1     = SCPICommand('RCL1')
+        RECALL2     = SCPICommand('RCL2')
+        RECALL3     = SCPICommand('RCL3')
+        RECALL4     = SCPICommand('RCL4')
+        RECALL5     = SCPICommand('RCL5')
+        SAVE1       = SCPICommand('SAV1')
+        SAVE2       = SCPICommand('SAV2')
+        SAVE3       = SCPICommand('SAV3')
+        SAVE4       = SCPICommand('SAV4')
+        SAVE5       = SCPICommand('SAV5')
 
     Models = [
-        Supplies.Model('TENMA 72-2535', 1, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
-        Supplies.Model('TENMA 72-2540', 1, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
-        Supplies.Model('TENMA 72-2545', 1, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
-        Supplies.Model('TENMA 72-2550', 1, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
+        Supplies.Model('TENMA 72-2535', 1, 5, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
+        Supplies.Model('TENMA 72-2540', 1, 5, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
+        Supplies.Model('TENMA 72-2545', 1, 5, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
+        Supplies.Model('TENMA 72-2550', 1, 5, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
     ]
 
     def __init__(self, kwargs):
         Supplies.__init__(self)
-        SCPICommunicalbe.__init__(self, kwargs['interface'])
+        SCPICommunicable.__init__(self, kwargs['interface'])
         
-        self._parse_args(kwargs)        
         self.check_connection()
-        self.__detect()
+        self._detect()
+        self._parse_args(kwargs)        
 
-    def __del_(self):
+    def __del__(self):
         with suppress(Exception):
             self.disable()
 
@@ -124,27 +134,53 @@ class Tenma(Supplies, SCPICommunicalbe):
             self.logger.warning('Protection `{}` is not supported'.format(protection_type.name), extra=self.log_args)
         self.transceive(command)
 
+    def save_memory(self, memory_index, voltage, current):
+        if memory_index < 1 or memory_index > self.MEMORIES:
+            self.logger.warning('Invalid memory index. Available range is from 1 to {}'.format(memory_index, self.MEMORIES), extra=self.log_args)
+            return
+
+        self.disable()
+        
+        # First recall the memory you want to save to
+        cmd_name = 'RECALL' + str(memory_index)
+        command = getattr(self.Commands, cmd_name)
+        self.transceive(command)
+
+        # Then change the voltage and current values
+        self.voltage = voltage
+        self.current = current
+
+        # Save it to memory
+        cmd_name = 'SAVE' + str(memory_index)
+        command = getattr(self.Commands, cmd_name)
+        self.transceive(command)
+
+    def recall_memory(self, memory_index):
+        if memory_index < 1 or memory_index > self.MEMORIES:
+            self.logger.warning('Invalid memory index {}. Available range is from 1 to {}'.format(memory_index, self.MEMORIES), extra=self.log_args)
+            return
+
+        cmd_name = 'RECALL' + str(memory_index)
+        command = getattr(self.Commands, cmd_name)
+        self.transceive(command)        
+
     def get_info(self):
         return self.transceive(Tenma.Commands.GET_INFO)
 
-    def __detect(self):
-        psu_idn = self.transceive(Tenma.Commands.GET_INFO).split(',')[0]
-
-        for model in self.Models:
-            if (model.idn in psu_idn):
-                self._apply_model_specs(model)
-        if (None == self.idn):
-            self.logger.warning('Unable to detect model', extra=self.log_args)
-
-    def connect(self):
-        if self.com and not self.com.isOpen():
-            self.com.open()
-
     def disconnect(self):
-        if self.com and self.com.isOpen():
-            self.com.close()
+        self.disable()
+        SCPICommunicable.disconnect(self)
 
     def check_connection(self):
         received = self.transceive(Tenma.Commands.GET_INFO)
         if received == '':
             raise CommunicableError('Unable to establish a connection')
+
+    def _detect(self):
+        psu_idn = self.transceive(Tenma.Commands.GET_INFO).split(',')[0]
+
+        for model in self.Models:
+            if (model.idn in psu_idn):
+                self._apply_model_specs(model)
+        if (None == self.IDN):
+            self.logger.warning('Unable to detect model', extra=self.log_args)

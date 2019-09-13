@@ -1,7 +1,7 @@
 from .communicable import Communicable, CommunicableError
 from .serial_communicable import SerialCommunicable
 from .communicable_structures import Packable, CommunicationStructure, CommunicationFrame
-from .scpi_communicable import SCPICommunicalbe, SCPICommand, SCPIValueCommand
+from .scpi_communicable import SCPICommunicable, SCPICommand, SCPIValueCommand
 from .camera_communicable import CameraCommunicable
 from .interface_communicable import InterfaceCommunicable
 
@@ -15,7 +15,7 @@ __all__ = [
     'CommunicationFrame',
     'PackableTypes',
     'SerialCommunicable',
-    'SCPICommunicalbe',
+    'SCPICommunicable',
     'SCPICommand',
     'SCPIValueCommand',
     'CameraCommunicable',

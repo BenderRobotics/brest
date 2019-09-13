@@ -1,7 +1,7 @@
 from brest.loads import Loads
-from brest.communication import SCPICommunicalbe, SCPICommand, SCPIValueCommand, CommunicableError
+from brest.communication import SCPICommunicable, SCPICommand, SCPIValueCommand, CommunicableError
 
-class Pli(Loads, SCPICommunicalbe):
+class Pli(Loads, SCPICommunicable):
 
     Loads.KNOWN['Pli'] = {'type': 'serial', 'timeout': 0.1, 'baudrate': 115200, 'vid': 0x0403, 'pid': 0x06001}
 
@@ -18,7 +18,7 @@ class Pli(Loads, SCPICommunicalbe):
 
     def __init__(self, kwargs):
         Loads.__init__(self)
-        SCPICommunicalbe.__init__(self, kwargs['interface'])
+        SCPICommunicable.__init__(self, kwargs['interface'])
         self.message_suffix = '\n'
 
         self._parse_args(kwargs)

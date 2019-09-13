@@ -12,9 +12,9 @@
 import serial
 
 from brest.supplies import Supplies
-from brest.communication import SCPICommunicalbe
+from brest.communication import SCPICommunicable
 
-class Virsup(Supplies, SCPICommunicalbe):
+class Virsup(Supplies, SCPICommunicable):
     '''
     Virtual power Supplies class for demonstration purposes.
     '''
@@ -23,10 +23,10 @@ class Virsup(Supplies, SCPICommunicalbe):
 
     def __init__(self, kwargs):
         Supplies.__init__(self)
-        SCPICommunicalbe.__init__(self, kwargs['interface'])
+        SCPICommunicable.__init__(self, kwargs['interface'])
         
         self._parse_args(kwargs)
-        self.__detect()
+        self._detect()
 
     @property
     def voltage(self, channel = 1):
@@ -52,7 +52,7 @@ class Virsup(Supplies, SCPICommunicalbe):
             self._current = value
             self.logger.info('Current set to {}'.format(value), extra=self.log_args)
 
-    def __detect(self):
+    def _detect(self):
         self.logger.info('Detected virtual supply', extra=self.log_args)
 
     def connect(self):

@@ -28,6 +28,33 @@ Helper Methods
 .. automethod:: helpers.overwrite_log_config
 .. automethod:: helpers.prepare_tests
 
+Communication
+-------------
+
+.. currentmodule:: brest.communication
+
+.. autoclass:: SerialCommunicable
+    :members: connect, disconnect, write_raw, read_raw, probe
+
+.. autoclass:: SCPICommunicable 
+    :members:
+
+.. autoclass:: SCPICommand
+
+    .. attribute:: cmd
+
+        Plaintext command
+
+.. autoclass:: SCPIValueCommand
+
+    .. attribute:: cmd
+
+        Plaintext command
+
+    .. attribute:: value
+
+        String representation of given value
+
 Devices
 -------
 
@@ -47,4 +74,4 @@ Enumerations available for every supply:
 Available supplies:
 
 .. autoclass:: Tenma
-    :members: enable, disable, voltage, current, enable_protection, disable_protection, get_info, connect, disconnect, check_connection, write, transceive
+    :members: enable, disable, voltage, current, enable_protection, disable_protection, save_memory, recall_memory, get_info

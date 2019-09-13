@@ -1,7 +1,11 @@
 from brest.communication import SerialCommunicable, CommunicationStructure
 from brest.communication.types import str_t
 
-class SCPICommunicalbe(SerialCommunicable):
+class SCPICommunicable(SerialCommunicable):
+    """Class that represent communication using SCPI commands.
+    
+    Derived from: :class:`~brest.communication.SerialCommunicable`
+    """
 
     ENCODING = 'utf-8'
 
@@ -37,18 +41,25 @@ class SCPICommunicalbe(SerialCommunicable):
         return received.decode(self.ENCODING)
 
 class SCPICommand(CommunicationStructure):
-    '''
-    Class that wraps plaintext commands, holding additional info
-    '''
+    """Class that wraps plaintext commands
+    
+    :param command: Plaintext command you want to send
+    :type  command: str
+    """
 
     def __init__(self, command):
         CommunicationStructure.__init__(self)
         self.add('cmd', str_t(command))
 
 class SCPIValueCommand(CommunicationStructure):
-    '''
-    Class that wraps plaintext commands, holding additional info
-    '''
+    """Class that wraps plaintext commands with additional value
+    
+    :param command: Plaintext command you want to send
+    :type  command: str
+    :param value: Value that is converted to string and appended 
+                  with leading ':'
+    :type  value: any
+    """
 
     def __init__(self, command, value = None):
         CommunicationStructure.__init__(self)

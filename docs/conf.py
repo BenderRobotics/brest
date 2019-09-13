@@ -38,6 +38,10 @@ intersphinx_mapping = {
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+# Autodoc default options
+autodoc_default_options = {
+    'member-order': 'bysource',
+}
 
 # -- Options for HTML output -------------------------------------------------
 

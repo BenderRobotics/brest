@@ -21,6 +21,14 @@ class SerialCommunicable(Communicable):
         else:
             raise ValueError('Missing port definition')
 
+    def connect(self):
+        if self.com and not self.com.isOpen():
+            self.com.open()
+
+    def disconnect(self):
+        if self.com and self.com.isOpen():
+            self.com.close()
+
     def write_raw(self, data):
         self.com.write(data)
 
