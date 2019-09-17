@@ -63,15 +63,15 @@ Supplies
 
 .. currentmodule:: brest.supplies
 
-Enumerations available for every supply:
+Supplies base class:
 
-.. autoclass:: brest.supplies::Supplies.Protection
-    :members:
-
-.. autoclass:: brest.supplies::Supplies.Kind
-    :members:
+.. autoclass:: Supplies
+    :members: Protection, Kind, Model, IDN, CHANNELS, MEMORIES, MAX_VOLTAGE, MAX_CURRENT, PROTECTION, KIND, _apply_model_specs
 
 Available supplies:
+
+.. autoclass:: Mansup
+    :members:
 
 .. autoclass:: Tenma
     :members: enable, disable, voltage, current, enable_protection, disable_protection, save_memory, recall_memory, get_info

@@ -1,5 +1,5 @@
 from .supplies import Supplies
-from .virsup import Virsup
+from .mansup import Mansup
 from .tenma import Tenma
 
-__all__ = ['Supplies', 'Virsup', 'Tenma']
+__all__ = ['Supplies', 'Mansup', 'Tenma']

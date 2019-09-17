@@ -16,7 +16,7 @@ from contextlib import suppress
 class Tenma(Supplies, SCPICommunicable):
     """Tenma programmable single channel power supply.
 
-    Derived from :class:`~brest.communication.Supplies`, :class:`~brest.communication.SCPICommunicable`
+    Derived from :class:`~brest.supplies.Supplies`, :class:`~brest.communication.SCPICommunicable`
 
     :param kwargs: Construction parameters
     :type  kwargs: dict

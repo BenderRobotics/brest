@@ -53,12 +53,19 @@ class Supplies(Resource):
 
     def __init__(self):
         Resource.__init__(self)
+        #: Model number
         self.IDN = None
+        #: Number of available channels
         self.CHANNELS = 1
+        #: Number of available memories
         self.MEMORIES = 0
+        #: Maximum possible voltage
         self.MAX_VOLTAGE = None
+        #: Maximum possible current
         self.MAX_CURRENT = None
+        #: Available protections
         self.PROTECTION = None
+        #: Kind of a supply
         self.KIND = None
 
     def enable(self, channel = 1):

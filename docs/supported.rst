@@ -7,6 +7,7 @@ Here is a list of currently supported devices subsumed into supported groups.
 
 * Supplies
 
+    * :class:`~brest.supplies.Mansup`
     * :class:`~brest.supplies.Tenma`
 
 * Loads

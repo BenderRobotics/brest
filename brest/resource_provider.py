@@ -18,7 +18,7 @@ import brest.cameras
 import brest.interfaces
 
 from .resource import Resource
-from brest.communication import CommunicableError, SerialCommunicable, CameraCommunicable
+from brest.communication import CommunicableError, SerialCommunicable, CameraCommunicable, NoneCommunicable
 
 class ResourceProvider:
     """Base class for resource managing.
@@ -40,6 +40,7 @@ class ResourceProvider:
         self.seekers = {
             'serial': SerialCommunicable.Seeker(),
             'camera': CameraCommunicable.Seeker(),
+            'none'  : NoneCommunicable.Seeker(),
         }
 
     def print_probe(self, resource):

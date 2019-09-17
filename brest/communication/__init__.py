@@ -3,6 +3,7 @@ from .serial_communicable import SerialCommunicable
 from .communicable_structures import Packable, CommunicationStructure, CommunicationFrame
 from .scpi_communicable import SCPICommunicable, SCPICommand, SCPIValueCommand
 from .camera_communicable import CameraCommunicable
+from .none_communicable import NoneCommunicable
 from .interface_communicable import InterfaceCommunicable
 
 import types
@@ -19,6 +20,7 @@ __all__ = [
     'SCPICommand',
     'SCPIValueCommand',
     'CameraCommunicable',
+    'NoneCommunicable',
     'InterfaceCommunicable',
     'types',
     ]
