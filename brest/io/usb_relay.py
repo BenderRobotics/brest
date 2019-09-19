@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.io.USBRelay
+    ~~~~~~~~~~~~~~~~~
+
+    This module implements USB-RLYxx relay array.
+"""
+
 from brest.io import IO
 from brest.communication import SerialCommunicable
 from brest.communication import CommunicationStructure
@@ -16,6 +24,24 @@ class USBRelayValueCommand(USBRelayCommand):
         self.add('value', uint8_t())
 
 class USBRelay(IO, SerialCommunicable):
+    """USB-RLYxx relay array.
+
+    Derived from: :class:`~brest.io.IO`, :class:`~brest.communicable.SerialCommunicable`
+
+    This class doesn't provide any extra functionality than :class:`~brest.io.IO`. Just
+    implements its abstract methods to provide functionality to USB-RLYxx device family.
+
+    :param kwargs: Construction parameters
+    :type  kwargs: dict
+
+    Implicit interface definition::
+
+        interface:
+            type:    'serial'
+            timeout: 0.1
+            vid:     0x04D8
+            pid:     0xFFEE
+    """
 
     IO.KNOWN['USBRelay'] = {
         'type': 'serial',
@@ -23,20 +49,14 @@ class USBRelay(IO, SerialCommunicable):
         'pid': 0xFFEE,
     }
 
-    class Model():
-
-        def __init__(self, idn, channels, max_current, is_latching):
-            self.idn = idn
-            self.channels = channels
-            self.max_current = max_current
-            self.is_latching = is_latching
-
     Models = [
-        Model( 8, 8,  2.0, True),
-        Model(15, 8, 16.0, True),
+        IO.Model( 8, 8,  2.0, True),
+        IO.Model(15, 8, 16.0, True),
     ]
 
     class Commands:
+        """Available commands."""
+
         GET_INFO   = USBRelayCommand(0x5A)
         GET_STATES = USBRelayCommand(0x5B)
         SET_STATES = USBRelayValueCommand(0x5C)
@@ -49,28 +69,20 @@ class USBRelay(IO, SerialCommunicable):
         self._parse_args(kwargs)
 
     def __getitem__(self, key):
-        self.get_states()
-        if not isinstance(key, str):
-            return IO.__getitem__(self, key)
-
-        return self[self.aliases[key]]
+        self._read_states()
+        return IO.__getitem__(self, key)
 
     def __setitem__(self, key, value):
-        if not isinstance(key, str):
-            IO.__setitem__(self, key, value)
-            self.set_states()
-            return
+        IO.__setitem__(self, key, value)
+        self._write_states()
 
-        self[self.aliases[key]] = value
-        self.set_states()
-
-    def get_states(self):
+    def _read_states(self):
         command = self.Commands.GET_STATES
         command.pack()
         self.write_raw(command.raw_data)
         self._states = self.read_raw(size=1)[0]
 
-    def set_states(self):
+    def _write_states(self):
         command = self.Commands.SET_STATES
         command.value = self._states
         command.pack()
@@ -93,52 +105,3 @@ class USBRelay(IO, SerialCommunicable):
                 return
 
         self.logger.warning('Unable to detect model', extra=self.log_args)
-
-    @property
-    def relays(self):
-        pass
-
-    @relays.setter
-    def relays(self, value):
-        if len(value) > self.CHANNELS:
-            raise ValueError('Can\'t satisfy channels requirement. Requested {} available {}'.format(len(value), self.CHANNELS))
-
-        if self.IS_LATCHING:
-            self.get_states()
-
-        for relay in value:
-            if relay['index'] < 0 or relay['index'] > self.CHANNELS:
-                self.logger.warning('Not a valid index', extra=self.log_args)
-                return
-
-            self.aliases[relay['name']] = relay['index']
-            self[relay['index']] = relay['value']
-
-        self.propagate_states = True
-
-    @property
-    def channels(self):
-        pass
-
-    @channels.setter
-    def channels(self, value):
-        if value > self.CHANNELS:
-            raise ValueError('Can\'t satisfy `channels` requirement. Requested {} available {}'.format(value, self.CHANNELS))
-
-    @property
-    def max_current(self):
-        pass
-
-    @max_current.setter
-    def max_current(self, value):
-        if value > self.MAX_CURRENT:
-            raise ValueError('Can\'t satisfy `max_current` requirement. Requested {} available {}'.format(value, self.MAX_CURRENT))
-
-    @property
-    def is_latching(self):
-        pass
-
-    @is_latching.setter
-    def is_latching(self, value):
-        if value != self.IS_LATCHING:
-            raise ValueError('Can\'t satisfy `is_latching` requirement. Requested {} available {}'.format(value, self.IS_LATCHING))

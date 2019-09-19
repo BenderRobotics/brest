@@ -75,3 +75,17 @@ Available supplies:
 
 .. autoclass:: Tenma
     :members: enable, disable, voltage, current, enable_protection, disable_protection, save_memory, recall_memory, get_info
+
+IO
+~~
+
+.. currentmodule:: brest.io
+
+Input/Output base class:
+
+.. autoclass:: IO
+    :members: Model, IDN, CHANNELS, MAX_CURRENT, IS_LATCHING, __getitem__, __setitem__, get_states, aliases
+
+Available devices:
+
+.. autoclass:: USBRelay

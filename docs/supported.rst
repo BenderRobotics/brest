@@ -20,3 +20,7 @@ Here is a list of currently supported devices subsumed into supported groups.
     * :class:`~brest.cameras.Backfly`
 
 * Interfaces
+
+* IO
+
+    * :class:`~brest.io.USBRelay`
