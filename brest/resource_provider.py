@@ -16,6 +16,7 @@ import brest.supplies
 import brest.loads
 import brest.cameras
 import brest.interfaces
+import brest.io
 
 from .resource import Resource
 from brest.communication import CommunicableError, SerialCommunicable, CameraCommunicable, NoneCommunicable
