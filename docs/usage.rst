@@ -117,7 +117,7 @@ Next thing is to define `needed` resources in every test::
 
     import unittest
 
-    class TestConfig(unittest.TestCase):
+    class TestSupply(unittest.TestCase):
 
         # Resource aliases from the config file
         needed = ['supply', 'dut']
