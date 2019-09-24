@@ -15,6 +15,9 @@ Then checkout to `devel` branch to get the latest version, or to `feature/*` bra
 
 For building the python wheel, we use GNU **make**. If you don't have **make** installed yet, please refer to [Installing make](#installing-make)
 
+**make** expects that your pip3 installation will be available under `pip` command. Also there is a possibility that `setup.py` may fail
+on `bdist_wheel` as an not known argument. To fix this, install `wheel` package again.
+
 Navigate to top-level directory of the cloned repository and you will be able to use the following commands:
 
     $ make install    # First time Brest installation. It will build the source and install it using pip
