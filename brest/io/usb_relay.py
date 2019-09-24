@@ -45,6 +45,7 @@ class USBRelay(IO, SerialCommunicable):
 
     IO.KNOWN['USBRelay'] = {
         'type': 'serial',
+        'timeout': 0.1,
         'vid': 0x04D8,
         'pid': 0xFFEE,
     }
@@ -80,7 +81,11 @@ class USBRelay(IO, SerialCommunicable):
         command = self.Commands.GET_STATES
         command.pack()
         self.write_raw(command.raw_data)
-        self._states = self.read_raw(size=1)[0]
+        states = self.read_raw(size=1)[0]
+        if states:
+            self._states = states
+        else:
+            self.log.error('Unable to read from the device', extra=self.log_args)
 
     def _write_states(self):
         command = self.Commands.SET_STATES
