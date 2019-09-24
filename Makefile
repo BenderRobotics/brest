@@ -15,7 +15,7 @@ clean:
 	rm -rf docs/_build
 
 install: $(TARGET)
-	pip install dist/*.whl
+	pip install --user dist/*.whl
 
 uninstall:
 	pip uninstall brest -y

@@ -21,6 +21,11 @@ Python version
 
 Brest supports Python 3.5 and above on Windows and Linux
 
+.. admonition:: pip on Linux
+
+    In some distributions ``pip`` is not installed by default. Make sure you have it installed before
+    installing Brest.
+
 Dependencies
 ------------
 
