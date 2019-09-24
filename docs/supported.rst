@@ -1,26 +1,31 @@
 .. _supported:
 
-List of supported devices
-=========================
+Supported devices
+=================
 
-Here is a list of currently supported devices subsumed into supported groups.
+Here is a list of currently supported devices.
 
-* Supplies
+The first level indention indicates groups of resources. These names can be used
+in ``group=`` keyword argument. These classes are not meant to instantiate.
+
+The second level of indention represent available resources.
+
+* :class:`~brest.supplies.Supplies`
 
     * :class:`~brest.supplies.Mansup`
     * :class:`~brest.supplies.Tenma`
 
-* Loads
+* :class:`~brest.loads.Loads`
 
     * :class:`~brest.loads.Pli`
 
-* Cameras
+* :class:`~brest.cameras.Cameras`
 
     * :class:`~brest.cameras.GenericCamera`
     * :class:`~brest.cameras.Backfly`
 
-* Interfaces
+* :class:`~brest.interfaces.Interfaces`
 
-* IO
+* :class:`~brest.io.IO`
 
     * :class:`~brest.io.USBRelay`
