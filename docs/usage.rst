@@ -75,19 +75,27 @@ If you have resources set up on your desk that won't change anytime soon, you ca
 using a configuration file. To get the glimpse of how to write a configuration file, please refer
 to :ref:`definitions.configuration-file`.
 
+Brest supports two configuration files. The first configuration file is user specific and is
+located in :attr:`~brest.Config.BREST_USER_CONFIG_DIR`. If you want to have it in another
+location, you can specify absolute path using ``user_config=`` keyword argument.
+
+The second configuration file is project specific. This configuration file is not mandatory
+and its location can be specified using absolute path passed to ``project_config=`` keyword argument.
+This config will be merged with user specific config. User config overrides and adds items to
+project specific config.
+
 After you have created your configuration file, you can use it in Brest by instancing the
 :class:`~brest.Resources` class::
 
     import brest
-    import customResource
 
     res = brest.Resources('myProj')
 
 If you have any custom classes which derived from any Brest’s base classes, you also have to
-import them so Brest can get to now them.
+import them so Brest can get to know them.
 
 The first parameter ``project`` indicate what project you want to use from configuration file.
-If your configuration file resides out of the standard path defined in :attr:`~brest.Config.BREST_CONFIG`,
+If your configuration file resides out of the standard path defined in :attr:`~brest.Config.BREST_USER_CONFIG`,
 you can specify it using an absolute path passed into the ``config`` argument.
 If you don't want to use every resource defined in the configuration file, you don't have to
 create a new configuration file or project. Just specify resource aliases in the ``needed``

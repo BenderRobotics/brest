@@ -36,7 +36,7 @@ def __apply_overwrite(node, key, value):
     else:
         node[key] = value
 
-def prepare_tests(test_suite, project, config=Config.BREST_CONFIG):
+def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, project_config = None):
     """Method that prepares tests to be used with Brest.
 
     It collects all needed resources from tests, construct them and sets as an class attribute on
@@ -58,8 +58,10 @@ def prepare_tests(test_suite, project, config=Config.BREST_CONFIG):
     :type  test_suite: :class:`unittest.TestSuite`
     :param project: A project name you want to instantiate defined in the config file
     :type  project: str
-    :param config: An absolute path to config file in non standard location
-    :type  config: str
+    :param user_config: An absolute path to user configuration file in non standard location
+    :type  user_config: str
+    :param project_config: An absolute path to project configuration file
+    :type  project_config: str
     :return: Same object obtained through :class:`~brest.Resources` initialization
     :rtype: :class:`~brest.Resources`
     """
@@ -74,7 +76,7 @@ def prepare_tests(test_suite, project, config=Config.BREST_CONFIG):
                         needed.append(n)
 
     # construct them
-    resources = Resources(project, config=config, needed=needed)
+    resources = Resources(project, user_config=user_config, project_config=project_config, needed=needed)
 
     # set constructed resources to every test
     for folder_suite in test_suite:

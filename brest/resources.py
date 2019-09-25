@@ -27,21 +27,24 @@ class Resources():
         res[resource_name]
 
     :param project: A project name you want to instantiate defined in the config file
-    :type project: str
-    :param config: An absolute path to config file in non standard location
-    :type config: str
+    :type  project: str
+    :param user_config: An absolute path to user configuration file in non standard location
+    :type  user_config: str
+    :param project_config: An absolute path to project configuration file
+    :type  project_config: str
     :param needed: List of resource names that should be instantiated. If nothing is provided, Brest will try to instantiate every resource in selected project
-    :type needed: list
+    :type  needed: list
 
     .. versionadded:: 0.0.1
     """
 
-    def __init__(self, project, config = Config.BREST_CONFIG, needed = []):
+    def __init__(self, project, user_config = Config.BREST_USER_CONFIG, project_config = None, needed = []):
         self.log_args = {'class_name':self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
         self._resources = {}
-        self._instantiate(project, config, needed)
+
+        self._instantiate(project, user_config, project_config, needed)
 
     def __str__(self):
         if not self._resources:
@@ -62,12 +65,22 @@ class Resources():
     def __iter__(self):
         return iter(self._resources.items())
 
-    def _instantiate(self, project, config, needed):
-        cfg = Config(project)
-        cfg.needed = needed
+    def _instantiate(self, project, user_config, project_config, needed):
+        # Load default configuration file
+        cfg = Config(project, user_config)
+
+        if project_config:
+            # If project specific configuration file is preset, load it
+            project_cfg = Config(project, project_config)
+            # And merge it with user configuration, making user configuration overwrite add add items
+            cfg = project_cfg.merge_configs(cfg)
+
         if not cfg.is_valid:
-            self.logger.error('Configuration file is not valid', extra=self.log_args)
+            self.logger.error('Project configuration file `{}` is not valid', extra=self.log_args)
             raise SystemExit
+
+        # Set needed resources
+        cfg.needed = needed
 
         rp = ResourceProvider()
 

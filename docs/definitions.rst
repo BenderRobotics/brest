@@ -90,10 +90,11 @@ Configuration file
 ------------------
 
 Standard location for your configuration file path is ``~/.brest/config.yaml``.
-This path will be auto-expanded in the :attr:`~brest.Config.BREST_CONFIG` constant
+This path will be auto-expanded in the :attr:`~brest.Config.BREST_USER_CONFIG` constant
 after Brest import. If you want to have configuration file in another location,
-methods which works with configuration file have ``config`` attribute where you can
-pass your new `absolute` path to the config file.
+methods which works with configuration file have ``user_config`` and ``project_config``
+attributes where you can pass your new `absolute` path to the user of project
+configuration file.
 
 The file itself is written in `YAML`_ and parsed by `PyYAML`_ so you can use some
 python objects in the configuration.
