@@ -85,7 +85,7 @@ class USBRelay(IO, SerialCommunicable):
         if states:
             self._states = states
         else:
-            self.log.error('Unable to read from the device', extra=self.log_args)
+            self.logger.error('Unable to read from the device', extra=self.log_args)
 
     def _write_states(self):
         command = self.Commands.SET_STATES
