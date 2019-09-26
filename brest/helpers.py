@@ -12,6 +12,8 @@ from .log import DEFAULT_LOGGING
 from .config import Config
 from .resources import Resources
 
+import logging
+
 def overwrite_log_config(config_dict):
     """Method takes a logging configuration dictionary and merges it with the brest implicit configuration.
 
@@ -19,7 +21,7 @@ def overwrite_log_config(config_dict):
     :type  config_dict: dict
     """
 
-    custom_config = dict(log.DEFAULT_LOGGING)
+    custom_config = dict(DEFAULT_LOGGING)
     for ov_key, ov_value in config_dict.items():
         __apply_overwrite(custom_config, ov_key, ov_value)
     logging.config.dictConfig(custom_config)
