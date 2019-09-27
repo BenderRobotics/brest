@@ -66,8 +66,10 @@ class USBRelay(IO, SerialCommunicable):
         IO.__init__(self)
         SerialCommunicable.__init__(self, kwargs['interface'])
         self.aliases = {}
-        self._detect()
-        self._parse_args(kwargs)
+        self.mark_taken(self)
+
+    def __del__(self):
+        self.unmark_taken(self)
 
     def __getitem__(self, key):
         self._read_states()
@@ -76,6 +78,13 @@ class USBRelay(IO, SerialCommunicable):
     def __setitem__(self, key, value):
         IO.__setitem__(self, key, value)
         self._write_states()
+
+    def detect_model(self):
+        command = self.Commands.GET_INFO
+        command.pack()
+        self.write_raw(command.raw_data)
+        idn = self.read_raw(size=2)[0]
+        self._apply_model(idn)
 
     def _read_states(self):
         command = self.Commands.GET_STATES
@@ -93,12 +102,6 @@ class USBRelay(IO, SerialCommunicable):
         command.pack()
         self.write_raw(command.raw_data)
 
-    def _detect(self):
-        command = self.Commands.GET_INFO
-        command.pack()
-        self.write_raw(command.raw_data)
-        idn = self.read_raw(size=2)[0]
-        self._apply_model(idn)
 
     def _apply_model(self, idn):
         for model in self.Models:

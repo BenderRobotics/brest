@@ -73,49 +73,44 @@ class Communicable():
 
         raise NotImplementedError('This interface doesn\'t implement transceive communication')
 
-    class Seeker():
+    def get_connections(self):
         '''
-        Base class for interface creation and probing.
+        Returns physical connection into the machine.
         '''
 
-        def mark_taken(self, interface):
-            '''
-            Marks given interface as taken. Such interface won't be listed or used again.
-            '''
+        raise NotImplementedError('This interface doesn\'t implement getting physical connections')
 
-            raise NotImplementedError('This seeker doesn\'t implement taken interface marking')
+    def probe(self, interface, connections = None):
+        '''
+        Returns connection(s) matching given interface.
+        '''
 
-        def is_taken(self, interface):
-            '''
-            Returs if given interface is taken or not.
-            '''
+        raise NotImplementedError('This interface doesn\'t implement connections probing')
 
-            raise NotImplementedError('This seeker doesn\'t implement taken checking')
+    def mark_taken(self, interface):
+        '''
+        Marks given interface as taken. Such interface won't be listed or used again.
+        '''
 
-        def print_probe(self, interface, coms = None):
-            '''
-            Prints available connection nodes for given interface
-            '''
+        raise NotImplementedError('This interface doesn\'t implement taken interface marking')
 
-            raise NotImplementedError('This seeker doesn\'t implement printing probe')
+    def is_taken(self, interface):
+        '''
+        Returs if given interface is taken or not.
+        '''
 
-        def get_available(self, class_name, interface, connected):
-            '''
-            Returns list of parameter for resources, that can be constructed.
-            '''
+        raise NotImplementedError('This interface doesn\'t implement taken checking')
 
-            raise NotImplementedError('This seeker doesn\'t implement listing available resources')
+    def get_available(self, class_name, interface, connected):
+        '''
+        Returns list of parameter for resources, that can be constructed.
+        '''
 
-        def complete_interface(self, interface, connected):
-            '''
-            Tries to complete missing interface parameters. Raises LookupError when fails.
-            '''
+        raise NotImplementedError('This interface doesn\'t implement listing available resources')
 
-            raise NotImplementedError('This seeker doesn\'t implement interface completion')
+    def print_interface(self, interface):
+        '''
+        Prints interface in human readable format.
+        '''
 
-        def match_interface(self, interface, known_interface):
-            '''
-            This method indicates interface equality. Returs True if interfaces match, return False othervise.
-            '''
-
-            raise NotImplementedError('This seeker doesn\'t implement interface matching')
+        raise NotImplementedError('This interface doesn\'t implement interface printing in human readable format')

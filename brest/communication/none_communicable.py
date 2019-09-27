@@ -5,7 +5,7 @@ class NoneCommunicable(Communicable):
     def __init__(self):
         Communicable.__init__(self)
 
-    class Seeker(Communicable.Seeker):
+    class Seeker():
 
         def __init__(self):
             Communicable.Seeker.__init__(self)

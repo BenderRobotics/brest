@@ -22,6 +22,33 @@ class Resource():
         self.name = 'resource_' + str(Resource._count)
         Resource._count += 1
 
+    def check_required(self, requirements):
+        for name, value in requirements.items():
+            name = 'required_' + name
+            req_func = getattr(self, name, None)
+            if not req_func:
+                # self.logger.error('Missing requirement check function `{}`'.format(name), extra=self.log_args)
+                return False
+            if not req_func(value):
+                # self.logger.error('Resource doest satisfy `{}` requirement check', extra=self.log_args)
+                return False
+        return True
+
+    def set_default(self, defaults):
+        for name, value in defaults.items():
+            name = 'default_' + name
+            def_func = getattr(self, name, None)
+            if not def_func:
+                return False
+            if not def_func(value):
+                return False
+        return True
+
+    def set_extra(self, params):
+        for name, value in params.items():
+            if hasattr(self, name):
+                setattr(self, name, value)
+
     def _parse_args(self, kwargs):
         """If object has attribute specified in `kwargs` dict, sets its value.
 

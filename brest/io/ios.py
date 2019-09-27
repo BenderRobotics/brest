@@ -173,33 +173,24 @@ class IO(Resource):
 
             if alias['name'] not in self._aliases:
                 self._aliases[alias['name']] = alias['channel']
-                self[alias['channel']] = alias['value']
+                self[alias['channel']] = alias['default_value']
             else:
                 self.logger.warning('Alias {} is already defined. Overwriting mapping'.format(alias['name']), extra=self.log_args)
 
-    @property
-    def channels(self):
-        pass
-
-    @channels.setter
-    def channels(self, value):
+    def required_channels(self, value):
         if value > self.CHANNELS:
-            raise ValueError('Can\'t satisfy `channels` requirement. Requested {} available {}'.format(value, self.CHANNELS))
+            #raise ValueError('Can\'t satisfy `channels` requirement. Requested {} available {}'.format(value, self.CHANNELS))
+            return False
+        return True
 
-    @property
-    def max_current(self):
-        pass
-
-    @max_current.setter
-    def max_current(self, value):
+    def required_current(self, value):
         if value > self.MAX_CURRENT:
-            raise ValueError('Can\'t satisfy `max_current` requirement. Requested {} available {}'.format(value, self.MAX_CURRENT))
+            #raise ValueError('Can\'t satisfy `max_current` requirement. Requested {} available {}'.format(value, self.MAX_CURRENT))
+            return False
+        return True
 
-    @property
-    def is_latching(self):
-        pass
-
-    @is_latching.setter
-    def is_latching(self, value):
+    def required_is_latching(self, value):
         if value != self.IS_LATCHING:
-            raise ValueError('Can\'t satisfy `is_latching` requirement. Requested {} available {}'.format(value, self.IS_LATCHING))
+            #raise ValueError('Can\'t satisfy `is_latching` requirement. Requested {} available {}'.format(value, self.IS_LATCHING))
+            return False
+        return True

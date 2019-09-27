@@ -10,7 +10,6 @@
 
 import logging
 import importlib
-import serial.tools.list_ports
 
 import brest.supplies
 import brest.loads
@@ -19,7 +18,7 @@ import brest.interfaces
 import brest.io
 
 from .resource import Resource
-from brest.communication import CommunicableError, SerialCommunicable, CameraCommunicable, NoneCommunicable
+from brest.communication import CommunicableError, SerialCommunicable#, CameraCommunicable, NoneCommunicable
 
 class ResourceProvider:
     """Base class for resource managing.
@@ -35,34 +34,32 @@ class ResourceProvider:
         # Merge all known resources into one dict
         self.knowns = {}
         for cls_ in Resource.__subclasses__():
-            self.knowns[cls_.__name__] = cls_.KNOWN
+            self.knowns[cls_.__name__.lower()] = cls_.KNOWN
 
-        # All interface handlers
-        self.seekers = {
-            'serial': SerialCommunicable.Seeker(),
-            'camera': CameraCommunicable.Seeker(),
-            'none'  : NoneCommunicable.Seeker(),
+        self._communicables = {
+            SerialCommunicable.TYPE: SerialCommunicable(None),
         }
 
-    def print_probe(self, resource):
+    def print_probe(self, class_name):
         """Checks if resource is present in the system, and prints its interface.
 
-        :param resource: Class name of a resource you want to probe. To get available class names refer to the :ref:`supported`
-        :type  resource: str
+        :param class_name: Class name of a resource you want to probe. To get available class names refer to the :ref:`supported`
+        :type  class_name: str
         """
 
-        interface = None
-        for _, resources in self.knowns.items():
-            if resource in resources:
-                interface = resources[resource]
-        if interface is None:
-            self.logger.warning('Class `{}` is not known to Brest'.format(resource), extra=self.log_args)
+        interface = self.__get_implicit_definition(class_name)
+        if not interface:
             return
 
-        handler = self.__get_interface_seeker(interface['type'])
-        handler.print_probe(interface)
+        com = self.__get_communicable(interface['type'])
+        interfaces = com.probe(interface)
+        i = 0
+        for interface_ in interfaces:
+            print('connection {}:'.format(i))
+            com.print_interface(interface_)
+            print()
 
-    def available(self, group = None):
+    def available(self, group = None, connections = None):
         """Searches for available resources.
 
         :param group: Specified group of resources to searched for. To get available groups refer to the :ref:`supported`
@@ -71,7 +68,9 @@ class ResourceProvider:
         :rtype: list<dict>
         """
 
-        connected = self.__refresh_connected()
+        if not connections:
+            connections = self.__refresh_connections()
+
         available = []
 
         for group_, resources in self.knowns.items():
@@ -80,108 +79,15 @@ class ResourceProvider:
                 continue
 
             for class_name, interface in resources.items():
-                handler = self.__get_interface_seeker(interface['type'])
-                resources = handler.get_available(class_name, interface, connected)
+                # TODO: DONT FORGET TO REMOVE THIS
+                if interface['type'] != 'serial':
+                    continue
+                com = self.__get_communicable(interface['type'])
+                resources = com.get_available(class_name, interface, connections[interface['type']])
                 if resources:
                     available.extend(resources)
 
         return available
-
-    def construct(self, kwargs):
-        """Constructs a resource from given parameters.
-
-        Parameter can be obtained through :meth:`~brest.ResourceProvider.available` method
-        or created by you in for if dict which must contains ``class_name`` and ``interface`` fields.
-        For available class names refer to :ref:`supported` and interface definition to :ref:`definitions`.
-
-        :param kwargs: Needed parameters for automated class instantiation
-        :type  kwargs: dict
-        """
-
-        for cls_ in Resource.__subclasses__():
-            for subcls_ in cls_.__subclasses__():
-                if subcls_.__name__ == kwargs['class_name']:
-                    return self.__construct(subcls_.__module__, kwargs)
-
-        self.logger.warning('Can\'t construct class `{}`. Class is not subclass of any resource'.format(kwargs['class_name']), extra=self.log_args)
-        return None
-
-    def construct_config(self, config):
-        """Constructs all available resources described in config
-
-        :param config: Configuration object
-        :type  config: :class:`~brest.Config`
-        """
-        connected = self.__refresh_connected()
-        constructed = []
-        constructed_aliases = []
-
-        # iterate over config resources
-        for group, config_resources in config:
-
-            # check if config group is known to Brest
-            if group not in self.knowns:
-                self.logger.warning('Group `{}` is not known to Brest. Resources in the `{}` group won\'t be constructed'.format(group, group), extra=self.log_args)
-                continue
-
-            # get all resources known by Brest in config group
-            resources = self.knowns[group]
-
-            # iterate over resources in config group
-            for alias, params in config_resources.items():
-                params['name'] = alias
-
-                # check if needed is defined an filter resources
-                if config.needed and alias not in config.needed:
-                    continue
-
-                # check if class is available for brest
-                if 'class_name' in params and params['class_name'] not in resources:
-                    self.logger.error('Class `{}` is not known to Brest'.format(params['class_name']), extra=self.log_args)
-                    raise SystemExit
-
-                # check what is defined
-                if 'interface' in params:
-
-                    # if interface and class_name are defined
-                    # merge implicit interface definition with config definition
-                    if 'class_name' in params:
-                        params['interface'] = {**resources[params['class_name']], **params['interface']}
-
-                    # if there is no class_name defined, search for class_name by interface
-                    else:
-                        class_name = self.__find_class_by_interface(params['interface'])
-                        if class_name:
-                            params['class_name'] = class_name
-                            params['interface'] = {**resources[class_name], **params['interface']}
-                        else:
-                            self.logger.error('Class for `{}`\'s interface not found'.format(alias), extra=self.log_args)
-                            raise SystemExit
-                else:
-
-                    # interface definition not present in config
-                    # make copy of implicit interface argument for class
-                    params['interface'] = dict(resources[params['class_name']])
-
-                # check if interface has parameters necessary for creation
-                handler = self.__get_interface_seeker(params['interface']['type'])
-                try:
-                    params['interface'] = handler.complete_interface(params['interface'], connected)
-                except LookupError as e:
-                    self.logger.error('Resource `{}` doesn\'t seem to be connected to the system. {}'.format(params['name'], str(e)), extra=self.log_args)
-                    raise SystemExit
-
-                constructed.append(self.construct(params))
-                constructed_aliases.append(params['name'])
-
-        # check if needed resources were truly created
-        if config.needed:
-            for needed_resource in config.needed:
-                if needed_resource not in constructed_aliases:
-                    self.logger.error('Couldn\'t create all needed resources', extra=self.log_args)
-                    raise SystemExit
-
-        return constructed
 
     def print_available(self, group = None):
         """Prints available resources
@@ -192,11 +98,8 @@ class ResourceProvider:
 
         def print_av_dict(available_dict):
             print(available_dict['class_name'])
-            for name, value in available_dict['interface'].items():
-                if name in ['vid', 'pid']:
-                    print('\t{}: 0x{:04X}'.format(name, value))
-                else:
-                    print('\t{}: {}'.format(name, value))
+            com = self.__get_communicable(available_dict['interface']['type'])
+            com.print_interface(available_dict['interface'])
 
         if group:
             av = self.available(group)
@@ -210,48 +113,177 @@ class ResourceProvider:
             print()
             i += 1
 
-    def __refresh_connected(self):
-        return (serial.tools.list_ports.comports(), CameraCommunicable.list_cameras())
+    def construct(self, params):
+        """Constructs a resource from given parameters.
 
-    def __get_interface_seeker(self, interface_type):
-        if interface_type in self.seekers:
-            return self.seekers[interface_type]
-        else:
-            self.logger.error('Interface type `{}` is not known to Brest'.format(interface_type), extra=self.log_args)
-            raise SystemExit
+        Parameter can be obtained through :meth:`~brest.ResourceProvider.available` method
+        or created by you in for if dict which must contains ``class_name`` and ``interface`` fields.
+        For available class names refer to :ref:`supported` and interface definition to :ref:`definitions`.
 
-    def __find_class_by_interface(self, interface):
-        '''
-        Searches for class name, by matching known interface params.
-        '''
+        :param params: Needed parameters for automated class instantiation
+        :type  params: dict
+        """
 
-        for _, resources in self.knowns.items():
-            for class_name, interface_ in resources.items():
+        for cls_ in Resource.__subclasses__():
+            for subcls_ in cls_.__subclasses__():
+                if subcls_.__name__ == params['class_name']:
+                    return self.__construct(subcls_.__module__, params)
 
-                if interface['type'] != interface_['type']:
-                    continue
-
-                handler = self.__get_interface_seeker(interface_['type'])
-                if handler.match_interface(interface, interface_):
-                    return class_name
-
+        self.logger.warning('Can\'t construct class `{}`. Class is not subclass of any resource'.format(params['class_name']), extra=self.log_args)
         return None
 
-    def __construct(self, module_name, kwargs):
+    def construct_available(self, index, group = None):
+
+        available = self.available(group)
+        if index < 0 or index >= len(available):
+            self.logger.error('Index out of range', extra=self.log_args)
+            return
+
+        params = available[index]
+        return self.construct(params)
+
+    def construct_config(self, config):
+
+        def __group_matching(matching):
+            """Helper method for grouping available resources by class name"""
+
+            grouped = {}
+
+            for match in matching:
+                if match['class_name'] not in grouped:
+                    grouped[match['class_name']] = []
+                grouped[match['class_name']].append(match)
+
+            return grouped
+
+        def __construct_matching(matching, config):
+            """Construct matching device. Try to find the one,
+               that satisfies requirements. Then remove resource
+               definition from configuration file"""
+
+            constructed = []
+
+            grouped = __group_matching(matching)
+            # Interate through grouped available
+            for group_name, available in grouped.items():
+                # Interate over params in group
+                for params in available:
+                    if 'required' not in params:
+                        params['required'] = {}
+                    if 'default' not in params:
+                        params['default'] = {}
+                    # Instantiate resource using selected params
+                    resource = self.construct(params)
+                    resource.detect_model()
+                    # Check if resource is matching requirements
+                    if resource.check_required(params['required']):
+                        # If so, add it to the constructed list
+                        constructed.append(resource)
+                        # Set default values
+                        resource.set_default(params['default'])
+                        # Set extra functionality
+                        resource.set_extra(params)
+                        # Delete resource definition from the config
+                        del config.config[config.project][params['name']]
+                        # and continue to next group of resources
+                        break
+                    else:
+                        # Othervise delete the constructed resource
+                        # to release connection and continue to the
+                        # next group of resources
+                        del resource
+
+            return constructed
+
+        connections = self.__refresh_connections()
+
+        # Filter from available matching devices described in config
+        matching = []
+
+        for alias, definition in config:
+            # Config validity should check if class_name is present in resource definition
+            # and has valid value
+            cls_name_split = definition['class_name'].split('.')
+            group = cls_name_split[0]
+            class_name = None
+            if len(cls_name_split) > 1:
+                class_name = definition['class_name'].split('.')[1]
+
+            available_in_group = self.available(group=group, connections=connections)
+
+            for available in available_in_group:
+                if available['interface']['type'] == None:
+                    continue
+
+                params = dict(definition)
+                params['class_name'] = available['class_name']
+                if 'interface' in definition:
+                    params['interface'] = {**available['interface'], **definition['interface']}
+                else:
+                    params['interface'] = available['interface']
+                params['name'] = alias
+
+                # check if there is interface defined in config file
+                # and correct match if needed
+                skip = False
+                if 'interface' in definition:
+                    for key in set(definition['interface']) & set(available['interface']):
+                        if definition['interface'][key] != available['interface'][key]:
+                            skip = True
+                            break
+                if skip:
+                    continue
+
+                if class_name:
+                    if class_name == params['class_name']:
+                        matching.append(params)
+                    else:
+                        continue
+                else:
+                    matching.append(params)
+
+        return __construct_matching(matching, config)
+
+        # Try to construct the rest of resources, that didn\'t matched
+        # in available
+
+    def __refresh_connections(self):
+        connections = {}
+        for _, communicable in self._communicables.items():
+            connections[communicable.TYPE] = communicable.get_connections()
+        return connections
+
+    def __get_communicable(self, type_):
+        if type_ in self._communicables:
+            return self._communicables[type_]
+        else:
+            self.logger.error('Interface type `{}` is not known to Brest'.format(type_), extra=self.log_args)
+
+    def __get_implicit_definition(self, class_name):
+        interface = None
+        for _, resources in self.knowns.items():
+            if class_name in resources:
+                interface = resources[class_name]
+        if interface is None:
+            self.logger.warning('Class `{}` is not known to Brest'.format(class_name), extra=self.log_args)
+            return None
+        return interface
+
+    def __construct(self, module_name, params):
         '''
         Generic method for class instantiation from given module.
         '''
 
+        from serial import SerialException
+
         module = importlib.import_module(module_name)
-        class_ = getattr(module, kwargs['class_name'])
-        message = 'Error durning `{}` construction. '.format(kwargs['name']) if 'name' in kwargs else 'Error durning `{}` construction. '.format(kwargs['class_name']) # Possible log message
-        del kwargs['class_name']          # Avoid unnecessary warning about class_name not being a class attribute
+        class_ = getattr(module, params['class_name'])
+        message = 'Error durning `{}` construction. '.format(params['name']) if 'name' in params else 'Error durning `{}` construction. '.format(params['class_name']) # Possible log message
+        del params['class_name']          # Avoid unnecessary warning about class_name not being a class attribute
 
         try:
-            instance = class_(kwargs)
-            handler = self.__get_interface_seeker(kwargs['interface']['type'])
-            handler.mark_taken(kwargs['interface'])
+            instance = class_(params)
             return instance
-        except (NotImplementedError, ModuleNotFoundError, ValueError, CommunicableError, serial.SerialException) as e:
+        except (NotImplementedError, ModuleNotFoundError, ValueError, CommunicableError, SerialException) as e:
             self.logger.error(message + str(e), extra=self.log_args)
             return None

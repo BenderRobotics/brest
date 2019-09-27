@@ -92,14 +92,14 @@ class Config():
             self._is_valid = False
             return
 
-        for group, resources in self.config[self.project].items():
-            for name, params in resources.items():
-                if not params:
-                    self.logger.error('Resource `{}` is missing any further definition'.format(name), extra=self.log_args)
-                    self._is_valid = False
-                if 'interface' not in params:
-                    self.logger.warning('Resource `{}` is missing any interface definition. '.format(name) +
-                                        'Brest will instantiate this resource on first matching device.', extra=self.log_args)
+        # for group, resources in self.config[self.project].items():
+        #     for name, params in resources.items():
+        #         if not params:
+        #             self.logger.error('Resource `{}` is missing any further definition'.format(name), extra=self.log_args)
+        #             self._is_valid = False
+        #         if 'interface' not in params:
+        #             self.logger.warning('Resource `{}` is missing any interface definition. '.format(name) +
+        #                                 'Brest will instantiate this resource on first matching device.', extra=self.log_args)
 
     def merge_configs(self, new_config):
 

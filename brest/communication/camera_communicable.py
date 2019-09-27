@@ -53,7 +53,7 @@ class CameraCommunicable(Communicable):
         serial_number = splitted[3]
         return (vid, pid, serial_number)
 
-    class Seeker(Communicable.Seeker):
+    class Seeker():
         '''
         Base class for interface creation and probing.
         '''
