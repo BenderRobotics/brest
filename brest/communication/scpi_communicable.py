@@ -8,11 +8,34 @@ class SCPICommunicable(SerialCommunicable):
     """
 
     ENCODING = 'utf-8'
+    SUFFIXES = [
+        '',
+        '\n',
+    ]
 
     def __init__(self, kwargs):
         SerialCommunicable.__init__(self, kwargs)
 
-        self.message_suffix = '' #TODO: Dont forget to mention in the documentation
+        self.message_suffix = self.SUFFIXES[0] #TODO: Don't forget to mention in the documentation
+
+    def determine_suffix(self, command):
+        """Tries to determine communication messages suffix.
+
+        Given command should return any string response in any state of
+        device. Function will interate over available suffixes until
+        given command returns string.
+        :param command: Command which should return any string response.
+        :type  command: :class:`~brest.communication.SCPICommand`
+        """
+
+        i = 0
+        response = self.transceive(command)
+        while not response:
+            i += 1
+            if i == len(self.SUFFIXES):
+                raise LookupError('Can\'t find a suitable message suffix')
+            self.message_suffix = self.SUFFIXES[i]
+            response = self.transceive(command)
 
     def write(self, message):
         """Sends a message in a blocking mode.

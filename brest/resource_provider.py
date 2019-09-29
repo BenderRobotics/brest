@@ -140,67 +140,54 @@ class ResourceProvider:
             return
 
         params = available[index]
-        return self.construct(params)
+        resource = self.construct(params)
+        resource.detect_model()
+        return resource
 
     def construct_config(self, config):
 
-        def __group_matching(matching):
-            """Helper method for grouping available resources by class name"""
+        def __construct_from_params(available_params, config):
+            """Construct matching device.
 
-            grouped = {}
+            Try to find the one,
+            that satisfies requirements.
+            """
 
-            for match in matching:
-                if match['class_name'] not in grouped:
-                    grouped[match['class_name']] = []
-                grouped[match['class_name']].append(match)
-
-            return grouped
-
-        def __construct_matching(matching, config):
-            """Construct matching device. Try to find the one,
-               that satisfies requirements. Then remove resource
-               definition from configuration file"""
-
-            constructed = []
-
-            grouped = __group_matching(matching)
-            # Interate through grouped available
-            for group_name, available in grouped.items():
-                # Interate over params in group
-                for params in available:
-                    if 'required' not in params:
-                        params['required'] = {}
-                    if 'default' not in params:
-                        params['default'] = {}
-                    # Instantiate resource using selected params
-                    resource = self.construct(params)
-                    resource.detect_model()
-                    # Check if resource is matching requirements
-                    if resource.check_required(params['required']):
-                        # If so, add it to the constructed list
-                        constructed.append(resource)
-                        # Set default values
-                        resource.set_default(params['default'])
-                        # Set extra functionality
-                        resource.set_extra(params)
-                        # Delete resource definition from the config
-                        del config.config[config.project][params['name']]
-                        # and continue to next group of resources
-                        break
-                    else:
-                        # Othervise delete the constructed resource
-                        # to release connection and continue to the
-                        # next group of resources
-                        del resource
-
-            return constructed
+            # Interate over params in group
+            for params in available_params:
+                # Add missing definitions to avoid errors
+                if 'required' not in params:
+                    params['required'] = {}
+                if 'default' not in params:
+                    params['default'] = {}
+                # Instantiate resource using selected params
+                resource = self.construct(params)
+                if not resource:
+                    # Instantiation has failed
+                    return None
+                resource.detect_model()
+                # Check if resource is matching requirements
+                if resource.check_required(params['required']):
+                    # Set default values
+                    resource.set_default(params['default'])
+                    # Set extra functionality
+                    resource.set_extra(params)
+                    # If everything is okay, return the constructed resource
+                    return resource
+                else:
+                    # Othervise delete the constructed resource
+                    # to release connection and continue to the
+                    # next construction params
+                    del resource
 
         connections = self.__refresh_connections()
 
-        # Filter from available matching devices described in config
         matching = []
+        constructed = []
 
+        # Iterate over configuration file
         for alias, definition in config:
+            matching.clear()
             # Config validity should check if class_name is present in resource definition
             # and has valid value
             cls_name_split = definition['class_name'].split('.')
@@ -209,31 +196,38 @@ class ResourceProvider:
             if len(cls_name_split) > 1:
                 class_name = definition['class_name'].split('.')[1]
 
+            # Try to match resource from the available
             available_in_group = self.available(group=group, connections=connections)
 
             for available in available_in_group:
                 if available['interface']['type'] == None:
+                    # Resources that don't have to have physical connection
+                    # can also be listed. So skip them.
                     continue
 
+                # Make construction params from every available interface
                 params = dict(definition)
                 params['class_name'] = available['class_name']
-                if 'interface' in definition:
-                    params['interface'] = {**available['interface'], **definition['interface']}
-                else:
-                    params['interface'] = available['interface']
                 params['name'] = alias
-
-                # check if there is interface defined in config file
-                # and correct match if needed
-                skip = False
+                # Check if there is interface defined in the config file
                 if 'interface' in definition:
+                    # Check if defined interface params matches available interface params
+                    skip = False
                     for key in set(definition['interface']) & set(available['interface']):
                         if definition['interface'][key] != available['interface'][key]:
                             skip = True
                             break
-                if skip:
-                    continue
+                    if skip:
+                        # If any value didn\'t match, skip to the next available
+                        continue
+                    else:
+                        # Othervise merge the rest of params
+                        params['interface'] = {**available['interface'], **definition['interface']}
+                else:
+                    params['interface'] = available['interface']
 
+                # If resources has full class_name definitions omit available
+                # with different classes
                 if class_name:
                     if class_name == params['class_name']:
                         matching.append(params)
@@ -242,10 +236,52 @@ class ResourceProvider:
                 else:
                     matching.append(params)
 
-        return __construct_matching(matching, config)
+            # Try to construct class, that satisfies requirements
+            const_rest = __construct_from_params(matching, config)
+            if const_rest:
+                constructed.append(const_rest)
+                # If there is class in available that satisfies requirements
+                # and was successfully constructed, proceed to next resource definition
+                continue
 
-        # Try to construct the rest of resources, that didn\'t matched
-        # in available
+            # Try to construct the resources, that didn't matched in available
+            matching.clear()
+            if not class_name:
+                self.log.error('Resource `{}` didn\'t match anything in the available and is ' +
+                               'missing class definition'.format(alias), extra=self.log_args)
+                break
+
+            # Get implicit arguments from Brest
+            impl_intr = self.__get_implicit_definition(class_name)
+            # Make construction params from the definition
+
+            if 'interface' in definition:
+                intr = {**impl_intr, **definition['interface']}
+            else:
+                intr = impl_intr
+            com = self.__get_communicable(intr['type'])
+
+            for probed_interface in com.probe(intr):
+                params = dict(definition)
+                params['class_name'] = class_name
+                params['name'] = alias
+                params['interface'] = probed_interface
+                matching.append(params)
+
+            if not matching:
+                self.logger.error('Resource `{}` doesn\'t seem to be connected to the system'.format(alias),
+                                   extra=self.log_args)
+                return None
+            const_rest = __construct_from_params(matching, config)
+            if const_rest:
+                constructed.append(const_rest)
+                continue
+            else:
+                self.logger.error('No devices satisfy `{}` requirements'.format(alias), extra=self.log_args)
+                return None
+
+        # TODO: Check if needed were constructed
+        return constructed
 
     def __refresh_connections(self):
         connections = {}
@@ -267,7 +303,7 @@ class ResourceProvider:
         if interface is None:
             self.logger.warning('Class `{}` is not known to Brest'.format(class_name), extra=self.log_args)
             return None
-        return interface
+        return dict(interface)
 
     def __construct(self, module_name, params):
         '''

@@ -62,6 +62,9 @@ class SerialCommunicable(Communicable):
         if not connections:
             connections = serial.tools.list_ports.comports()
 
+        if 'port' in interface:
+            return [interface]
+
         if 'vid' in interface and 'pid' in interface:
             for com in connections:
                 if com.vid == interface['vid'] and com.pid == interface['pid']:
@@ -82,14 +85,17 @@ class SerialCommunicable(Communicable):
         return probed
 
     def mark_taken(self, resource):
-        self.TAKEN.append((weakref.ref(resource), resource.com.port))
+        self.TAKEN.append(weakref.ref(resource))
 
     def unmark_taken(self, resource):
-        self.TAKEN.remove((weakref.ref(resource), resource.com.port))
+        try:
+            self.TAKEN.remove(weakref.ref(resource))
+        except ValueError:
+            pass
 
     def is_taken(self, interface):
-        for taken_tuple in self.TAKEN:
-            if interface['port'] == taken_tuple[1]:
+        for taken_device in self.TAKEN:
+            if interface['port'] == taken_device().com.port:
                 return True
         return False
 

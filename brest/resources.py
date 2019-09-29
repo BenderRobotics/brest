@@ -84,8 +84,10 @@ class Resources():
 
         rp = ResourceProvider()
 
-        res = []
-        res.extend(rp.construct_config(cfg))
+        res = rp.construct_config(cfg)
+        if not res:
+            self.logger.error('Error durning configuration instantiation', extra=self.log_args)
+            raise SystemExit
 
         for r in res:
             # Failed object construction results in None being in the list
