@@ -126,3 +126,6 @@ class CommunicationFrame(CommunicationStructure):
 
     def set_data(self, *args, **kwargs):
         pass
+
+    def is_frame_valid(self, rec_frame, sent_frame):
+        return True

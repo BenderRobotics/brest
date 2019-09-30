@@ -36,22 +36,17 @@ class InterfaceCommunicable(SerialCommunicable):
         rec_frame = self._read_raw_frame()
         self.port_lock.release()
 
+        if not rec_frame.is_frame_valid(rec_frame, frame):
+            return None
+
         rec_frame.change_data_type(resp_type)
         try:
             rec_frame.unpack()
         except struct.error as ex:
             self.logger.error('Error during frame unpacking: {}'.format(str(ex)), extra=self.log_args)
             return None
-        self.on_frame_unpacked(frame, rec_frame)
 
         return rec_frame.get_data()
-
-    def on_frame_unpacked(self, sent_frame, received_frame):
-        '''
-        Called upon frame unpacking finished. Frame validation should be done here.
-        '''
-
-        pass
 
     def _read_raw_frame(self, frame):
         '''
