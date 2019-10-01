@@ -5,7 +5,7 @@ from .scpi_communicable import SCPICommunicable, SCPICommand, SCPIQueryCommand, 
 from .camera_communicable import CameraCommunicable
 from .none_communicable import NoneCommunicable
 from .interface_communicable import InterfaceCommunicable
-from .process_communicable import ProcessCommunicable
+from .flasher_communicable import FlasherCommunicable
 
 import types
 
@@ -24,6 +24,6 @@ __all__ = [
     'CameraCommunicable',
     'NoneCommunicable',
     'InterfaceCommunicable',
-    'ProcessCommunicable',
+    'FlasherCommunicable',
     'types',
     ]

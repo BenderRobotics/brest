@@ -48,7 +48,7 @@ class FilterAvailable(Filter):
             and 'aliases' not in func_name
         )
 
-            
+
 class CharStreamHandler(StreamHandler):
     """
     Log handler for char by char logging, supports CR for bars etc..
@@ -64,7 +64,7 @@ class CharStreamHandler(StreamHandler):
                 self.stream.write(record.msg)
                 self.flush()
                 return
-            elif os.linesep in record.msg:
+            elif '\n' in record.msg:
                 if self.nl:
                     self.stream.write(self.format(record))
                 else:
@@ -107,7 +107,7 @@ DEFAULT_LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'br_base_f': {
-            'format': '[%(asctime)s][%(levelname)s] : %(funcName)s() -> %(message)s',
+            'format': '[%(asctime)s][%(levelname)s] : %(class_name)s.%(funcName)s() -> %(message)s',
         },
     },
     'handlers': {

@@ -21,6 +21,7 @@ from .resources import Resources
 from .resource_provider import ResourceProvider
 from .log import FilterAvailable
 from .helpers import overwrite_log_config, prepare_tests
+from .log_subprocess import run
 
 __all__ = [
     'CharStreamHandler',
@@ -33,6 +34,7 @@ __all__ = [
     'prepare_tests',
     'create_subprocess',
     'replace_log_handler',
+    'run',
     ]
 
 __version__ = '0.0.1'

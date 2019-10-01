@@ -84,6 +84,12 @@ Attribute or groups of attributes that need to be defined:
     Unfortunate cameras can't be looked up properly in current version, so you have to
     define it's index. Also index is custom numbered for every library.
 
+Flashers
+~~~~~~~~
+
+This interface satisfy brest needs on comunicable and identifies flashers
+on your system. Communication with flasher mediates specific external utility.
+
 .. _definitions.configuration-file:
 
 Configuration file

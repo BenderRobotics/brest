@@ -36,7 +36,7 @@ def __apply_overwrite(node, key, value):
     else:
         node[key] = value
 
-def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, project_config = None):
+def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, project_config=None, needed=[]):
     """Method that prepares tests to be used with Brest.
 
     It collects all needed resources from tests, construct them and sets as an class attribute on
@@ -67,16 +67,21 @@ def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, pro
     """
 
     # collect needed resources
-    needed = []
+    _needed = []
     for folder_suite in test_suite:
         for file_suite in folder_suite:
             for test in file_suite:
                 for n in test.needed:
-                    if n not in needed:
-                        needed.append(n)
+                    if n not in _needed:
+                        _needed.append(n)
+
+    # add needed resources before tests run
+    for n in needed:
+        if n not in _needed:
+            _needed.append(n)
 
     # construct them
-    resources = Resources(project, user_config=user_config, project_config=project_config, needed=needed)
+    resources = Resources(project, user_config=user_config, project_config=project_config, needed=_needed)
 
     # set constructed resources to every test
     for folder_suite in test_suite:

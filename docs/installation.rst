@@ -3,6 +3,8 @@
 Installation
 ============
 
+.. _installation.download-and-install-latest-release:
+
 Download and install latest release
 ------------------------------------
 
@@ -16,6 +18,8 @@ After you have downloaded the file, navigate to its directory and execute the fo
 
 Brest should be installed now. You can now head to the :ref:`usage` or install Optional dependencies.
 
+.. _installation.python-version:
+
 Python version
 --------------
 
@@ -26,8 +30,13 @@ Brest supports Python 3.5 and above on Windows and Linux
     In some distributions ``pip`` is not installed by default. Make sure you have it installed before
     installing Brest.
 
-Dependencies
-------------
+.. _installation.python-dependencies:
+
+Python dependencies
+-------------------
+
+Core
+~~~~
 
 These dependencies will be installed automatically when installing Brest
 
@@ -39,8 +48,9 @@ These dependencies will be installed automatically when installing Brest
 .. _pyserial: https://pypi.org/project/pyserial/
 .. _PyYAML:   https://pypi.org/project/PyYAML/
 
-Optional dependencies
----------------------
+Resource specific
+~~~~~~~~~~~~~~~~~
+
 These dependencies will not be installed automatically. Brest will detect and
 use them if you install them using following command:
 
@@ -56,3 +66,22 @@ This method will only work if you already have Brest installed.
 
 .. _OpenCV: https://pypi.org/project/opencv-python/
 .. _Sphinx: http://www.sphinx-doc.org/en/master/
+
+.. _installation.external-dependencies:
+
+External dependencies
+---------------------
+
+Resource specific
+~~~~~~~~~~~~~~~~~
+
+These dependencies will not be installed automatically. Brest will try to detect them and
+use them if you install them.
+
+* `STM32_Programmer_CLI`_ - Install this program so Brest will be able to list and use ST-Link programmers
+                          - It is recommended to install program in path used by :class:`~brest.flashers.STLink`
+* `JLink`_ - Install this program so Brest will be able to list and use J-Link programmers
+           - It is recommended to install program in path used by :class:`~brest.flashers.JLink`
+
+.. _STM32_Programmer_CLI: https://www.st.com/en/development-tools/stm32cubeprog.html
+.. _JLink: https://www.segger.com/downloads/jlink/

@@ -24,6 +24,11 @@ The second level of indention represent available resources.
     * :class:`~brest.cameras.GenericCamera`
     * :class:`~brest.cameras.Backfly`
 
+* :class:`~brest.flashers.Flashers`
+
+    * :class:`~brest.flashers.JLink`
+    * :class:`~brest.flashers.STLink`
+
 * :class:`~brest.interfaces.Interfaces`
 
 * :class:`~brest.io.IO`

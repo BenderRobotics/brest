@@ -89,3 +89,19 @@ Input/Output base class:
 Available devices:
 
 .. autoclass:: USBRelay
+
+Flashers
+~~~~~~~~
+
+.. currentmodule:: brest.flashers
+
+Flashers base class:
+
+.. autoclass:: Flashers
+    :members: log, timeout, flash, write, mass_erase, erase_sector, read, read_to_file, soft_reset
+
+Available flashers:
+
+.. autoclass:: STLink
+
+.. autoclass:: JLink

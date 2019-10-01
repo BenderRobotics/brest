@@ -15,11 +15,13 @@ import brest.supplies
 import brest.loads
 import brest.cameras
 import brest.interfaces
+import brest.flashers
 import brest.io
 
 from .log import FilterAvailable
 from .resource import Resource
-from brest.communication import CommunicableError, Communicable, SerialCommunicable, CameraCommunicable, NoneCommunicable
+from brest.communication import CommunicableError, Communicable, SerialCommunicable, \
+                                CameraCommunicable, NoneCommunicable, FlasherCommunicable
 
 class ResourceProvider:
     """Base class for resource managing.
