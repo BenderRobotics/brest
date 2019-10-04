@@ -60,7 +60,7 @@ class SCPICommunicable(SerialCommunicable):
         """
 
         self.write(message)
-        received = self.read_raw()
+        received = self.read_raw(expected=self.message_suffix)
         return received.decode(self.ENCODING)
 
 class SCPICommand(CommunicationStructure):
@@ -68,23 +68,41 @@ class SCPICommand(CommunicationStructure):
 
     :param command: Plaintext command you want to send
     :type  command: str
+    :param channel: Number of channel if device is multichannel
+    :type  channel: int
     """
 
-    def __init__(self, command):
+    def __init__(self, command, channel = ''):
         CommunicationStructure.__init__(self)
         self.add('cmd', str_t(command))
+        self.add('channel', str_t(channel))
 
-class SCPIValueCommand(CommunicationStructure):
+class SCPIQueryCommand(SCPICommand):
+    """Class that wraps plaintext commands adding a query character
+
+    :param command: Plaintext command you want to send
+    :type  command: str
+    :param channel: Number of channel if device is multichannel
+    :type  channel: int
+    """
+
+    def __init__(self, command, channel = '', query_char = '?'):
+        SCPICommand.__init__(self, command, channel)
+        self.add('query_char', str_t(query_char))
+
+class SCPIValueCommand(SCPICommand):
     """Class that wraps plaintext commands with additional value
 
     :param command: Plaintext command you want to send
     :type  command: str
-    :param value: Value that is converted to string and appended
+    :param channel: Number of channel if device is multichannel
+    :type  channel: int
+    :param value: Value that is converted to string and concate
                   with leading ':'
     :type  value: any
     """
 
-    def __init__(self, command, value = None):
-        CommunicationStructure.__init__(self)
-        self.add('cmd', str_t(command + ':'))
+    def __init__(self, command, channel = '', value = '', delimiter = ':'):
+        SCPICommand.__init__(self, command, channel)
+        self.add('delimiter', str_t(delimiter))
         self.add('value', str_t(value))
