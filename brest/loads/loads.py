@@ -33,4 +33,7 @@ class Loads(Resource):
         raise NotImplementedError('This load does not support reset to default values.')
 
     def self_test(self):
-        raise NotImplementedError('This load does not support sefl testing.')
+        raise NotImplementedError('This load does not support self testing.')
+
+    def detect_model(self, apply = True):
+        raise NotImplementedError('This load does not support specific model detection.')

@@ -1,46 +1,52 @@
 from brest.loads import Loads
-from brest.communication import SCPICommunicable, SCPICommand, SCPIValueCommand, CommunicableError
+from brest.communication import SCPICommunicable, SCPICommand, SCPIQueryCommand, SCPIValueCommand, CommunicableError
 
 class Pli(Loads, SCPICommunicable):
 
-    Loads.KNOWN['Pli'] = {'type': 'serial', 'timeout': 0.1, 'baudrate': 115200, 'vid': 0x0403, 'pid': 0x06001}
+    Loads.KNOWN['Pli'] = {
+        'type': 'serial',
+        'timeout': 0.1,
+        'baudrate': 115200,
+        'vid': 0x0000,
+        'pid': 0x0000,
+        }
 
     class Commands():
-        INFO_GET    = SCPICommand("*IDN?")
+        GET_INFO    = SCPIQueryCommand("*IDN")
         CLEAR       = SCPICommand("*CLS")
         RESET       = SCPICommand("*RST")
-        SELF_TEST   = SCPICommand("*TST?")
-        CURR_SET    = SCPIValueCommand("CURR")
-        CURR_GET    = SCPICommand("CURR?")
-        INPUT_ON    = SCPICommand("INP ON")
-        INPUT_OFF   = SCPICommand("INP OFF")
-        INPUT_GET   = SCPICommand("INP?")
+        SELF_TEST   = SCPIQueryCommand("*TST")
+        SET_CURR    = SCPIValueCommand("CURR")
+        GET_CURR    = SCPIQueryCommand("CURR")
+        EN_INPUT    = SCPICommand("INP ON")
+        DIS_INPUT   = SCPICommand("INP OFF")
+        GET_INPUT   = SCPIQueryCommand("INP")
 
     def __init__(self, kwargs):
         Loads.__init__(self)
         SCPICommunicable.__init__(self, kwargs['interface'])
         self.message_suffix = '\n'
 
-        self._parse_args(kwargs)
-        self.check_connection()
+        self.determine_suffix(self.Commands.GET_INFO)
+        self.mark_taken(self)
 
     def enable(self):
-        self.transceive(Pli.Commands.INPUT_ON)
+        self.transceive(Pli.Commands.EN_INPUT)
 
     def disable(self):
-        self.transceive(Pli.Commands.INPUT_OFF)
+        self.transceive(Pli.Commands.DIS_INPUT)
 
     @property
     def current(self):
-        return float(self.transceive(Pli.Commands.CURR_GET))
+        return float(self.transceive(Pli.Commands.GET_CURR))
 
     @current.setter
     def current(self, value):
-        Pli.Commands.CURR_SET.value = value
-        self.transceive(Pli.Commands.CURR_SET)
+        Pli.Commands.SET_CURR.value = value
+        self.transceive(Pli.Commands.SET_CURR)
 
     def get_info(self):
-        return self.transceive(Pli.Commands.INFO_GET)
+        return self.transceive(Pli.Commands.GET_INFO)
 
     def clear(self):
         return self.transceive(Pli.Commands.CLEAR)
@@ -51,7 +57,9 @@ class Pli(Loads, SCPICommunicable):
     def self_test(self):
         return int(self.transceive(Pli.Commands.SELF_TEST))
 
-    def check_connection(self):
-        received = self.transceive(Pli.Commands.INFO_GET)
-        if received == '':
-            raise CommunicableError('Unable to establish a connection')
+    def default_current(self, value):
+        self.current = value
+        return True
+
+    def detect_model(self):
+        pass
