@@ -1,37 +1,56 @@
 import logging
+import weakref
 
 from brest.communication import Communicable
 
 class CameraCommunicable(Communicable):
 
+    TYPE = 'camera'
     TAKEN = []
 
-    @staticmethod
-    def camera_probe(interface, cams = None):
-        '''
-        Check wheter given camera is connected to the host system and returns serial number and index in a tuple.
-        '''
+    def __init__(self, kwargs):
+        self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
+        self.logger = logging.getLogger('brest')
 
-        if not cams:
-            cams = CameraCommunicable.list_cameras()
+        if kwargs:
+            self.index = kwargs['index']
+
+    def get_connections(self):
+        return self._list_cameras()
+
+    def probe(self, interface, connections = None):
+
+        def __device_to_interface(interface, cam, index):
+            new_interface = dict(interface)
+            new_interface['index'] = index
+            return new_interface
+
+        probed = []
+
+        if interface['lib'] != 'cv2':
+            return probed
+
+        if not connections:
+            connections = self._list_cameras()
 
         index = 0
-        for cam in cams:
-            p_device_id = CameraCommunicable.__parse_device_id(cam.DeviceID)
-            yield (p_device_id[2], index)
+        for cam in connections:
+            p_device_id = self.__parse_device_id(cam.DeviceID)
+            probed.append(__device_to_interface(interface, p_device_id, index))
             index += 1
 
-    @staticmethod
-    def list_cameras():
+        return probed
 
+    def _list_cameras(self):
         import platform
+
         if platform.system() != 'Windows':
-            logging.getLogger('brest').warning('Listing connected cameras is not supported besides windows. Any function including this operation will fail.', extra={'class_name': 'CameraCommunicable'})
+            self.logger.warning('Listing connected cameras is not supported besides windows.', extra=self.log_args)
             return []
         else:
             try:
                 import win32com.client
-            except:
+            except ModuleNotFoundError:
                 return []
 
         cameras = []
@@ -45,84 +64,39 @@ class CameraCommunicable(Communicable):
 
         return cameras
 
-    @staticmethod
-    def __parse_device_id(device_id):
+    def __parse_device_id(self, device_id):
         splitted = device_id.split('&')
         vid = int(splitted[0][splitted[0].find('_') + 1 : ], 16) #USB\VID_041E -> 0x041E
         pid = int(splitted[1][splitted[1].find('_') + 1 : ], 16) #PID_4095 -> 0x4096
         serial_number = splitted[3]
         return (vid, pid, serial_number)
 
-    class Seeker():
-        '''
-        Base class for interface creation and probing.
-        '''
+    def mark_taken(self, resource):
+        self.TAKEN.append(weakref.ref(resource))
 
-        def __init__(self):
-            Communicable.Seeker.__init__(self)
-            self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
-            self.logger = logging.getLogger('brest')
+    def unmark_taken(self, resource):
+        self.TAKEN.remove(weakref.ref(resource))
 
-        def mark_taken(self, interface):
-            CameraCommunicable.TAKEN.append(interface['index'])
+    def is_taken(self, interface):
+        for taken_device in CameraCommunicable.TAKEN:
+            if interface['index'] == taken_device().index:
+                return True
+        return False
 
-        def is_taken(self, interface):
-            for taken_index in CameraCommunicable.TAKEN:
-                if interface['index'] == taken_index:
-                    return True
-            return False
+    def print_interface(self, interface):
+        for name, value in interface.items():
+            print('\t{}: {}'.format(name, value))
 
-        def print_probe(self, interface, coms = None):
-            if interface['lib'] != 'cv2':
-                self.logger.warning('Probing only cv2 operable cameras is supported', extra=self.log_args)
-                return
+    def get_available(self, class_name, interface, connections):
+        resources = []
+        interfaces = self.probe(interface, connections)
+        for interface_ in interfaces:
+            if not self.is_taken(interface_):
+                resources.append(
+                    {
+                        'class_name': class_name,
+                        'interface': interface_
+                    }
+                )
 
-            indexes = []
-
-            cam_gen = CameraCommunicable.camera_probe(interface)
-            for index in cam_gen:
-                if not self.is_taken({'index': index[1]}):
-                    indexes.append(index)
-
-            print(indexes)
-
-        def get_available(self, class_name, interface, connected):
-            if interface['lib'] != 'cv2':
-                self.logger.warning('Listing only cv2 operable cameras is supported', extra=self.log_args)
-                return []
-
-            resources = []
-
-            cam_gen = CameraCommunicable.camera_probe(interface, cams=connected[1])
-            for index in cam_gen:
-                interface_ = dict(interface)
-                interface_['serial_number'] = index[0]
-                interface_['index'] = index[1]
-                if not self.is_taken(interface_):
-                    resource = {'class_name': class_name, 'interface': interface_}
-                    resources.append(resource)
-
-            return resources
-
-        def complete_interface(self, interface, connected):
-            if 'index' not in interface:
-
-                if interface['lib'] != 'cv2':
-                    self.logger.error('Interface completition not supported on non cv2 cameras', extra=self.log_args)
-                    raise SystemExit
-
-                index_gen = CameraCommunicable.camera_probe(interface, connected[1])
-                index = next(index_gen, None)
-                while(index is not None and self.is_taken({'port': index[1]})):
-                    index = next(index_gen, None)
-
-                if index is not None:
-                    if 'serial_number' not in interface:
-                        interface['serial_number'] = index[0]
-                    interface['index'] = index[1]
-                else:
-                    raise Exception('Available camera index not found')
-            return interface
-
-        def match_interface(self, interface, known_interface):
-            return interface['lib'] == interface['lib'] and interface['index'] == known_interface['index']
+        return resources

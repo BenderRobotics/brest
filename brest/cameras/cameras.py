@@ -39,3 +39,8 @@ class Cameras(Resource):
         '''
 
         raise NotImplementedError('This camera has no means of info detection.')
+
+    def detect_model(self):
+        """Returns model info. Implicitly tries to apply model's limits and specifications."""
+
+        raise NotImplementedError('This supply does not support specific model detection.')

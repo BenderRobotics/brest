@@ -18,7 +18,7 @@ import brest.interfaces
 import brest.io
 
 from .resource import Resource
-from brest.communication import CommunicableError, SerialCommunicable, NoneCommunicable#, CameraCommunicable
+from brest.communication import CommunicableError, Communicable, SerialCommunicable, CameraCommunicable, NoneCommunicable
 
 class ResourceProvider:
     """Base class for resource managing.
@@ -36,10 +36,9 @@ class ResourceProvider:
         for cls_ in Resource.__subclasses__():
             self.knowns[cls_.__name__.lower()] = cls_.KNOWN
 
-        self._communicables = {
-            SerialCommunicable.TYPE: SerialCommunicable(None),
-            NoneCommunicable.TYPE: NoneCommunicable(None),
-        }
+        self._communicables = {}
+        for com in Communicable.__subclasses__():
+            self._communicables[com.TYPE] = com(None)
 
     def print_probe(self, class_name):
         """Checks if resource is present in the system, and prints its interface.
@@ -80,9 +79,6 @@ class ResourceProvider:
                 continue
 
             for class_name, interface in resources.items():
-                # TODO: DONT FORGET TO REMOVE THIS
-                if interface['type'] not in ['serial', 'none']:
-                    continue
                 com = self.__get_communicable(interface['type'])
                 resources = com.get_available(class_name, interface, connections[interface['type']])
                 if resources:

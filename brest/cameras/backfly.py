@@ -1,16 +1,18 @@
 import logging
 
 from brest.cameras import Cameras
+from brest.communication import CameraCommunicable
 
-class Backfly(Cameras):
+class Backfly(Cameras, CameraCommunicable):
 
-    Cameras.KNOWN['Backfly'] = {'type': 'camera', 'lib': 'PySpin'}
+    Cameras.KNOWN['Backfly'] = {
+        'type': 'camera',
+        'lib': 'PySpin'
+        }
 
     def __init__(self, kwargs, triger = None):
-
         Cameras.__init__(self)
-        self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
-        self.logger = logging.getLogger('brest')
+        CameraCommunicable.__init__(self, kwargs['interface'])
 
         try:
             import cv2
@@ -24,7 +26,6 @@ class Backfly(Cameras):
             import tempfile
         except ModuleNotFoundError:
             raise ModuleNotFoundError('To use {} class you have to install `tempfile` module'.format(self.__class__.__name__))
-        self._parse_args(kwargs)
 
         # Retrieve singleton reference to system object
         self.system = PySpin.System.GetInstance()
@@ -50,11 +51,13 @@ class Backfly(Cameras):
         cam_list.Clear()
         self.__inittrg(triger)
         self.acquire_image()
+        self.mark_taken(self)
 
     def __del__(self):
         # Deinitialize camera
         if self.cam is not None:
             self.cam.DeInit()
+        self.unmark_taken(self)
 
     def configure_trigger(self,triger):
         """
@@ -229,6 +232,9 @@ class Backfly(Cameras):
         except PySpin.SpinnakerException as ex:
             self.logger.error('Error occured during camera info retrieving: {}'.format(str(ex)))
             raise SystemExit
+
+    def detect_model(self):
+        pass
 
     def __inittrg(self, triger):
         try:

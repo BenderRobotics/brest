@@ -58,7 +58,6 @@ class Config():
     def is_valid(self):
         """Indicates if parsed config file is valid for Brest."""
 
-        self._is_valid = False
         self._validate()
         return self._is_valid
 
