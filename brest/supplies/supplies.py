@@ -68,39 +68,53 @@ class Supplies(Resource):
         #: Kind of a supply
         self.KIND = None
 
-    def enable(self, channel = 1):
+        self._aliases = {}
+        self._channels = []
+
+    def __str__(self):
+        s = '{}.{}\n'.format(self.__class__.__module__, self.__class__.__name__)
+        if not self._aliases:
+            return s
+
+        justify_len = max([len(alias) for alias in self._aliases]) + 1
+        sorted_aliases = sorted(self._aliases)
+        for alias in sorted_aliases:
+            s += '\t{}: channel {}\n'.format(alias.ljust(justify_len), self._aliases[alias])
+        return s
+
+    def enable(self):
         """Enables power supply output."""
 
         raise NotImplementedError('This supply cannot be enabled.')
 
-    def disable(self, channel = 1):
+    def disable(self):
         """Disables power supply output. """
 
         raise NotImplementedError('This supply cannot be disabled.')
 
     @property
-    def voltage(self, channel = 1):
+    def voltage(self):
         """Gets and sets voltage."""
 
         raise NotImplementedError('This supply is unable to measure output voltage.')
 
     @voltage.setter
-    def voltage(self, value, channel = 1):
+    def voltage(self, value):
 
         raise NotImplementedError('This supply does not support different voltages.')
 
     @property
-    def current(self, channel = 1):
+    def current(self):
         """Gets and sets current."""
 
         raise NotImplementedError('This supply is unable to measure output current.')
 
     @current.setter
-    def current(self, value, channel = 1):
+    def current(self, value):
 
         raise NotImplementedError('This supply does not support different current limits.')
 
-    def enable_protection(self, protection_type, channel = 1):
+    def enable_protection(self, protection_type):
         """Enables given protection.
 
         :param protection_type: Protection type you want to enable
@@ -109,7 +123,7 @@ class Supplies(Resource):
 
         raise NotImplementedError('This supply has no means of output protection.')
 
-    def disable_protection(self, protection_type, channel = 1):
+    def disable_protection(self, protection_type):
         """Disables given protection.
 
         :param protection_type: Protection type you want to disable
@@ -148,14 +162,35 @@ class Supplies(Resource):
     def get_info(self):
         """Returns info string."""
 
-        raise NotImplementedError('This supply has no means of status detection.')
+        raise NotImplementedError('This supply has no means of info detection.')
 
-    def _detect(self, apply = True):
+    def get_status(self):
+        """Return status byte."""
+
+        raise NotImplementedError('This supply does not support status detection')
+
+    def detect_model(self, apply = True):
         """Returns model info. Implicitly tries to apply model's electrical limits."""
 
         raise NotImplementedError('This supply does not support specific model detection.')
 
-    def _apply_model_specs(self, model):
+    def default_voltage(self, value):
+
+        raise NotImplementedError('This supply does not support default voltage setting')
+
+    def default_current(self, value):
+
+        raise NotImplementedError('This supply does not support default current setting')
+
+    def required_voltage_range(self, value):
+
+        raise NotImplementedError('This supply does not support voltage range requirement check')
+
+    def required_current_range(self, value):
+
+        raise NotImplementedError('This supply does not support current range requirement check')
+
+    def _apply_model(self, model):
         """Applies model info to the class.
 
         :param model: Model's specification you want to apply
@@ -169,3 +204,38 @@ class Supplies(Resource):
         self.MAX_CURRENT = model.max_current
         self.PROTECTION = model.protection
         self.KIND = model.kind
+
+    @property
+    def aliases(self):
+        """Gets or sets channels aliases.
+
+        To add new alias outside configuration file, assign a list of
+        dicts defining the mapping::
+
+            psu.aliases = [
+                {
+                    'channel': 0,
+                    'name':  'supply',
+                    'default_voltage':  24, # You can omit this
+                    'default_current': 0.3, # You can omit this
+                },
+            ]
+
+        """
+
+        return dict(self._aliases)
+
+    @aliases.setter
+    def aliases(self, value):
+        if len(value) > self.CHANNELS:
+            raise ValueError('Can\'t satisfy channels requirement. Requested {} available {}'.format(len(value), self.CHANNELS))
+
+        for alias in value:
+            if alias['channel'] < 0 or alias['channel'] >= self.CHANNELS:
+                self.logger.warning('Not a valid channel index', extra=self.log_args)
+                return
+
+            if alias['name'] not in self._aliases:
+                self._aliases[alias['name']] = alias['channel']
+            else:
+                self.logger.warning('Alias {} is already defined. Overwriting mapping'.format(alias['name']), extra=self.log_args)

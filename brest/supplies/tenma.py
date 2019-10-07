@@ -9,8 +9,9 @@
 """
 
 from brest.supplies import Supplies
-from brest.communication import SCPICommunicable, SCPICommand, SCPIValueCommand, CommunicableError
+from brest.communication import SCPICommunicable, SCPICommand, SCPIQueryCommand, SCPIValueCommand, CommunicableError
 
+from copy import deepcopy
 from contextlib import suppress
 
 class Tenma(Supplies, SCPICommunicable):
@@ -28,131 +29,154 @@ class Tenma(Supplies, SCPICommunicable):
         interface:
             type:    'serial'
             timeout: 0.1
-            vid:     0x416
+            vid:     0x0416
             pid:     0x5011
 
     """
 
     #: Implicit interface definition
     Supplies.KNOWN['Tenma'] = {
-        'type':'serial',
+        'type': 'serial',
         'timeout': 0.1,
-        'vid':0x416,
-        'pid':0x5011,
+        'vid': 0x0416,
+        'pid': 0x5011,
         }
 
     class Commands():
         """Available commands"""
-        #: Get info
-        GET_INFO    = SCPICommand('*IDN?')
-        GET_STATUS  = SCPICommand('STATUS?')
-        SET_VOLTAGE = SCPIValueCommand('VSET1')
-        GET_VOLTAGE = SCPICommand('VOUT1?')
-        SET_CURRENT = SCPIValueCommand('ISET1')
-        GET_CURRENT = SCPICommand('IOUT1?')
-        EN_OUTPUT   = SCPICommand('OUT1')
-        DIS_OUTPUT  = SCPICommand('OUT0')
-        EN_OVP      = SCPICommand('OVP1')
-        DIS_OVP     = SCPICommand('OVP0')
-        EN_OCP      = SCPICommand('OCP1')
-        DIS_OCP     = SCPICommand('OCP0')
-        RECALL1     = SCPICommand('RCL1')
-        RECALL2     = SCPICommand('RCL2')
-        RECALL3     = SCPICommand('RCL3')
-        RECALL4     = SCPICommand('RCL4')
-        RECALL5     = SCPICommand('RCL5')
-        SAVE1       = SCPICommand('SAV1')
-        SAVE2       = SCPICommand('SAV2')
-        SAVE3       = SCPICommand('SAV3')
-        SAVE4       = SCPICommand('SAV4')
-        SAVE5       = SCPICommand('SAV5')
+
+        GET_INFO    = SCPIQueryCommand('*IDN')
+        GET_STATUS  = SCPIQueryCommand('STATUS')
+        SET_VOLTAGE = SCPIValueCommand('VSET', channel=1)
+        GET_VOLTAGE = SCPIQueryCommand('VOUT', channel=1)
+        SET_CURRENT = SCPIValueCommand('ISET', channel=1)
+        GET_CURRENT = SCPIQueryCommand('IOUT', channel=1)
+        EN_OUTPUT   = SCPIValueCommand('OUT', delimiter='', value=1)
+        DIS_OUTPUT  = SCPIValueCommand('OUT', delimiter='', value=0)
+        EN_OVP      = SCPIValueCommand('OVP1')
+        DIS_OVP     = SCPIValueCommand('OVP0')
+        EN_OCP      = SCPIValueCommand('OCP1')
+        DIS_OCP     = SCPIValueCommand('OCP0')
+
+        def RECALL(index):
+            return SCPICommand('RCL' + str(index))
+
+        def SAVE(index):
+            return SCPICommand('SAV' + str(index))
 
     Models = [
-        Supplies.Model('TENMA 72-2535', 1, 5, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
-        Supplies.Model('TENMA 72-2540', 1, 5, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
-        Supplies.Model('TENMA 72-2545', 1, 5, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
-        Supplies.Model('TENMA 72-2550', 1, 5, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
+        Supplies.Model('TENMA 72-2535',  1, 5, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
+        Supplies.Model('TENMA 72-2540',  1, 5, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
+        Supplies.Model('TENMA 72-2545',  1, 5, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
+        Supplies.Model('TENMA 72-2550',  1, 5, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
+        Supplies.Model('TENMA 72-13330', 2, 9, 30.0, 5.0,                                                 [], Supplies.Kind.PROGRAMMABLE),
     ]
 
     def __init__(self, kwargs):
         Supplies.__init__(self)
         SCPICommunicable.__init__(self, kwargs['interface'])
 
-        self.check_connection()
-        self._detect()
-        self._parse_args(kwargs)
+        self.determine_suffix(self.Commands.GET_VOLTAGE)
+        self.mark_taken(self)
 
     def __del__(self):
+        self.unmark_taken(self)
         with suppress(Exception):
             self.disable()
 
-    def enable(self, channel = 1):
-        self.transceive(Tenma.Commands.EN_OUTPUT)
+    def __getitem__(self, key):
+        """Channels can be accessed using number indexes or aliases"""
 
-    def disable(self, channel = 1):
-        self.transceive(Tenma.Commands.DIS_OUTPUT)
+        if isinstance(key, str):
+            return self[self._aliases[key]]
+        else:
+            return self._channels[key]
+
+    def enable(self):
+        command = deepcopy(self.Commands.EN_OUTPUT)
+        if len(self._aliases) == self.CHANNELS:
+            command.channel = 12
+            command.delimiter = ':'
+        elif self.CHANNELS > 1:
+            command.channel = 1
+            command.delimiter = ':'
+        self.transceive(command)
+
+    def disable(self):
+        command = deepcopy(self.Commands.DIS_OUTPUT)
+        if len(self._aliases) == self.CHANNELS:
+            command.channel = 12
+            command.delimiter = ':'
+        elif self.CHANNELS > 1:
+            command.channel = 1
+            command.delimiter = ':'
+        self.transceive(command)
 
     @property
-    def voltage(self, channel = 1):
-        return float(self.transceive(Tenma.Commands.GET_VOLTAGE))
+    def voltage(self):
+        return float(self.transceive(self.Commands.GET_VOLTAGE))
 
     @voltage.setter
-    def voltage(self, value, channel = 1):
+    def voltage(self, value):
         if self.MAX_VOLTAGE and value > self.MAX_VOLTAGE:
             self.logger.warning('Value {} exceeded maximum voltage level'.format(value), extra=self.log_args)
         else:
-            Tenma.Commands.SET_VOLTAGE.value = value
-            self.transceive(Tenma.Commands.SET_VOLTAGE)
+            self.Commands.SET_VOLTAGE.value = value
+            self.transceive(self.Commands.SET_VOLTAGE)
 
     @property
-    def current(self, channel = 1):
-        return float(self.transceive(Tenma.Commands.GET_CURRENT))
+    def current(self):
+        return float(self.transceive(self.Commands.GET_CURRENT))
 
     @current.setter
-    def current(self, value, channel = 1):
+    def current(self, value):
         if self.MAX_CURRENT and value > self.MAX_CURRENT:
             self.logger.warning('Value {} exceeded maximum current level'.format(value), extra=self.log_args)
         else:
-            Tenma.Commands.SET_CURRENT.value = value
-            self.transceive(Tenma.Commands.SET_CURRENT)
+            self.Commands.SET_CURRENT.value = value
+            self.transceive(self.Commands.SET_CURRENT)
 
-    def enable_protection(self, protection_type, channel = 1):
-        if protection_type == Supplies.Protection.OVP:
-            command = Tenma.Commands.EN_OVP
-        elif protection_type == Supplies.Protection.OCP:
-            command = Tenma.Commands.EN_OCP
-        else:
-            self.logger.warning('Protection `{}` is not supported'.format(protection_type.name), extra=self.log_args)
+    def enable_protection(self, protection_type):
+        if protection_type == self.Protection.OVP:
+            if protection_type not in self.PROTECTION:
+                self.logger.warning('Protection `{}` is not supported'.format('OVP'), extra=self.log_args)
+                return
+            else:
+                command = self.Commands.EN_OVP
+        elif protection_type == self.Protection.OCP:
+            if protection_type not in self.PROTECTION:
+                self.logger.warning('Protection `{}` is not supported'.format('OCP'), extra=self.log_args)
+                return
+            else:
+                command = self.Commands.EN_OCP
+
         self.transceive(command)
 
-    def disable_protection(self, protection_type, channel = 1):
-        if protection_type == Supplies.Protection.OVP:
-            command = Tenma.Commands.DIS_OVP
-        elif protection_type == Supplies.Protection.OCP:
-            command = Tenma.Commands.DIS_OCP
-        else:
-            self.logger.warning('Protection `{}` is not supported'.format(protection_type.name), extra=self.log_args)
+    def disable_protection(self, protection_type):
+        if protection_type == self.Protection.OVP:
+            if protection_type not in self.PROTECTION:
+                self.logger.warning('Protection `{}` is not supported'.format('OVP'), extra=self.log_args)
+                return
+            else:
+                command = self.Commands.DIS_OVP
+        elif protection_type == self.Protection.OCP:
+            if protection_type not in self.PROTECTION:
+                self.logger.warning('Protection `{}` is not supported'.format('OCP'), extra=self.log_args)
+                return
+            else:
+                command = self.Commands.DIS_OCP
+
         self.transceive(command)
 
-    def save_memory(self, memory_index, voltage, current):
+    def save_memory(self, memory_index):
         if memory_index < 1 or memory_index > self.MEMORIES:
             self.logger.warning('Invalid memory index. Available range is from 1 to {}'.format(memory_index, self.MEMORIES), extra=self.log_args)
             return
 
         self.disable()
 
-        # First recall the memory you want to save to
-        cmd_name = 'RECALL' + str(memory_index)
-        command = getattr(self.Commands, cmd_name)
-        self.transceive(command)
-
-        # Then change the voltage and current values
-        self.voltage = voltage
-        self.current = current
-
         # Save it to memory
-        cmd_name = 'SAVE' + str(memory_index)
-        command = getattr(self.Commands, cmd_name)
+        command = self.Commands.SAVE(memory_index)
         self.transceive(command)
 
     def recall_memory(self, memory_index):
@@ -160,27 +184,137 @@ class Tenma(Supplies, SCPICommunicable):
             self.logger.warning('Invalid memory index {}. Available range is from 1 to {}'.format(memory_index, self.MEMORIES), extra=self.log_args)
             return
 
-        cmd_name = 'RECALL' + str(memory_index)
-        command = getattr(self.Commands, cmd_name)
+        command = self.Commands.RECALL(memory_index)
         self.transceive(command)
 
     def get_info(self):
-        return self.transceive(Tenma.Commands.GET_INFO)
+        return self.transceive(self.Commands.GET_INFO)
+
+    def get_status(self):
+        return self.transceive(self.Commands.GET_STATUS)
+
+    def detect_model(self):
+        response = self.transceive(self.Commands.GET_INFO)
+        # Tenmas with added support for programing won't return anything
+        # on *IDN? instruction
+        if not response:
+            self._apply_model(self.Models[0])
+            return
+        # Old Tenmas returns INFO as comma seperated string
+        splitted = response.split(',')
+        psu_idn = splitted[0]
+        if len(splitted) == 1:
+            # New Tenmas returns INFO as space separated string
+            splitted = psu_idn.split(' ')
+            psu_idn = splitted[0] + ' ' + splitted[1]
+
+        for model in self.Models:
+            if (model.idn in psu_idn):
+                self._apply_model(model)
+        if (None == self.IDN):
+            self.logger.warning('Unable to detect model', extra=self.log_args)
+
+        if self.CHANNELS >= 2:
+            for i in range(0, self.CHANNELS):
+                self._channels.append(TenmaChannel(self, i + 1))
 
     def disconnect(self):
         self.disable()
         SCPICommunicable.disconnect(self)
 
-    def check_connection(self):
-        received = self.transceive(Tenma.Commands.GET_INFO)
-        if received == '':
-            raise CommunicableError('Unable to establish a connection')
+    @property
+    def aliases(self):
+        return Supplies.aliases.fget(self)
 
-    def _detect(self):
-        psu_idn = self.transceive(Tenma.Commands.GET_INFO).split(',')[0]
+    @aliases.setter
+    def aliases(self, value):
+        Supplies.aliases.fset(self, value)
 
-        for model in self.Models:
-            if (model.idn in psu_idn):
-                self._apply_model_specs(model)
-        if (None == self.IDN):
-            self.logger.warning('Unable to detect model', extra=self.log_args)
+    def default_voltage(self, value):
+        if value > self.MAX_VOLTAGE:
+            return False
+        self.voltage = value
+        return True
+
+    def default_current(self, value):
+        if value > self.MAX_CURRENT:
+            return False
+        self.current = value
+        return True
+
+    def required_voltage_range(self, value):
+        if value[1] > self.MAX_VOLTAGE:
+            # raise ValueError('Can\'t satisfy `voltage_range` requirement. Requested {} available {}'.format(value, (0, self.MAX_VOLTAGE)))
+            return False
+        return True
+
+    def required_current_range(self, value):
+        if value[1] > self.MAX_CURRENT:
+            # raise ValueError('Can\'t satisfy `current_range` requirement. Requested {} available {}'.format(value, (0, self.MAX_CURRENT))
+            return False
+        return True
+
+    def required_channels(self, value):
+        if value > self.CHANNELS:
+            # raise ValueError('Can\'t satisfy `channels` requirement. Requested {} available {}'.format(value, (0, self.CHANNELS))
+            return False
+
+class TenmaChannel():
+
+    def __init__(self, supply, channel):
+        self.supply = supply
+        self.channel = channel
+
+    def enable(self):
+        command = deepcopy(self.supply.Commands.EN_OUTPUT)
+        command.channel = str(self.channel)
+        self.supply.write(command)
+
+    def disable(self):
+        command = self.supply.Commands.DIS_OUTPUT
+        command.channel = str(self.channel)
+        self.supply.write(command)
+
+    @property
+    def voltage(self):
+        command = deepcopy(self.supply.Commands.GET_VOLTAGE)
+        command.channel = self.channel
+        return float(self.supply.transceive(command))
+
+    @voltage.setter
+    def voltage(self, value):
+        command = deepcopy(self.supply.Commands.SET_VOLTAGE)
+        command.channel = self.channel
+        command.value = value
+        self.supply.write(command)
+
+    @property
+    def current(self):
+        command = deepcopy(self.supply.Commands.GET_CURRENT)
+        command.channel = self.channel
+        return float(self.supply.transceive(command))
+
+    @current.setter
+    def current(self, value):
+        command = deepcopy(self.supply.Commands.SET_CURRENT)
+        command.channel = self.channel
+        command.value = value
+        self.supply.write(command)
+
+    def enable_protection(self, protection_type):
+        self.supply.enable_protection(protection_type)
+
+    def disable_protection(self, protection_type):
+        self.supply.disable_protection(protection_type)
+
+    def save_memory(self, memory_index):
+        self.supply.save_memory(memory_index)
+
+    def recall_memory(self, memory_index):
+        self.supply.recall_memory(memory_index)
+
+    def get_info(self):
+        return self.supply.get_info()
+
+    def get_status(self):
+        return self.supply.get_status()

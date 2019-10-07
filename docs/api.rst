@@ -66,7 +66,7 @@ Supplies
 Supplies base class:
 
 .. autoclass:: Supplies
-    :members: Protection, Kind, Model, IDN, CHANNELS, MEMORIES, MAX_VOLTAGE, MAX_CURRENT, PROTECTION, KIND, _apply_model_specs
+    :members: Protection, Kind, Model, IDN, CHANNELS, MEMORIES, MAX_VOLTAGE, MAX_CURRENT, PROTECTION, KIND, _apply_model
 
 Available supplies:
 
