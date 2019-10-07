@@ -9,8 +9,9 @@
 """
 
 from brest.supplies import Supplies
+from brest.communication import NoneCommunicable
 
-class Mansup(Supplies):
+class Mansup(Supplies, NoneCommunicable):
     """Fixed power supply controlled by human using prompts.
 
     Derived from :class:`~brest.supplies.Supplies`
@@ -29,13 +30,13 @@ class Mansup(Supplies):
         'type': 'none'
     }
 
-    def __init__(self, kwargs):
+    def __init__(self, kwargs = None):
         Supplies.__init__(self)
+        NoneCommunicable.__init__(self, kwargs)
+
         self.kind = Supplies.Kind.FIXED
         self._voltage = 0
         self._current = 0
-
-        self._parse_args(kwargs)
 
     def enable(self):
         """Prompts you to set the power supply according to internal values and enable it."""
@@ -63,6 +64,17 @@ class Mansup(Supplies):
 
         return self._current
 
+    def detect_model(self):
+        pass
+
     @current.setter
     def current(self, value):
         self._current = value
+
+    def default_voltage(self, value):
+        self.voltage = value
+        return True
+
+    def default_current(self, value):
+        self.current = value
+        return True

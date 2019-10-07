@@ -2,27 +2,28 @@ from brest.communication import Communicable
 
 class NoneCommunicable(Communicable):
 
-    def __init__(self):
+    TYPE = 'none'
+
+    def __init__(self, kwargs):
         Communicable.__init__(self)
 
-    class Seeker():
+    def get_connections(self):
+        return []
 
-        def __init__(self):
-            Communicable.Seeker.__init__(self)
+    def probe(self, interface, connections = None):
+        return interface
 
-        def mark_taken(self, interface):
-            pass
+    def mark_taken(self, interface):
+        pass
 
-        def is_taken(self, interface):
-            return False
+    def is_taken(self, interface):
+        return False
 
-        def print_probe(self, interface, coms = None):
-            print()
+    def get_available(self, class_name, interface, connections):
+        return [
+            {'class_name': 'Mansup', 'interface': {'type': 'none'}},
+        ]
 
-        def get_available(self, class_name, interface, connected):
-            return [
-                {'class_name': 'Mansup', 'interface': {'type': 'none'}},
-            ]
-
-        def complete_interface(self, interface, connected):
-            return interface
+    def print_interface(self, interface):
+        for name, value in interface.items():
+            print('\t{}: {}'.format(name, value))

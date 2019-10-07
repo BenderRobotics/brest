@@ -18,7 +18,7 @@ import brest.interfaces
 import brest.io
 
 from .resource import Resource
-from brest.communication import CommunicableError, SerialCommunicable#, CameraCommunicable, NoneCommunicable
+from brest.communication import CommunicableError, SerialCommunicable, NoneCommunicable#, CameraCommunicable
 
 class ResourceProvider:
     """Base class for resource managing.
@@ -38,6 +38,7 @@ class ResourceProvider:
 
         self._communicables = {
             SerialCommunicable.TYPE: SerialCommunicable(None),
+            NoneCommunicable.TYPE: NoneCommunicable(None),
         }
 
     def print_probe(self, class_name):
@@ -80,7 +81,7 @@ class ResourceProvider:
 
             for class_name, interface in resources.items():
                 # TODO: DONT FORGET TO REMOVE THIS
-                if interface['type'] != 'serial':
+                if interface['type'] not in ['serial', 'none']:
                     continue
                 com = self.__get_communicable(interface['type'])
                 resources = com.get_available(class_name, interface, connections[interface['type']])
@@ -200,7 +201,7 @@ class ResourceProvider:
             available_in_group = self.available(group=group, connections=connections)
 
             for available in available_in_group:
-                if available['interface']['type'] == None:
+                if available['interface']['type'] == 'none':
                     # Resources that don't have to have physical connection
                     # can also be listed. So skip them.
                     continue
@@ -247,8 +248,8 @@ class ResourceProvider:
             # Try to construct the resources, that didn't matched in available
             matching.clear()
             if not class_name:
-                self.log.error('Resource `{}` didn\'t match anything in the available and is ' +
-                               'missing class definition'.format(alias), extra=self.log_args)
+                self.logger.error('Resource `{}` didn\'t match anything in '.format(alias) +
+                                  'the available and is missing class definition', extra=self.log_args)
                 break
 
             # Get implicit arguments from Brest

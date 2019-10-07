@@ -79,7 +79,7 @@ class SerialCommunicable(Communicable):
                     if com.serial_number == interface['serial_number']:
                         probed.append(__device_to_interface(interface, com))
             else:
-                self.logger('brest').warning('Missing vid, pid or serial number definition in the interface: {}'.format(str(interface)), extra=self.log_args)
+                self.logger.warning('Missing vid, pid or serial number definition in the interface: {}'.format(str(interface)), extra=self.log_args)
                 pass
 
         return probed
