@@ -62,6 +62,8 @@ class IO(Resource):
         self._states = 0
         #: Aliases to indexes mapping
         self._aliases = {}
+        #: Aliases to propagate
+        self._propagate = []
         #: Model number
         self.IDN = None
         #: Number of available channels
@@ -176,6 +178,9 @@ class IO(Resource):
                 self[alias['channel']] = alias['default_value']
             else:
                 self.logger.warning('Alias {} is already defined. Overwriting mapping'.format(alias['name']), extra=self.log_args)
+
+            if 'propagate' in alias and alias['propagate'] == True:
+                self._propagate.append(alias['name'])
 
     def required_channels(self, value):
         if value > self.CHANNELS:

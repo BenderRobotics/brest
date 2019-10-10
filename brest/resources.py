@@ -43,6 +43,7 @@ class Resources():
         self.logger = logging.getLogger('brest')
 
         self._resources = {}
+        self._aliases_mappings = {}
 
         self._instantiate(project, user_config, project_config, needed)
 
@@ -59,8 +60,15 @@ class Resources():
     def __getitem__(self, key):
         if key in self._resources:
             return self._resources[key]
+        elif key in self._aliases_mappings:
+            return self._resources[self._aliases_mappings[key]][key]
         else:
             raise KeyError('Invalid key: {}'.format(key))
+
+    def __setitem__(self, key, value):
+        if key in self._aliases_mappings:
+            self._resources[self._aliases_mappings[key]][key] = value
+        self._resources[key] = value
 
     def __iter__(self):
         return iter(self._resources.items())
@@ -93,6 +101,10 @@ class Resources():
             # Failed object construction results in None being in the list
             if r:
                 self._resources[r.name] = r
+                # Look if resource has any aliases to propagate
+                if hasattr(r, '_propagate'):
+                    for alias in getattr(r, '_propagate'):
+                        self._aliases_mappings[alias] = r.name
             else:
                 self.logger.error('Couldn\'t initialize all resources', extra=self.log_args)
                 raise SystemExit

@@ -69,17 +69,18 @@ class Supplies(Resource):
         self.KIND = None
 
         self._aliases = {}
+        self._propagate = []
         self._channels = []
 
     def __str__(self):
-        s = '{}.{}\n'.format(self.__class__.__module__, self.__class__.__name__)
+        s = '{}'.format(object.__str__(self))
         if not self._aliases:
             return s
 
         justify_len = max([len(alias) for alias in self._aliases]) + 1
         sorted_aliases = sorted(self._aliases)
         for alias in sorted_aliases:
-            s += '\t{}: channel {}\n'.format(alias.ljust(justify_len), self._aliases[alias])
+            s += '\n\t{}: channel {}'.format(alias.ljust(justify_len), self._aliases[alias])
         return s
 
     def enable(self):
@@ -239,3 +240,6 @@ class Supplies(Resource):
                 self._aliases[alias['name']] = alias['channel']
             else:
                 self.logger.warning('Alias {} is already defined. Overwriting mapping'.format(alias['name']), extra=self.log_args)
+
+            if 'propagate' in alias and alias['propagate'] == True:
+                self._propagate.append(alias['name'])
