@@ -9,8 +9,8 @@ from brest.communication import SerialCommunicable
 
 class InterfaceCommunicable(SerialCommunicable):
 
-    def __init__(self, kwargs):
-        SerialCommunicable.__init__(self, kwargs)
+    def __init__(self, params):
+        SerialCommunicable.__init__(self, params)
 
         self.port_lock = threading.Lock()
 

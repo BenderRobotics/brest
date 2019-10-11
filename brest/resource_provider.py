@@ -143,7 +143,7 @@ class ResourceProvider:
 
     def construct_config(self, config):
 
-        def __construct_from_params(available_params, config):
+        def __construct_from_params(available_params, config, suppress = False):
             """Construct matching device.
 
             Try to find the one,
@@ -162,6 +162,7 @@ class ResourceProvider:
                 if not resource:
                     # Instantiation has failed
                     return None
+                resource.name = params['name']
                 resource.detect_model()
                 # Check if resource is matching requirements
                 if resource.check_required(params['required']):

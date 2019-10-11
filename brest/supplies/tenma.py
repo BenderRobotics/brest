@@ -19,8 +19,8 @@ class Tenma(Supplies, SCPICommunicable):
 
     Derived from :class:`~brest.supplies.Supplies`, :class:`~brest.communication.SCPICommunicable`
 
-    :param kwargs: Construction parameters
-    :type  kwargs: dict
+    :param params: Construction parameters
+    :type  params: dict
 
     Supported models in 72 series: 2535, 2540, 2545, 2550
 
@@ -72,9 +72,9 @@ class Tenma(Supplies, SCPICommunicable):
         Supplies.Model('TENMA 72-13330', 2, 9, 30.0, 5.0,                                                 [], Supplies.Kind.PROGRAMMABLE),
     ]
 
-    def __init__(self, kwargs):
-        Supplies.__init__(self)
-        SCPICommunicable.__init__(self, kwargs['interface'])
+    def __init__(self, params):
+        Supplies.__init__(self, params)
+        SCPICommunicable.__init__(self, params['interface'])
 
         self.determine_suffix(self.Commands.GET_VOLTAGE)
         self.mark_taken(self)

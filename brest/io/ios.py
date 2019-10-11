@@ -56,8 +56,8 @@ class IO(Resource):
             self.max_current = max_current
             self.is_latching = is_latching
 
-    def __init__(self):
-        Resource.__init__(self)
+    def __init__(self, params = None):
+        Resource.__init__(self, params)
         #: Represents channels state in a single number
         self._states = 0
         #: Aliases to indexes mapping

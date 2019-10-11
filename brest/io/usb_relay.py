@@ -31,8 +31,8 @@ class USBRelay(IO, SerialCommunicable):
     This class doesn't provide any extra functionality than :class:`~brest.io.IO`. Just
     implements its abstract methods to provide functionality to USB-RLYxx device family.
 
-    :param kwargs: Construction parameters
-    :type  kwargs: dict
+    :param params: Construction parameters
+    :type  params: dict
 
     Implicit interface definition::
 
@@ -62,9 +62,9 @@ class USBRelay(IO, SerialCommunicable):
         GET_STATES = USBRelayCommand(0x5B)
         SET_STATES = USBRelayValueCommand(0x5C)
 
-    def __init__(self, kwargs):
-        IO.__init__(self)
-        SerialCommunicable.__init__(self, kwargs['interface'])
+    def __init__(self, params):
+        IO.__init__(self, params)
+        SerialCommunicable.__init__(self, params['interface'])
         self.aliases = {}
         self.mark_taken(self)
 

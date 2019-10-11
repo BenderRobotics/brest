@@ -15,12 +15,12 @@ class SerialCommunicable(Communicable):
     #: Tuples containing resource and its bound port
     TAKEN = []
 
-    def __init__(self, kwargs):
+    def __init__(self, params):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
-        if kwargs:
-            serial_args = self.__filter_serial_args(kwargs)
+        if params:
+            serial_args = self.__filter_serial_args(params)
             if 'port' in serial_args and serial_args['port'] != None:
                 self.com = serial.Serial(**serial_args)
             else:
@@ -119,13 +119,13 @@ class SerialCommunicable(Communicable):
             else:
                 print('\t{}: {}'.format(name, value))
 
-    def __filter_serial_args(self, kwargs):
+    def __filter_serial_args(self, params):
         '''
         Filters out serial.Serial() compatible arguments
         '''
 
         serial_args = {}
-        for attr, value in kwargs.items():
+        for attr, value in params.items():
             if hasattr(serial.Serial, attr):
                 serial_args[attr] = value
         return serial_args

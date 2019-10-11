@@ -4,7 +4,7 @@ class NoneCommunicable(Communicable):
 
     TYPE = 'none'
 
-    def __init__(self, kwargs):
+    def __init__(self, params):
         Communicable.__init__(self)
 
     def get_connections(self):

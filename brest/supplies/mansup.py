@@ -16,8 +16,8 @@ class Mansup(Supplies, NoneCommunicable):
 
     Derived from :class:`~brest.supplies.Supplies`
 
-    :param kwargs: Construction parameters
-    :type  kwargs: dict
+    :param params: Construction parameters
+    :type  params: dict
 
     Implicit interface definition::
 
@@ -30,9 +30,9 @@ class Mansup(Supplies, NoneCommunicable):
         'type': 'none'
     }
 
-    def __init__(self, kwargs = None):
-        Supplies.__init__(self)
-        NoneCommunicable.__init__(self, kwargs)
+    def __init__(self, params = None):
+        Supplies.__init__(self, params)
+        NoneCommunicable.__init__(self, params['interface'])
 
         self.kind = Supplies.Kind.FIXED
         self._voltage = 0

@@ -10,16 +10,16 @@ class GenericCamera(Cameras, CameraCommunicable):
         'lib': 'cv2'
         }
 
-    def __init__(self, kwargs):
-        Cameras.__init__(self)
-        CameraCommunicable.__init__(self, kwargs['interface'])
+    def __init__(self, params):
+        Cameras.__init__(self, params)
+        CameraCommunicable.__init__(self, params['interface'])
 
         try:
             import cv2
         except ModuleNotFoundError:
             raise ModuleNotFoundError('To use {} class you have to install `opencv-python` module'.format(self.__class__.__name__))
 
-        self._cam = cv2.VideoCapture(kwargs['interface']['index'])
+        self._cam = cv2.VideoCapture(params['interface']['index'])
         self.acquire_images()
         self.mark_taken(self)
 

@@ -13,8 +13,8 @@ class SCPICommunicable(SerialCommunicable):
         '\n',
     ]
 
-    def __init__(self, kwargs):
-        SerialCommunicable.__init__(self, kwargs)
+    def __init__(self, params):
+        SerialCommunicable.__init__(self, params)
 
         self.message_suffix = self.SUFFIXES[0] #TODO: Don't forget to mention in the documentation
 

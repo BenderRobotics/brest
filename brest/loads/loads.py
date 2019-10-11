@@ -4,8 +4,8 @@ class Loads(Resource):
 
     KNOWN = {}
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, params = None):
+        Resource.__init__(self, params)
         self._current = 0
         self.MAX_CURRENT = None
 

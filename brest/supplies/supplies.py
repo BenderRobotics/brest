@@ -51,8 +51,8 @@ class Supplies(Resource):
             self.protection = protection
             self.kind = kind
 
-    def __init__(self):
-        Resource.__init__(self)
+    def __init__(self, params = None):
+        Resource.__init__(self, params)
         #: Model number
         self.IDN = None
         #: Number of available channels

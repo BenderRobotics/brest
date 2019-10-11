@@ -22,9 +22,9 @@ class Pli(Loads, SCPICommunicable):
         DIS_INPUT   = SCPICommand("INP OFF")
         GET_INPUT   = SCPIQueryCommand("INP")
 
-    def __init__(self, kwargs):
+    def __init__(self, params):
         Loads.__init__(self)
-        SCPICommunicable.__init__(self, kwargs['interface'])
+        SCPICommunicable.__init__(self, params['interface'])
         self.message_suffix = '\n'
 
         self.determine_suffix(self.Commands.GET_INFO)

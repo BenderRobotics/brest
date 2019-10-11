@@ -10,9 +10,9 @@ class Backfly(Cameras, CameraCommunicable):
         'lib': 'PySpin'
         }
 
-    def __init__(self, kwargs, triger = None):
-        Cameras.__init__(self)
-        CameraCommunicable.__init__(self, kwargs['interface'])
+    def __init__(self, params, triger = None):
+        Cameras.__init__(self, params)
+        CameraCommunicable.__init__(self, params['interface'])
 
         try:
             import cv2
@@ -47,7 +47,7 @@ class Backfly(Cameras, CameraCommunicable):
             raise SystemExit
 
         # Run example on each camera
-        self._cam = cam_list[kwargs['interface']['index']] # volba kamery
+        self._cam = cam_list[params['interface']['index']] # volba kamery
         cam_list.Clear()
         self.__inittrg(triger)
         self.acquire_image()

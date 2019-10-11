@@ -8,12 +8,12 @@ class CameraCommunicable(Communicable):
     TYPE = 'camera'
     TAKEN = []
 
-    def __init__(self, kwargs):
+    def __init__(self, params):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
-        if kwargs:
-            self.index = kwargs['index']
+        if params:
+            self.index = params['index']
 
     def get_connections(self):
         return self._list_cameras()
