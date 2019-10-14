@@ -175,22 +175,6 @@ class Supplies(Resource):
 
         raise NotImplementedError('This supply does not support specific model detection.')
 
-    def default_voltage(self, value):
-
-        raise NotImplementedError('This supply does not support default voltage setting')
-
-    def default_current(self, value):
-
-        raise NotImplementedError('This supply does not support default current setting')
-
-    def required_voltage_range(self, value):
-
-        raise NotImplementedError('This supply does not support voltage range requirement check')
-
-    def required_current_range(self, value):
-
-        raise NotImplementedError('This supply does not support current range requirement check')
-
     def _apply_model(self, model):
         """Applies model info to the class.
 
@@ -206,8 +190,7 @@ class Supplies(Resource):
         self.PROTECTION = model.protection
         self.KIND = model.kind
 
-    @property
-    def aliases(self):
+    def aliases(self, value):
         """Gets or sets channels aliases.
 
         To add new alias outside configuration file, assign a list of
@@ -224,10 +207,6 @@ class Supplies(Resource):
 
         """
 
-        return dict(self._aliases)
-
-    @aliases.setter
-    def aliases(self, value):
         if len(value) > self.CHANNELS:
             raise ValueError('Can\'t satisfy channels requirement. Requested {} available {}'.format(len(value), self.CHANNELS))
 
@@ -241,5 +220,83 @@ class Supplies(Resource):
             else:
                 self.logger.warning('Alias {} is already defined. Overwriting mapping'.format(alias['name']), extra=self.log_args)
 
+            if 'default_voltage' in alias:
+                dv = alias['default_voltage']
+                if dv < 0 or dv > self.MAX_VOLTAGE:
+                    self.logger.error(
+                        'Can\'t set default `voltage` for channel `{}` to {}. '.format(alias['name'], dv) +
+                        'Model\'s voltage range {} excceded'.format((0.0, self.MAX_VOLTAGE)),
+                        extra=self.log_args
+                    )
+                    return False
+                else:
+                    self[alias['name']].voltage = dv
+
+            if 'default_current' in alias:
+                dc = alias['default_current']
+                if dc < 0 or dc > self.MAX_CURRENT:
+                    self.logger.error(
+                        'Can\'t set default `current` for channel `{}` to {}. '.format(alias['name'], dc) +
+                        'Model\'s voltage range {} excceded'.format((0.0, self.MAX_VOLTAGE)),
+                        extra=self.log_args
+                    )
+                    return False
+                else:
+                    self[alias['name']].current = dc
+
             if 'propagate' in alias and alias['propagate'] == True:
                 self._propagate.append(alias['name'])
+
+        return True
+
+    def default_voltage(self, value):
+        if value > self.MAX_VOLTAGE or value < 0:
+            self.logger.error(
+                'Can\'t set default `voltage` to {}. '.format(value) +
+                'Model\'s voltage range {} excceded'.format((0.0, self.MAX_VOLTAGE)),
+                extra=self.log_args
+            )
+            return False
+        self.voltage = value
+        return True
+
+    def default_current(self, value):
+        if value > self.MAX_CURRENT or value < 0:
+            self.logger.error(
+                'Can\'t set default `current` to {}. '.format(value) +
+                'Model\'s current range {} excceded'.format((0.0, self.MAX_CURRENT)),
+                extra=self.log_args
+            )
+            return False
+        self.current = value
+        return True
+
+    def required_voltage_range(self, value):
+        if value[0] < 0 or value[1] > self.MAX_VOLTAGE:
+            self.logger.error(
+                'Can\'t satisfy `voltage_range` requirement. ' +
+                'Requested {} available {}'.format(value, (0.0, self.MAX_VOLTAGE)),
+                extra=self.log_args
+            )
+            return False
+        return True
+
+    def required_current_range(self, value):
+        if value[0] < 0 or value[1] > self.MAX_CURRENT:
+            self.logger.error(
+                'Can\'t satisfy `current_range` requirement. ' +
+                'Requested {} available {}'.format(value, (0.0, self.MAX_CURRENT)),
+                extra=self.log_args
+            )
+            return False
+        return True
+
+    def required_channels(self, value):
+        if value > self.CHANNELS:
+            self.logger.error(
+                'Can\'t satisfy `channels` requirement. ' +
+                'Requested {} available {}'.format(value, (0, self.CHANNELS)),
+                extra=self.log_args
+            )
+            return True
+        return False

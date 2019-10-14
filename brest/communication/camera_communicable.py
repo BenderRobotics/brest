@@ -14,6 +14,10 @@ class CameraCommunicable(Communicable):
 
         if params:
             self.index = params['index']
+            self.mark_taken(self)
+
+    def release(self):
+        self.unmark_taken(self)
 
     def get_connections(self):
         return self._list_cameras()

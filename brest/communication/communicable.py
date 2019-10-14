@@ -24,6 +24,13 @@ class Communicable():
 
         raise NotImplementedError('This interface doesn\'t implement disconnection')
 
+    def release(self):
+        '''
+        Releases bound connections to the system.
+        '''
+
+        raise NotImplementedError('This interface doesn\'t implement physical binding releasing')
+
     def check_connection(self):
         '''
         Checks if connection is able to send a receive messages.

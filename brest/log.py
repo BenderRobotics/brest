@@ -14,7 +14,7 @@ import platform
 
 from colorama import Fore, Back, Style
 from colorama.initialise import wrap_stream
-from logging import StreamHandler
+from logging import StreamHandler, Filter
 
 class ColoredStreamHandler(StreamHandler):
 
@@ -36,6 +36,17 @@ class ColoredStreamHandler(StreamHandler):
             raise
         except:
             self.handleError(record)
+
+class FilterAvailable(Filter):
+
+    def filter(self, record):
+        func_name = record.funcName
+        return (
+            'required' not in func_name
+            and 'default' not in func_name
+            and 'aliases' not in func_name
+        )
+
 
 def colored_handler_factory():
     on_windows = platform.system() == 'Windows'

@@ -23,6 +23,7 @@ class SerialCommunicable(Communicable):
             serial_args = self.__filter_serial_args(params)
             if 'port' in serial_args and serial_args['port'] != None:
                 self.com = serial.Serial(**serial_args)
+                self.mark_taken(self)
             else:
                 raise ValueError('Missing port definition')
 
@@ -33,6 +34,10 @@ class SerialCommunicable(Communicable):
     def disconnect(self):
         if self.com and self.com.isOpen():
             self.com.close()
+
+    def release(self):
+        self.disconnect()
+        self.unmark_taken(self)
 
     def write_raw(self, data):
         self.com.write(data)

@@ -18,6 +18,7 @@ from .config import Config
 from .resource import Resource
 from .resources import Resources
 from .resource_provider import ResourceProvider
+from .log import FilterAvailable
 from .helpers import overwrite_log_config, prepare_tests
 
 __all__ = [
@@ -25,6 +26,7 @@ __all__ = [
     'Resource',
     'Resources',
     'ResourceProvider',
+    'FilterAvailable',
     'overwrite_log_config',
     'prepare_tests',
     ]

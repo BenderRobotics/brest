@@ -17,6 +17,7 @@ import brest.cameras
 import brest.interfaces
 import brest.io
 
+from .log import FilterAvailable
 from .resource import Resource
 from brest.communication import CommunicableError, Communicable, SerialCommunicable, CameraCommunicable, NoneCommunicable
 
@@ -150,6 +151,10 @@ class ResourceProvider:
             that satisfies requirements.
             """
 
+            filter_ = FilterAvailable()
+            if suppress:
+                self.logger.addFilter(filter_)
+
             # Interate over params in group
             for params in available_params:
                 # Add missing definitions to avoid errors
@@ -165,18 +170,21 @@ class ResourceProvider:
                 resource.name = params['name']
                 resource.detect_model()
                 # Check if resource is matching requirements
-                if resource.check_required(params['required']):
-                    # Set default values
-                    resource.set_default(params['default'])
-                    # Set extra functionality
+                if (
+                    resource.check_required(params['required'])
+                    and resource.set_default(params['default'])
+                    and resource.set_aliases(params['aliases'])
+                ):
                     resource.set_extra(params)
-                    # If everything is okay, return the constructed resource
                     return resource
                 else:
                     # Othervise delete the constructed resource
                     # to release connection and continue to the
                     # next construction params
+                    resource.release()
                     del resource
+
+            self.logger.removeFilter(filter_)
 
         connections = self.__refresh_connections()
 
@@ -235,7 +243,7 @@ class ResourceProvider:
                     matching.append(params)
 
             # Try to construct class, that satisfies requirements
-            const_rest = __construct_from_params(matching, config)
+            const_rest = __construct_from_params(matching, config, suppress=True)
             if const_rest:
                 constructed.append(const_rest)
                 # If there is class in available that satisfies requirements

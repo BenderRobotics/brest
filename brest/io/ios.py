@@ -136,8 +136,7 @@ class IO(Resource):
         step  = slice_.step  if slice_.step  else 1
         return range(start, stop, step)
 
-    @property
-    def aliases(self):
+    def aliases(self, value):
         """Gets or sets channels aliases.
 
         To add new alias outside configuration file, assign a list of
@@ -158,10 +157,6 @@ class IO(Resource):
 
         """
 
-        return dict(self._aliases)
-
-    @aliases.setter
-    def aliases(self, value):
         if len(value) > self.CHANNELS:
             raise ValueError('Can\'t satisfy channels requirement. Requested {} available {}'.format(len(value), self.CHANNELS))
 
@@ -182,20 +177,33 @@ class IO(Resource):
             if 'propagate' in alias and alias['propagate'] == True:
                 self._propagate.append(alias['name'])
 
+            return True
+
     def required_channels(self, value):
         if value > self.CHANNELS:
-            #raise ValueError('Can\'t satisfy `channels` requirement. Requested {} available {}'.format(value, self.CHANNELS))
+            self.logger.error(
+                'Can\'t satisfy `channels` requirement. ' +
+                'Requested {} available {}'.format(value, self.CHANNELS),
+                extra=self.log_args
+            )
             return False
         return True
 
     def required_current(self, value):
         if value > self.MAX_CURRENT:
-            #raise ValueError('Can\'t satisfy `max_current` requirement. Requested {} available {}'.format(value, self.MAX_CURRENT))
+            self.logger.error(
+                'Can\'t satisfy `max_current` requirement. ' +
+                'Requested {} available {}'.format(value, self.MAX_CURRENT),
+                extra=self.log_args
+            )
             return False
         return True
 
     def required_is_latching(self, value):
         if value != self.IS_LATCHING:
-            #raise ValueError('Can\'t satisfy `is_latching` requirement. Requested {} available {}'.format(value, self.IS_LATCHING))
+            self.logger.error('Can\'t satisfy `is_latching` requirement. ' +
+            'Requested {} available {}'.format(value, self.IS_LATCHING),
+            extra=self.log_args
+        )
             return False
         return True

@@ -79,11 +79,6 @@ class Tenma(Supplies, SCPICommunicable):
         self.determine_suffix(self.Commands.GET_VOLTAGE)
         self.mark_taken(self)
 
-    def __del__(self):
-        self.unmark_taken(self)
-        with suppress(Exception):
-            self.disable()
-
     def __getitem__(self, key):
         """Channels can be accessed using number indexes or aliases"""
 
@@ -94,23 +89,26 @@ class Tenma(Supplies, SCPICommunicable):
 
     def enable(self):
         command = deepcopy(self.Commands.EN_OUTPUT)
-        if len(self._aliases) == self.CHANNELS:
-            command.channel = 12
-            command.delimiter = ':'
-        elif self.CHANNELS > 1:
+        if self.CHANNELS > 1:
             command.channel = 1
             command.delimiter = ':'
+        if len(self._aliases) == self.CHANNELS:
+            command.channel = 12
         self.transceive(command)
 
     def disable(self):
         command = deepcopy(self.Commands.DIS_OUTPUT)
-        if len(self._aliases) == self.CHANNELS:
-            command.channel = 12
-            command.delimiter = ':'
-        elif self.CHANNELS > 1:
+        if self.CHANNELS > 1:
             command.channel = 1
             command.delimiter = ':'
+        if len(self._aliases) == self.CHANNELS:
+            command.channel = 12
         self.transceive(command)
+
+    def release(self):
+        with suppress(Exception):
+            self.disable()
+        SCPICommunicable.release(self)
 
     @property
     def voltage(self):
@@ -221,43 +219,6 @@ class Tenma(Supplies, SCPICommunicable):
     def disconnect(self):
         self.disable()
         SCPICommunicable.disconnect(self)
-
-    @property
-    def aliases(self):
-        return Supplies.aliases.fget(self)
-
-    @aliases.setter
-    def aliases(self, value):
-        Supplies.aliases.fset(self, value)
-
-    def default_voltage(self, value):
-        if value > self.MAX_VOLTAGE:
-            return False
-        self.voltage = value
-        return True
-
-    def default_current(self, value):
-        if value > self.MAX_CURRENT:
-            return False
-        self.current = value
-        return True
-
-    def required_voltage_range(self, value):
-        if value[1] > self.MAX_VOLTAGE:
-            # raise ValueError('Can\'t satisfy `voltage_range` requirement. Requested {} available {}'.format(value, (0, self.MAX_VOLTAGE)))
-            return False
-        return True
-
-    def required_current_range(self, value):
-        if value[1] > self.MAX_CURRENT:
-            # raise ValueError('Can\'t satisfy `current_range` requirement. Requested {} available {}'.format(value, (0, self.MAX_CURRENT))
-            return False
-        return True
-
-    def required_channels(self, value):
-        if value > self.CHANNELS:
-            # raise ValueError('Can\'t satisfy `channels` requirement. Requested {} available {}'.format(value, (0, self.CHANNELS))
-            return False
 
 class TenmaChannel():
 

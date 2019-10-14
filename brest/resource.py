@@ -19,7 +19,7 @@ class Resource():
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
-        if params:
+        if params and 'name' in params:
             self.name = params['name']
         else:
             self.name = 'resource_' + str(Resource._count)
@@ -30,7 +30,7 @@ class Resource():
             name = 'required_' + name
             req_func = getattr(self, name, None)
             if not req_func:
-                self.logger.error('Missing requirement check function `{}`'.format(name), extra=self.log_args)
+                self.logger.error('`{}` is missing requirement check function `{}`'.format(self.name, name), extra=self.log_args)
                 return False
             if not req_func(value):
                 return False
@@ -41,10 +41,19 @@ class Resource():
             name = 'default_' + name
             def_func = getattr(self, name, None)
             if not def_func:
-                self.logger.error('Missing function to set default value')
+                self.logger.error('`{}` is missing function `{}` to set default value'.format(self.name, name), extra=self.log_args)
                 return False
             if not def_func(value):
                 return False
+        return True
+
+    def set_aliases(self, aliases):
+        ali_func = getattr(self, 'aliases', None)
+        if not ali_func:
+            self.logger.error('`{}` is missing `aliases` function to set aliases'.format(self.name), extra=self.log_args)
+            return False
+        if not ali_func(aliases):
+            return False
         return True
 
     def set_extra(self, params):
