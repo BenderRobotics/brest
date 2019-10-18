@@ -144,16 +144,12 @@ class ResourceProvider:
 
     def construct_config(self, config):
 
-        def __construct_from_params(available_params, config, suppress = False):
+        def __construct_from_params(available_params, config):
             """Construct matching device.
 
             Try to find the one,
             that satisfies requirements.
             """
-
-            filter_ = FilterAvailable()
-            if suppress:
-                self.logger.addFilter(filter_)
 
             # Interate over params in group
             for params in available_params:
@@ -162,6 +158,8 @@ class ResourceProvider:
                     params['required'] = {}
                 if 'default' not in params:
                     params['default'] = {}
+                if 'aliases' not in params:
+                    params['aliases'] = []
                 # Instantiate resource using selected params
                 resource = self.construct(params)
                 if not resource:
@@ -183,8 +181,6 @@ class ResourceProvider:
                     # next construction params
                     resource.release()
                     del resource
-
-            self.logger.removeFilter(filter_)
 
         connections = self.__refresh_connections()
 
@@ -243,7 +239,10 @@ class ResourceProvider:
                     matching.append(params)
 
             # Try to construct class, that satisfies requirements
-            const_rest = __construct_from_params(matching, config, suppress=True)
+            fi = FilterAvailable()
+            self.logger.addFilter(fi)
+            const_rest = __construct_from_params(matching, config)
+            self.logger.removeFilter(fi)
             if const_rest:
                 constructed.append(const_rest)
                 # If there is class in available that satisfies requirements

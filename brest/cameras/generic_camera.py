@@ -21,7 +21,6 @@ class GenericCamera(Cameras, CameraCommunicable):
 
         self._cam = cv2.VideoCapture(params['interface']['index'])
         self.acquire_images()
-        self.mark_taken(self)
 
     def __del__(self):
         if self.cam:

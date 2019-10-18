@@ -62,6 +62,10 @@ class SerialCommunicable(Communicable):
             new_interface['port'] = com.device
             return new_interface
 
+        def __add_to_probed(probed, interface):
+            if not self.is_taken(interface):
+                probed.append(interface)
+
         probed = []
 
         if not connections:
@@ -75,14 +79,14 @@ class SerialCommunicable(Communicable):
                 if com.vid == interface['vid'] and com.pid == interface['pid']:
                     if 'serial_number' in interface and interface['serial_number']:
                         if interface['serial_number'] == com.serial_number:
-                            probed.append(__device_to_interface(interface, com))
+                            __add_to_probed(probed, __device_to_interface(interface, com))
                     else:
-                        probed.append(__device_to_interface(interface, com))
+                        __add_to_probed(probed, __device_to_interface(interface, com))
         else:
             if 'serial_number' in interface:
                 for com in connections:
                     if com.serial_number == interface['serial_number']:
-                        probed.append(__device_to_interface(interface, com))
+                        __add_to_probed(probed, __device_to_interface(interface, com))
             else:
                 self.logger.warning('Missing vid, pid or serial number definition in the interface: {}'.format(str(interface)), extra=self.log_args)
                 pass
@@ -108,13 +112,12 @@ class SerialCommunicable(Communicable):
         resources = []
         interfaces = self.probe(interface, connections)
         for interface_ in interfaces:
-            if not self.is_taken(interface_):
-                resources.append(
-                    {
-                        'class_name': class_name,
-                        'interface': interface_
-                    }
-                )
+            resources.append(
+                {
+                    'class_name': class_name,
+                    'interface': interface_
+                }
+            )
         return resources
 
     def print_interface(self, interface):

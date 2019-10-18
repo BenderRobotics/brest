@@ -207,13 +207,22 @@ class Supplies(Resource):
 
         """
 
+        if value and self.CHANNELS == 1:
+            self.logger.error('This supply doesn\'t support channels aliasing', extra=self.log_args)
+            return False
+
         if len(value) > self.CHANNELS:
-            raise ValueError('Can\'t satisfy channels requirement. Requested {} available {}'.format(len(value), self.CHANNELS))
+            self.logger.error(
+                'Can\'t satisfy channels requirement. ' +
+                'Requested {} available {}'.format(len(value), self.CHANNELS),
+                extra=self.log_args
+            )
+            return False
 
         for alias in value:
             if alias['channel'] < 0 or alias['channel'] >= self.CHANNELS:
                 self.logger.warning('Not a valid channel index', extra=self.log_args)
-                return
+                return False
 
             if alias['name'] not in self._aliases:
                 self._aliases[alias['name']] = alias['channel']

@@ -66,7 +66,6 @@ class USBRelay(IO, SerialCommunicable):
         IO.__init__(self, params)
         SerialCommunicable.__init__(self, params['interface'])
         self.aliases = {}
-        self.mark_taken(self)
 
     def __del__(self):
         self.unmark_taken(self)

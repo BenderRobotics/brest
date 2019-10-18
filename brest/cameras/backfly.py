@@ -51,7 +51,6 @@ class Backfly(Cameras, CameraCommunicable):
         cam_list.Clear()
         self.__inittrg(triger)
         self.acquire_image()
-        self.mark_taken(self)
 
     def __del__(self):
         # Deinitialize camera

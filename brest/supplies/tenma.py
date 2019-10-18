@@ -77,7 +77,6 @@ class Tenma(Supplies, SCPICommunicable):
         SCPICommunicable.__init__(self, params['interface'])
 
         self.determine_suffix(self.Commands.GET_VOLTAGE)
-        self.mark_taken(self)
 
     def __getitem__(self, key):
         """Channels can be accessed using number indexes or aliases"""
@@ -215,10 +214,6 @@ class Tenma(Supplies, SCPICommunicable):
         if self.CHANNELS >= 2:
             for i in range(0, self.CHANNELS):
                 self._channels.append(TenmaChannel(self, i + 1))
-
-    def disconnect(self):
-        self.disable()
-        SCPICommunicable.disconnect(self)
 
 class TenmaChannel():
 

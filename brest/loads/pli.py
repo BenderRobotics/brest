@@ -28,7 +28,6 @@ class Pli(Loads, SCPICommunicable):
         self.message_suffix = '\n'
 
         self.determine_suffix(self.Commands.GET_INFO)
-        self.mark_taken(self)
 
     def __del__(self):
         self.unmark_taken(self)
