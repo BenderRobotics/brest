@@ -182,13 +182,25 @@ class ResourceProvider:
                     resource.release()
                     del resource
 
+        def __log_missing_needed(needed):
+            if needed:
+                self.logger.error(
+                    'Couldn\'t create all needed resources. {} {} missing'.format(needed, 'are' if len(needed) > 1 else 'is'),
+                    extra=self.log_args)
+
         connections = self.__refresh_connections()
 
         matching = []
         constructed = []
+        needed = list(config.needed)
 
         # Iterate over configuration file
         for alias, definition in config:
+            # Check if resource is needed
+            if needed:
+                if alias not in needed:
+                    # If not, continue to next resource
+                    continue
             matching.clear()
             # Config validity should check if class_name is present in resource definition
             # and has valid value
@@ -245,6 +257,8 @@ class ResourceProvider:
             self.logger.removeFilter(fi)
             if const_rest:
                 constructed.append(const_rest)
+                if needed:
+                    needed.remove(const_rest.name)
                 # If there is class in available that satisfies requirements
                 # and was successfully constructed, proceed to next resource definition
                 continue
@@ -276,16 +290,23 @@ class ResourceProvider:
             if not matching:
                 self.logger.error('Resource `{}` doesn\'t seem to be connected to the system'.format(alias),
                                    extra=self.log_args)
+                __log_missing_needed(needed)
                 return None
             const_rest = __construct_from_params(matching, config)
             if const_rest:
                 constructed.append(const_rest)
+                if needed:
+                    needed.remove(const_rest.name)
                 continue
             else:
                 self.logger.error('No devices satisfy `{}` requirements'.format(alias), extra=self.log_args)
+                __log_missing_needed(needed)
                 return None
 
-        # TODO: Check if needed were constructed
+        __log_missing_needed(needed)
+        if needed:
+            return None
+
         return constructed
 
     def __refresh_connections(self):
