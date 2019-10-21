@@ -13,6 +13,7 @@ docs/_build
 
 # vs code
 .vs
+.vscode/
 
 # vs code python extensions
 .pylintrc

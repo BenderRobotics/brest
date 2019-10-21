@@ -3,6 +3,7 @@ import weakref
 
 from brest.communication import Communicable
 
+
 class CameraCommunicable(Communicable):
 
     TYPE = 'camera'
@@ -22,7 +23,7 @@ class CameraCommunicable(Communicable):
     def get_connections(self):
         return self._list_cameras()
 
-    def probe(self, interface, connections = None):
+    def probe(self, interface, connections=None):
 
         def __device_to_interface(interface, cam, index):
             new_interface = dict(interface)
@@ -30,9 +31,6 @@ class CameraCommunicable(Communicable):
             return new_interface
 
         probed = []
-
-        if interface['lib'] != 'cv2':
-            return probed
 
         if not connections:
             connections = self._list_cameras()
@@ -62,8 +60,9 @@ class CameraCommunicable(Communicable):
         WMISerivce = win32com.client.Dispatch("WbemScripting.SWbemLocator")
         SWbemServices = WMISerivce.ConnectServer(".", "root\\cimv2")
         PnPItems = SWbemServices.ExecQuery("SELECT * FROM Win32_PnPEntity")
+
         for item in PnPItems:
-            if item.Service == 'usbvideo':
+            if item.Service in ['usbvideo', 'PGRUSBCam3']:
                 cameras.append(item)
 
         return cameras

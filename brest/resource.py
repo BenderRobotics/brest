@@ -49,6 +49,8 @@ class Resource():
 
     def set_aliases(self, aliases):
         ali_func = getattr(self, 'aliases', None)
+        if not aliases:
+            return True
         if not ali_func:
             self.logger.error('`{}` is missing `aliases` function to set aliases'.format(self.name), extra=self.log_args)
             return False

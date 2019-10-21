@@ -3,6 +3,7 @@ import logging
 from brest.cameras import Cameras
 from brest.communication import CameraCommunicable
 
+
 class GenericCamera(Cameras, CameraCommunicable):
 
     Cameras.KNOWN['GenericCamera'] = {
@@ -29,14 +30,6 @@ class GenericCamera(Cameras, CameraCommunicable):
 
     def acquire_image(self):
         return self.cam.read()[1]
-
-    def acquire_images(self, num_images = 1):
-        frames = []
-
-        for _ in range(num_images):
-            frames.append(self.acquire_image())
-
-        return frames
 
     def detect_model(self):
         pass
