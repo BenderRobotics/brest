@@ -65,7 +65,6 @@ class USBRelay(IO, SerialCommunicable):
     def __init__(self, params):
         IO.__init__(self, params)
         SerialCommunicable.__init__(self, params['interface'])
-        self.aliases = {}
 
     def __del__(self):
         self.unmark_taken(self)
@@ -90,7 +89,7 @@ class USBRelay(IO, SerialCommunicable):
         command.pack()
         self.write_raw(command.raw_data)
         states = self.read_raw(size=1)[0]
-        if states:
+        if isinstance(states, int):
             self._states = states
         else:
             self.logger.error('Unable to read from the device', extra=self.log_args)

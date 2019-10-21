@@ -78,7 +78,10 @@ class CameraCommunicable(Communicable):
         self.TAKEN.append(weakref.ref(resource))
 
     def unmark_taken(self, resource):
-        self.TAKEN.remove(weakref.ref(resource))
+        try:
+            self.TAKEN.remove(weakref.ref(resource))
+        except ValueError:
+            pass
 
     def is_taken(self, interface):
         for taken_device in CameraCommunicable.TAKEN:

@@ -229,29 +229,32 @@ class Supplies(Resource):
             else:
                 self.logger.warning('Alias {} is already defined. Overwriting mapping'.format(alias['name']), extra=self.log_args)
 
-            if 'default_voltage' in alias:
-                dv = alias['default_voltage']
-                if dv < 0 or dv > self.MAX_VOLTAGE:
-                    self.logger.error(
-                        'Can\'t set default `voltage` for channel `{}` to {}. '.format(alias['name'], dv) +
-                        'Model\'s voltage range {} excceded'.format((0.0, self.MAX_VOLTAGE)),
-                        extra=self.log_args
-                    )
-                    return False
-                else:
-                    self[alias['name']].voltage = dv
+            if 'default' in alias:
+                channel_defaults = alias['default']
 
-            if 'default_current' in alias:
-                dc = alias['default_current']
-                if dc < 0 or dc > self.MAX_CURRENT:
-                    self.logger.error(
-                        'Can\'t set default `current` for channel `{}` to {}. '.format(alias['name'], dc) +
-                        'Model\'s voltage range {} excceded'.format((0.0, self.MAX_VOLTAGE)),
-                        extra=self.log_args
-                    )
-                    return False
-                else:
-                    self[alias['name']].current = dc
+                if 'voltage' in channel_defaults:
+                    dv = channel_defaults['voltage']
+                    if dv < 0 or dv > self.MAX_VOLTAGE:
+                        self.logger.error(
+                            'Can\'t set default `voltage` for channel `{}` to {}. '.format(alias['name'], dv) +
+                            'Model\'s voltage range {} excceded'.format((0.0, self.MAX_VOLTAGE)),
+                            extra=self.log_args
+                        )
+                        return False
+                    else:
+                        self[alias['name']].voltage = dv
+
+                if 'current' in channel_defaults:
+                    dc = channel_defaults['current']
+                    if dc < 0 or dc > self.MAX_CURRENT:
+                        self.logger.error(
+                            'Can\'t set default `current` for channel `{}` to {}. '.format(alias['name'], dc) +
+                            'Model\'s voltage range {} excceded'.format((0.0, self.MAX_VOLTAGE)),
+                            extra=self.log_args
+                        )
+                        return False
+                    else:
+                        self[alias['name']].current = dc
 
             if 'propagate' in alias and alias['propagate'] == True:
                 self._propagate.append(alias['name'])

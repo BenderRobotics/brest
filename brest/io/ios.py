@@ -177,7 +177,7 @@ class IO(Resource):
             if 'propagate' in alias and alias['propagate'] == True:
                 self._propagate.append(alias['name'])
 
-            return True
+        return True
 
     def required_channels(self, value):
         if value > self.CHANNELS:

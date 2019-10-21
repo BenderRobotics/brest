@@ -214,8 +214,8 @@ class ResourceProvider:
         # Iterate over configuration file
         for alias, definition in config:
             # Check if resource is needed
-            if needed:
-                if alias not in needed:
+            if config.needed:
+                if alias not in config.needed:
                     # If not, continue to next resource
                     continue
             matching.clear()

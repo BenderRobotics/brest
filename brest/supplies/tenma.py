@@ -223,11 +223,13 @@ class TenmaChannel():
 
     def enable(self):
         command = deepcopy(self.supply.Commands.EN_OUTPUT)
+        command.delimiter = ':'
         command.channel = str(self.channel)
         self.supply.write(command)
 
     def disable(self):
         command = self.supply.Commands.DIS_OUTPUT
+        command.delimiter = ':'
         command.channel = str(self.channel)
         self.supply.write(command)
 
