@@ -8,7 +8,7 @@ class GenericCamera(Cameras, CameraCommunicable):
 
     Cameras.KNOWN['GenericCamera'] = {
         'type': 'camera',
-        'lib': 'cv2'
+        'service': 'usbvideo',
         }
 
     def __init__(self, params):

@@ -13,6 +13,11 @@ class CameraCommunicable(Communicable):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
+        self.services = {
+            'usbvideo': 0,
+            'PGRUSBCam3': 0,
+        }
+
         if params:
             self.index = params['index']
             self.mark_taken(self)
@@ -25,21 +30,29 @@ class CameraCommunicable(Communicable):
 
     def probe(self, interface, connections=None):
 
-        def __device_to_interface(interface, cam, index):
+        def __device_to_interface(interface, device_id, index):
             new_interface = dict(interface)
             new_interface['index'] = index
+            new_interface['serial_number'] = device_id[2]
             return new_interface
 
         probed = []
+        for key, value in self.services.items():
+            self.services[key] = 0
 
         if not connections:
             connections = self._list_cameras()
 
-        index = 0
         for cam in connections:
-            p_device_id = self.__parse_device_id(cam.DeviceID)
-            probed.append(__device_to_interface(interface, p_device_id, index))
-            index += 1
+            if interface['service'] == cam.Service:
+                p_device_id = self.__parse_device_id(cam.DeviceID)
+                if 'serial_number' in interface:
+                    if interface['serial_number'] == p_device_id[2]:
+                        probed.append(__device_to_interface(interface, p_device_id, self.services[cam.Service]))
+                        self.services[cam.Service] += 1
+                else:
+                    probed.append(__device_to_interface(interface, p_device_id, self.services[cam.Service]))
+                    self.services[cam.Service] += 1
 
         return probed
 
@@ -62,7 +75,7 @@ class CameraCommunicable(Communicable):
         PnPItems = SWbemServices.ExecQuery("SELECT * FROM Win32_PnPEntity")
 
         for item in PnPItems:
-            if item.Service in ['usbvideo', 'PGRUSBCam3']:
+            if item.Service in self.services:
                 cameras.append(item)
 
         return cameras

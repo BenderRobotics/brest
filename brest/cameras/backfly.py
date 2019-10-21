@@ -8,7 +8,7 @@ class Backfly(Cameras, CameraCommunicable):
 
     Cameras.KNOWN['Backfly'] = {
         'type': 'camera',
-        'lib': 'PySpin'
+        'service': 'PGRUSBCam3',
         }
 
     def __init__(self, params, trigger=None):
