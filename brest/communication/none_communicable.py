@@ -3,6 +3,7 @@ from brest.communication import Communicable
 class NoneCommunicable(Communicable):
 
     TYPE = 'none'
+    TAKEN = []
 
     def __init__(self, params):
         Communicable.__init__(self)
@@ -25,5 +26,8 @@ class NoneCommunicable(Communicable):
         ]
 
     def print_interface(self, interface):
-        for name, value in interface.items():
-            print('\t{}: {}'.format(name, value))
+        if isinstance(interface, NoneCommunicable):
+            print('\ttype: none\n')
+        else:
+            for name, value in interface.items():
+                print('\t{}: {}'.format(name, value))

@@ -121,11 +121,16 @@ class SerialCommunicable(Communicable):
         return resources
 
     def print_interface(self, interface):
-        for name, value in interface.items():
-            if name in ['vid', 'pid']:
-                print('\t{}: 0x{:04X}'.format(name, value))
-            else:
-                print('\t{}: {}'.format(name, value))
+        if isinstance(interface, SerialCommunicable):
+            s  = '\ttype: {}\n'.format(self.TYPE)
+            s += '\tport: {}\n'.format(interface.com.port)
+            print(s)
+        else:
+            for name, value in interface.items():
+                if name in ['vid', 'pid']:
+                    print('\t{}: 0x{:04X}'.format(name, value))
+                else:
+                    print('\t{}: {}'.format(name, value))
 
     def __filter_serial_args(self, params):
         '''

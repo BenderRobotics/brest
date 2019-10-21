@@ -87,8 +87,13 @@ class CameraCommunicable(Communicable):
         return False
 
     def print_interface(self, interface):
-        for name, value in interface.items():
-            print('\t{}: {}'.format(name, value))
+        if isinstance(interface, CameraCommunicable):
+            s  = '\ttype: {}\n'.format(interface.TYPE)
+            s += '\tindex: {}\n'.format(interface.index)
+            print(s)
+        else:
+            for name, value in interface.items():
+                print('\t{}: {}'.format(name, value))
 
     def get_available(self, class_name, interface, connections):
         resources = []

@@ -111,6 +111,23 @@ class ResourceProvider:
             print()
             i += 1
 
+    def print_taken(self):
+        """Prints all taken resources"""
+
+        for _, com in self._communicables.items():
+            for taken in com.TAKEN:
+                resource = taken()
+                print(resource.__class__.__name__)
+                resource.print_interface(resource)
+
+    def print_all(self):
+        """Prints all taken and available resources"""
+
+        print('--Taken resources--------------------')
+        self.print_taken()
+        print('--Available resources----------------')
+        self.print_available()
+
     def construct(self, params):
         """Constructs a resource from given parameters.
 
