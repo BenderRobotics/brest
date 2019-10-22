@@ -285,7 +285,8 @@ class ResourceProvider:
             if not class_name:
                 self.logger.error('Resource `{}` didn\'t match anything in '.format(alias) +
                                   'the available and is missing class definition', extra=self.log_args)
-                break
+                __log_missing_needed(needed)
+                return None
 
             # Get implicit arguments from Brest
             impl_intr = self.__get_implicit_definition(class_name)
