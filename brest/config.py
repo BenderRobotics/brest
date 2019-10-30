@@ -73,8 +73,8 @@ class Config():
             with open(config_path, 'r') as stream:
                 self.config = load(stream, Loader=Loader)
         except OSError as ex:
-            self.logger.error('File `{}` not found'.format(ex.filename), extra=self.log_args)
-            raise SystemExit
+            self.logger.warning('File `{}` not found'.format(ex.filename), extra=self.log_args)
+            self.config = {}
         except ParserError as ex:
             self.logger.error('Error during config parsing:\n{}'.format(ex), extra=self.log_args)
             raise SystemExit

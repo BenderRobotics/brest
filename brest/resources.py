@@ -84,7 +84,7 @@ class Resources():
             cfg = project_cfg.merge_configs(cfg)
 
         if not cfg.is_valid:
-            self.logger.error('Project configuration file `{}` is not valid', extra=self.log_args)
+            self.logger.error('Configuration file is not valid', extra=self.log_args)
             raise SystemExit
 
         # Set needed resources
