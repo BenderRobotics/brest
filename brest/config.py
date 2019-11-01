@@ -13,6 +13,7 @@ import logging
 
 from yaml import load, Loader
 from yaml.parser import ParserError
+from yaml.scanner import ScannerError
 
 class Config():
     """Class that represent parsed configuration file
@@ -75,7 +76,7 @@ class Config():
         except OSError as ex:
             self.logger.warning('File `{}` not found'.format(ex.filename), extra=self.log_args)
             self.config = {}
-        except ParserError as ex:
+        except (ParserError, ScannerError) as ex:
             self.logger.error('Error during config parsing:\n{}'.format(ex), extra=self.log_args)
             raise SystemExit
 
