@@ -3,6 +3,142 @@
 Definitions
 ===========
 
+.. _definitions.configuration-file:
+
+Configuration file
+------------------
+
+Standard location for your configuration file path is ``~/.brest/config.yaml``.
+This path will be auto-expanded in the :attr:`~brest.Config.BREST_USER_CONFIG` constant
+after Brest import. If you want to have configuration file in another location,
+methods which works with configuration file have ``user_config`` and ``project_config``
+attributes where you can pass your new `absolute` path to the user of project
+configuration file.
+
+The file itself is written in `YAML`_ and parsed by `PyYAML`_ so you can use base
+python objects in the configuration.
+
+.. _YAML:   https://yaml.org/
+.. _PyYAML: https://pyyaml.org/
+
+File structure
+~~~~~~~~~~~~~~
+
+The structure that Brest understands goes like::
+
+    project_name:                  # Mandatory
+        resource_alias:            # Mandatory
+            class_name: str        # Mandatory
+            [default:]
+                [attributes]*
+            [required:]
+                [attributes]*
+            [aliases:]
+                - channel: int     # Mandatory if aliases is used
+                  name: str        # Mandatory if aliases is used
+                  [propagate: bool]
+            [interface:]
+                [attributes]*
+
+    # Attributes encapsulated in square brackets are not mandatory
+    # * indicates 0 to n occurrences
+
+So the example containing a single resource would look like::
+
+    my_proj:
+        tenma:
+            class_name: 'supplies.Tenma'
+            default:
+                voltage: 30
+                current: 0.3
+            required:
+                voltage_range: [0, 30]
+            aliases:
+                - channel: 1
+                  name: 'main'
+                  propagate: True
+                - channel: 0
+                  name: 'backup'
+            interface:
+                port: 'COM10'
+
+What needs to be defined
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+First of all, you can have multiple projects in same configuration file. Just
+start again without indentation and follow the same structure. To make configuration
+file more readable you can put empty lines between projects.
+
+Every resource must have defined ``class_name`` the rest can be omitted. The value of
+the parameter can be just group name or group name + class name connected using dot.
+If only group name is defined, Brest will instantiate first class which satisfies
+requirements defined in ``required:`` and can set defaults defined in ``default:``.
+
+To find out what you can define in each category please refer to :ref:`supported` and
+select a desired group of devices to get common attributes for the group. Each device
+can have defined additional attributes so checkout also devices if you are aiming for
+specific class.
+
+If you omit ``interface:`` definition, Brest will use implicit interface definition.
+WARNING! Implicit definition may not always contain specifying information. For example
+the :class:`~brest.supplies.Tenma` class has ``vid`` and ``pid`` but not ``serial_number``.
+So if happen to be more than one Tenma supply connected to the system, you have no
+guarantee on what ``port`` is your class created. For list of available classes and groups,
+please refer to the :ref:`supported`.
+Otherwise if you specify ``interface:`` the configuration file definition will be merged with
+implicit definition.
+
+.. _definitions.resource_definitions:
+
+Available definitions for each resource
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Under first indentation are available definitions for whole category.
+
+:class:`~brest.cameras.Cameras`
+
+:class:`~brest.flashers.Flashers`
+
+:class:`~brest.interfaces.Interfaces`
+
+:class:`~brest.io.IO`::
+
+    required:
+        is_latching: bool
+        channel: int
+    aliases:
+          - channel: int
+            name: str
+            default_value: bool
+            propagate: bool
+
+:class:`~brest.loads.Loads`::
+
+    default:
+        current: float
+
+:class:`~brest.supplies.Supplies`::
+
+    default:
+        voltage: float
+        current: float
+    required:
+        voltage_range: [float, float]
+        current_range: [float, float]
+    aliases:
+        - channel: int
+          name: str
+          propagate: bool
+          default:
+            voltage: float
+            current: float
+
+.. admonition:: Default values for multichannel supplies
+
+    If you happen to have multichannel power supply, values under
+    `default:` group will apply ONLY to FIRST channel. To se default values
+    for other channels, use the same notation but in alias definition.
+
 .. _definitions.interfaces:
 
 Interfaces
@@ -59,6 +195,21 @@ Attribute or groups of attributes that need to be defined:
 * **vid** + **pid** + **serial_number** - Look up can be refined with ``serial_number``
 * **serial_number** - Brest will try to look up ``port`` in connected devices matching only ``serial_number``
 
+Flashers
+~~~~~~~~
+
+This interface satisfy brest needs on comunicable and identifies flashers
+on your system. Communication with flasher mediates specific external utility.
+
+================= ==== =======================================
+Attribute name    Type Description
+================= ==== =======================================
+**type**          str  Must be ``flashers``
+**utility**       str  An absolute path to cmd utility that
+                       operates the flasher
+**serial_number** str  Serial number
+================= ==== =======================================
+
 Camera
 ~~~~~~
 
@@ -78,84 +229,3 @@ Attribute name    Type Description
 Attribute or groups of attributes that need to be defined:
 
 * **index** - Brest will try to open communication with ``index`` th camera.
-
-.. admonition:: On camera lookup and index
-
-    Unfortunate cameras can't be looked up properly in current version, so you have to
-    define it's index. Also index is custom numbered for every library.
-
-Flashers
-~~~~~~~~
-
-This interface satisfy brest needs on comunicable and identifies flashers
-on your system. Communication with flasher mediates specific external utility.
-
-.. _definitions.configuration-file:
-
-Configuration file
-------------------
-
-Standard location for your configuration file path is ``~/.brest/config.yaml``.
-This path will be auto-expanded in the :attr:`~brest.Config.BREST_USER_CONFIG` constant
-after Brest import. If you want to have configuration file in another location,
-methods which works with configuration file have ``user_config`` and ``project_config``
-attributes where you can pass your new `absolute` path to the user of project
-configuration file.
-
-The file itself is written in `YAML`_ and parsed by `PyYAML`_ so you can use some
-python objects in the configuration.
-
-.. _YAML:   https://yaml.org/
-.. _PyYAML: https://pyyaml.org/
-
-File structure
-~~~~~~~~~~~~~~
-
-The structure that Brest understands goes like::
-
-    project_name:
-        group_name:
-            resource_alias:
-                class_name: str
-                [class_attribute:]*
-                interface:
-                    [interface_attribute]+
-
-So the example containing a single resource would look like::
-
-    # Name of a project
-    myProj:
-        # Group of resources
-        Supplies:
-            # Custom alias for a resource
-            supply:
-                # Resource definitions
-                class_name: 'Tenma'
-                voltage: 40 # Class's specific attribute
-                current: 0.3
-                interface:
-                    port: 'COM6'
-
-First of all, you can have multiple projects in same configuration file. Just
-start again without indentation and follow the same structure. To make configuration
-file more readable you can put empty lines between projects.
-
-What needs to be defined
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-Every resource must have defined ``class_name`` or ``interface`` or both. You can also
-define values for class's existing attributes on the same level of indentation.
-
-If you omit ``interface`` definition, Brest will use implicit interface definition.
-WARNING! Implicit definition may not always contain specifying information. For example
-the :class:`~brest.supplies.Tenma` class has ``vid`` and ``pid`` but not ``serial_number``.
-So if happen to be more than one Tenma supply connected to the system, you have no
-guarantee on what ``port`` is your class created. For list of available classes and groups,
-please refer to the :ref:`supported`.
-
-If you want to be more specific, or set project dependent values for interface attributes,
-you can do it by defining the interface attribute. Every interface's attribute must have an
-extra level of indentation and be under the `interface:`. Everything you define is merged
-with implicit definition with configuration file definitions having higher priority.
-For list of available Interfaces and its attributes, please refer to the
-:ref:`definitions.interfaces`.

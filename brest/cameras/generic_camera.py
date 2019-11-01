@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.cameras.generic_camera
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module implements controling camera using OpenCV.
+
+    :copyright: 2019 Bender Robotics
+"""
+
 import logging
 
 from brest.cameras import Cameras
@@ -5,6 +15,14 @@ from brest.communication import CameraCommunicable
 
 
 class GenericCamera(Cameras, CameraCommunicable):
+    """
+    OpenCV operable camera.
+
+    Derived from: :class:`~brest.cameras.Cameras`, :class:`~brest.communication.CameraCommunicable`
+
+    :param params: Construction parameters
+    :type  params: dict
+    """
 
     Cameras.KNOWN['GenericCamera'] = {
         'type': 'camera',

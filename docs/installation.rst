@@ -14,7 +14,7 @@ After you have downloaded the file, navigate to its directory and execute the fo
 
 .. code-block:: sh
 
-    $ pip install brest-0.0.1--py3-none-any.whl
+    $ pip install brest-0.0.2--py3-none-any.whl
 
 Brest should be installed now. You can now head to the :ref:`usage` or install Optional dependencies.
 

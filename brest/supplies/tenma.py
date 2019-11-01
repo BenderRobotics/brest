@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    brest.supplies.Tenma
+    brest.supplies.tenma
     ~~~~~~~~~~~~~~~~~~~~
 
     This module implements Tenma 72-25xx programmable power supply.
@@ -15,7 +15,8 @@ from copy import deepcopy
 from contextlib import suppress
 
 class Tenma(Supplies, SCPICommunicable):
-    """Tenma programmable single channel power supply.
+    """
+    Tenma programmable single channel power supply.
 
     Derived from :class:`~brest.supplies.Supplies`, :class:`~brest.communication.SCPICommunicable`
 
@@ -43,7 +44,9 @@ class Tenma(Supplies, SCPICommunicable):
         }
 
     class Commands():
-        """Available commands"""
+        """
+        Available commands
+        """
 
         GET_INFO    = SCPIQueryCommand('*IDN')
         GET_STATUS  = SCPIQueryCommand('STATUS')
@@ -79,7 +82,9 @@ class Tenma(Supplies, SCPICommunicable):
         self.determine_suffix(self.Commands.GET_VOLTAGE)
 
     def __getitem__(self, key):
-        """Channels can be accessed using number indexes or aliases"""
+        """
+        Channels can be accessed using number indexes or aliases
+        """
 
         if isinstance(key, str):
             return self[self._aliases[key]]
@@ -216,6 +221,9 @@ class Tenma(Supplies, SCPICommunicable):
                 self._channels.append(TenmaChannel(self, i + 1))
 
 class TenmaChannel():
+    """
+    Helper class for representing a channel.
+    """
 
     def __init__(self, supply, channel):
         self.supply = supply

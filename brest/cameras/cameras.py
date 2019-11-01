@@ -1,9 +1,21 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.helpers
+    ~~~~~~~~~~~~~
+
+    This module implements base abstract class for cameras.
+
+    :copyright: 2019 Bender Robotics
+"""
+
 import time
+
 from brest import Resource
 
 
 class Cameras(Resource):
     """
+    Base abstract class for representing a camera.
     """
 
     KNOWN = {}
@@ -16,24 +28,30 @@ class Cameras(Resource):
 
     @property
     def cam(self):
-        """Camera interface reference.
         """
+        Camera interface reference.
+        """
+
         return self._cam
 
     @property
     def resolution(self):
-        """Camera image resolution in pixels (width, height).
         """
+        Camera image resolution in pixels (width, height).
+        """
+
         return (self.img_width, self.img_height)
 
     def acquire_image(self):
-        """Acquire an image from the camara.
+        """
+        Acquire an image from the camara.
         """
 
         raise NotImplementedError('This camera has no meas of image acquisition')
 
     def acquire_images(self, num_images=1, period=0):
-        """Acquire a returns one or more images in a list.
+        """
+        Acquire a returns one or more images in a list.
 
         :param num_images: number of images to acquire
         :type  num_images: int
@@ -41,6 +59,7 @@ class Cameras(Resource):
         :type period: float
         :return: list of images
         """
+
         frames = []
 
         for _ in range(int(num_images)):
@@ -54,18 +73,22 @@ class Cameras(Resource):
         return frames
 
     def reset_trigger(self):
-        """Turn of camera trigger.
+        """
+        Turn off camera trigger.
         """
 
         raise NotImplementedError('This camera doesn\'t support trigger')
 
     def get_info(self):
-        """Returns info string.
+        """
+        Returns info string.
         """
 
         raise NotImplementedError('This camera has no means of info detection.')
 
     def detect_model(self):
-        """Returns model info. Implicitly tries to apply model's limits and specifications."""
+        """
+        Returns model info. Implicitly tries to apply model's limits and specifications.
+        """
 
         raise NotImplementedError('This supply does not support specific model detection.')

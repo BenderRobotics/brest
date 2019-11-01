@@ -12,7 +12,8 @@
 from brest import Resource
 
 class IO(Resource):
-    """Base class for representing an IO device.
+    """
+    Base class for representing an IO device.
 
     IO classes are controlled using ``[]`` operator which accepts numbered indexes, slices
     or aliases defined in the configuration file.
@@ -38,7 +39,8 @@ class IO(Resource):
     KNOWN = {}
 
     class Model():
-        """Model info.
+        """
+        Model info.
 
         :param idn: Model number
         :type  idn: int
@@ -74,7 +76,9 @@ class IO(Resource):
         self.IS_LATCHING = None
 
     def __getitem__(self, key):
-        """Channels can be accessed using number indexes, slices or aliases"""
+        """
+        Channels can be accessed using number indexes, slices or aliases
+        """
 
         if isinstance(key, str):
             return self[self._aliases[key]]
@@ -89,7 +93,9 @@ class IO(Resource):
             return True if (0x1 << key) & self._states else False
 
     def __setitem__(self, key, value):
-        """Channels can be accessed using number indexes, slices or aliases"""
+        """
+        Channels can be accessed using number indexes, slices or aliases
+        """
 
         if isinstance(key, str):
             self[self._aliases[key]] = value
@@ -106,7 +112,8 @@ class IO(Resource):
                 self._states &= ~(0x1 << key)
 
     def get_states(self):
-        """Query the current channels state.
+        """
+        Query the current channels state.
 
         :return: Channels state as a single number
         :rtype:  int
@@ -115,7 +122,8 @@ class IO(Resource):
         return self._states
 
     def _read_states(self):
-        """Queries the channels state.
+        """
+        Queries the channels state.
 
         This method should read channels state from the device and
         save it to the :attr:`~brest.io.IO._states` attribute"""
@@ -123,7 +131,8 @@ class IO(Resource):
         raise NotImplementedError()
 
     def _write_states(self):
-        """Propagates the channels state.
+        """
+        Propagates the channels state.
 
         This method should propagate channels state to the device
         from the :attr:`~brest.io.IO._states` attribute."""
@@ -137,7 +146,8 @@ class IO(Resource):
         return range(start, stop, step)
 
     def aliases(self, value):
-        """Gets or sets channels aliases.
+        """
+        Gets or sets channels aliases.
 
         To add new alias outside configuration file, assign a list of
         dicts defining the mapping::

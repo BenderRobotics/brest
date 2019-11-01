@@ -136,10 +136,10 @@ def _run_logging(args, timeout=None, buffsize=-1, executable=None, stdin=None, s
                  env=None, universal_newlines=None, startupinfo=None, creationflags=0,
                  restore_signals=True, start_new_session=False, pass_fds=(),
                  encoding=None, errors=None):
-    '''
+    """
     Creates subprocess and logs it outputs
     ! output stream is replaced with copy !
-    '''
+    """
 
     logger = logging.getLogger('brest').getChild('subprocess')
 

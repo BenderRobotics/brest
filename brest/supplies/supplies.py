@@ -1,32 +1,53 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.supplies.supplies
+    ~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module implements base abstract for supplies.
+
+    :copyright: 2019 Bender Robotics
+"""
+
 from brest import Resource
 
 class Supplies(Resource):
-    """Base class for representing a power supply."""
+    """
+    Base class for representing a power supply.
+    """
 
     KNOWN = {}
 
     class Protection():
-        """Enumeration of available types of protection supported by Supplies class."""
+        """
+        Enumeration of available types of protection supported by Supplies class.
+        """
 
         #: Overcurrent protection
         OCP  = 1
+
         #: Overvoltage protection
         OVP  = 2
+
         #: Undervoltage protection
         UVLO = 4
+
         #: Overtemperature protection
         OTP  = 8
 
     class Kind():
-        """Enumeration supported kinds of power supplies, based on the output type."""
+        """
+        Enumeration supported kinds of power supplies, based on the output type.
+        """
 
         #: Fixed power supply
         FIXED        = 1
+
         #: Programmable power supply
         PROGRAMMABLE = 2
 
     class Model():
-        """Model info.
+        """
+        Model info.
 
         :param idn: Identification string
         :type  idn: str
@@ -84,18 +105,24 @@ class Supplies(Resource):
         return s
 
     def enable(self):
-        """Enables power supply output."""
+        """
+        Enables power supply output.
+        """
 
         raise NotImplementedError('This supply cannot be enabled.')
 
     def disable(self):
-        """Disables power supply output. """
+        """
+        Disables power supply output.
+        """
 
         raise NotImplementedError('This supply cannot be disabled.')
 
     @property
     def voltage(self):
-        """Gets and sets voltage."""
+        """
+        Gets and sets voltage.
+        """
 
         raise NotImplementedError('This supply is unable to measure output voltage.')
 
@@ -106,7 +133,9 @@ class Supplies(Resource):
 
     @property
     def current(self):
-        """Gets and sets current."""
+        """
+        Gets and sets current.
+        """
 
         raise NotImplementedError('This supply is unable to measure output current.')
 
@@ -116,7 +145,8 @@ class Supplies(Resource):
         raise NotImplementedError('This supply does not support different current limits.')
 
     def enable_protection(self, protection_type):
-        """Enables given protection.
+        """
+        Enables given protection.
 
         :param protection_type: Protection type you want to enable
         :type  protection_type: :class:`~brest.supplies.Supplies.Protection`
@@ -125,7 +155,8 @@ class Supplies(Resource):
         raise NotImplementedError('This supply has no means of output protection.')
 
     def disable_protection(self, protection_type):
-        """Disables given protection.
+        """
+        Disables given protection.
 
         :param protection_type: Protection type you want to disable
         :type  protection_type: :class:`~brest.supplies.Supplies.Protection`
@@ -134,7 +165,8 @@ class Supplies(Resource):
         raise NotImplementedError('This supply has no means of output protection.')
 
     def save_memory(self, memory_index, voltage, current):
-        """Saves voltage and current values to a memory.
+        """
+        Saves voltage and current values to a memory.
 
         First it disables output, because some supplies need to set the values
         before saving them.
@@ -151,7 +183,8 @@ class Supplies(Resource):
         raise NotImplementedError('This supply has no means of memory saving')
 
     def recall_memory(self, memory_index):
-        """Recall voltage and current values from a memory.
+        """
+        Recall voltage and current values from a memory.
 
         :param memory_index: Index of memory you want to recall from. Starts from 1 to
                              :attr:`~brest.supplies.Supplies.MEMORIES`
@@ -161,22 +194,29 @@ class Supplies(Resource):
         raise NotImplementedError('This supply has no means of memory recalling')
 
     def get_info(self):
-        """Returns info string."""
+        """
+        Returns info string.
+        """
 
         raise NotImplementedError('This supply has no means of info detection.')
 
     def get_status(self):
-        """Return status byte."""
+        """
+        Return status byte.
+        """
 
         raise NotImplementedError('This supply does not support status detection')
 
     def detect_model(self, apply = True):
-        """Returns model info. Implicitly tries to apply model's electrical limits."""
+        """
+        Returns model info. Implicitly tries to apply model's electrical limits.
+        """
 
         raise NotImplementedError('This supply does not support specific model detection.')
 
     def _apply_model(self, model):
-        """Applies model info to the class.
+        """
+        Applies model info to the class.
 
         :param model: Model's specification you want to apply
         :type  model: :class:`~brest.supplies.Supplies.Model`
@@ -191,7 +231,8 @@ class Supplies(Resource):
         self.KIND = model.kind
 
     def aliases(self, value):
-        """Gets or sets channels aliases.
+        """
+        Gets or sets channels aliases.
 
         To add new alias outside configuration file, assign a list of
         dicts defining the mapping::

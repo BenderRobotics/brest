@@ -1,7 +1,32 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.loads.loads
+    ~~~~~~~~~~~~~~~~~
+
+    This module implements base abstract class for loads.
+
+    :copyright: 2019 Bender Robotics
+"""
+
 from brest.loads import Loads
 from brest.communication import SCPICommunicable, SCPICommand, SCPIQueryCommand, SCPIValueCommand, CommunicableError
 
 class Pli(Loads, SCPICommunicable):
+    """
+    Pli programmable electric supply.
+
+    Derived from: :class:`~brest.loads.Loads`, :class:`~brest.communication.SCPICommunicable`
+
+    Implicit interface::
+
+        interface:
+            type: 'serial'
+            timeout: 0.1
+            baudrate: 115200
+
+    Because Pli electric load is connected using an converter, you
+    have to alway specify vid, pid or serial_number.
+    """
 
     Loads.KNOWN['Pli'] = {
         'type': 'serial',
@@ -9,7 +34,7 @@ class Pli(Loads, SCPICommunicable):
         'baudrate': 115200,
         'vid': 0x0000,
         'pid': 0x0000,
-        }
+    }
 
     class Commands():
         GET_INFO    = SCPIQueryCommand("*IDN")

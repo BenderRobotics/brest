@@ -24,7 +24,8 @@ from brest.communication import CommunicableError, Communicable, SerialCommunica
                                 CameraCommunicable, NoneCommunicable, FlasherCommunicable
 
 class ResourceProvider:
-    """Base class for resource managing.
+    """
+    Base class for resource managing.
 
     Provides core functionality to Brest. It can be used for available resource listing,
     its and configuration file instantiation.
@@ -34,8 +35,9 @@ class ResourceProvider:
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
-        # Merge all known resources into one dict
+        #: All known resource classes
         self.knowns = {}
+        # Merge all known resources into one dict
         for cls_ in Resource.__subclasses__():
             self.knowns[cls_.__name__.lower()] = cls_.KNOWN
 
@@ -44,7 +46,8 @@ class ResourceProvider:
             self._communicables[com.TYPE] = com(None)
 
     def print_probe(self, class_name):
-        """Checks if resource is present in the system, and prints its interface.
+        """
+        Checks if resource is present in the system, and prints its interface.
 
         :param class_name: Class name of a resource you want to probe. To get available class names refer to the :ref:`supported`
         :type  class_name: str
@@ -63,10 +66,13 @@ class ResourceProvider:
             print()
 
     def available(self, group = None, connections = None):
-        """Searches for available resources.
+        """
+        Searches for available resources.
 
         :param group: Specified group of resources to searched for. To get available groups refer to the :ref:`supported`
         :type  group: str
+        :param connections: Buffered connection to the system. Not intended to be used by user.
+        :type  connections: dict
         :return: List of dicts describing available resource
         :rtype: list<dict>
         """
@@ -90,7 +96,8 @@ class ResourceProvider:
         return available
 
     def print_available(self, group = None):
-        """Prints available resources
+        """
+        Prints available resources
 
         :param group: Specified group of resources to be printed. To get available groups refer to the :ref:`supported`
         :type group: str
@@ -114,7 +121,9 @@ class ResourceProvider:
             i += 1
 
     def print_taken(self):
-        """Prints all taken resources"""
+        """
+        Prints all taken resources
+        """
 
         for _, com in self._communicables.items():
             for taken in com.TAKEN:
@@ -123,7 +132,9 @@ class ResourceProvider:
                 resource.print_interface(resource)
 
     def print_all(self):
-        """Prints all taken and available resources"""
+        """
+        Prints all taken and available resources
+        """
 
         print('--Taken resources--------------------')
         self.print_taken()
@@ -131,7 +142,8 @@ class ResourceProvider:
         self.print_available()
 
     def construct(self, params):
-        """Constructs a resource from given parameters.
+        """
+        Constructs a resource from given parameters.
 
         Parameter can be obtained through :meth:`~brest.ResourceProvider.available` method
         or created by you in for if dict which must contains ``class_name`` and ``interface`` fields.
@@ -150,6 +162,19 @@ class ResourceProvider:
         return None
 
     def construct_available(self, index, group = None):
+        """
+        Construct resource from available resources.
+
+        To construct resource from available just pass the resources's index
+        while listing. If you specified `group=` parameter while listing, you
+        also need to specify the `group=` with the same value to match the
+        indexes.
+
+        :param index: Resource's index while listed
+        :type  index: int
+        :param group: Specified group of resources to be printed. To get available groups refer to the :ref:`supported`
+        :type group: str
+        """
 
         available = self.available(group)
         if index < 0 or index >= len(available):
@@ -162,12 +187,21 @@ class ResourceProvider:
         return resource
 
     def construct_config(self, config):
+        """
+        Construct resources from configuration file.
+
+        Construct resources specified in the configuration file. To glimpse of how to write
+        a configuration file, please refer to :ref:`definitions.configuration-file`.
+
+        :param config: Configuration file
+        :type  config: :class:`~brest.Config`
+        """
 
         def __construct_from_params(available_params, config):
-            """Construct matching device.
+            """
+            Construct matching device.
 
-            Try to find the one,
-            that satisfies requirements.
+            Try to find the one, that satisfies requirements.
             """
 
             # Interate over params in group
@@ -330,18 +364,36 @@ class ResourceProvider:
         return constructed
 
     def __refresh_connections(self):
+        """
+        Gets connected devices for each communicable class.
+        """
+
         connections = {}
         for _, communicable in self._communicables.items():
             connections[communicable.TYPE] = communicable.get_connections()
         return connections
 
     def __get_communicable(self, type_):
+        """
+        Returns communicable by type.
+
+        :param type_: Type of the communicable
+        :type  type_: str
+        """
+
         if type_ in self._communicables:
             return self._communicables[type_]
         else:
             self.logger.error('Interface type `{}` is not known to Brest'.format(type_), extra=self.log_args)
 
     def __get_implicit_definition(self, class_name):
+        """
+        Return implicit interface definition for given class name.
+
+        :param class_name: Name of the class, you want to interface from
+        :type  class_name: str
+        """
+
         interface = None
         for _, resources in self.knowns.items():
             if class_name in resources:
@@ -352,9 +404,9 @@ class ResourceProvider:
         return dict(interface)
 
     def __construct(self, module_name, params):
-        '''
+        """
         Generic method for class instantiation from given module.
-        '''
+        """
 
         from serial import SerialException
 

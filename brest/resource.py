@@ -11,7 +11,12 @@
 import logging
 
 class Resource():
-    """Base class for representing resource by name."""
+    """
+    Base class for representing resource by name.
+
+    :param params: Construction parameters.
+    :type  params: dict
+    """
 
     _count = 0
 
@@ -20,12 +25,23 @@ class Resource():
         self.logger = logging.getLogger('brest')
 
         if params and 'name' in params:
+            #: Alias given to the resource
             self.name = params['name']
         else:
             self.name = 'resource_' + str(Resource._count)
             Resource._count += 1
 
     def check_required(self, requirements):
+        """
+        Checks if resource can satisfy requirements.
+
+        Requirements are defined in the configuration file under `required:`.
+        It looks for methods named `required_` + `attribute_name`.
+
+        :param requirements: Attributes defined under `required:`
+        :type  requirements: dict
+        """
+
         for name, value in requirements.items():
             name = 'required_' + name
             req_func = getattr(self, name, None)
@@ -37,6 +53,16 @@ class Resource():
         return True
 
     def set_default(self, defaults):
+        """
+        Sets default values for resources.
+
+        Default values are defined in the configuration file under `default:`.
+        It looks for methods named `default_` + `attribute_name`.
+
+        :param defaults: Attributes defined under `default:`
+        :type  defaults: dict
+        """
+
         for name, value in defaults.items():
             name = 'default_' + name
             def_func = getattr(self, name, None)
@@ -48,6 +74,16 @@ class Resource():
         return True
 
     def set_aliases(self, aliases):
+        """
+        Sets aliases for channels.
+
+        Aliases are defined in the configuration file under `aliases:`.
+        It looks for method named `aliases`.
+
+        :param aliases: Attributes defined under `aliases:`
+        :type  aliases: dict
+        """
+
         ali_func = getattr(self, 'aliases', None)
         if not aliases:
             return True

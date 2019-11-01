@@ -15,7 +15,8 @@ from .resources import Resources
 import logging
 
 def overwrite_log_config(config_dict):
-    """Method takes a logging configuration dictionary and merges it with the brest implicit configuration.
+    """
+    Method takes a logging configuration dictionary and merges it with the brest implicit configuration.
 
     :param config_dict: A dictionary with logging settings
     :type  config_dict: dict
@@ -37,7 +38,8 @@ def __apply_overwrite(node, key, value):
         node[key] = value
 
 def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, project_config=None, needed=[]):
-    """Method that prepares tests to be used with Brest.
+    """
+    Method that prepares tests to be used with Brest.
 
     It collects all needed resources from tests, construct them and sets as an class attribute on
     every test. Folder hierarchy of tests must be::

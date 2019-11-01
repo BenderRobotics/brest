@@ -17,6 +17,9 @@ from colorama.initialise import wrap_stream
 from logging import StreamHandler, Filter
 
 class ColoredStreamHandler(StreamHandler):
+    """
+    Colored logger output.
+    """
 
     def __init__(self, stream = None):
         StreamHandler.__init__(self, stream)
@@ -39,6 +42,9 @@ class ColoredStreamHandler(StreamHandler):
 
 
 class FilterAvailable(Filter):
+    """
+    Suppress fails during matching trough available resources.
+    """
 
     def filter(self, record):
         func_name = record.funcName
@@ -53,6 +59,7 @@ class CharStreamHandler(StreamHandler):
     """
     Log handler for char by char logging, supports CR for bars etc..
     """
+
     cr = False
     nl = True
 
@@ -92,6 +99,11 @@ class CharStreamHandler(StreamHandler):
 
 
 def colored_handler_factory():
+    """
+    Factory method for custom stream handler that supports
+    colored output on GitlabRunner and correct platform recognition.
+    """
+
     on_windows = platform.system() == 'Windows'
     on_gitlab_ci = os.environ.get('GITLAB_CI', False)
 
@@ -102,6 +114,7 @@ def colored_handler_factory():
 
     return ColoredStreamHandler(log_stream)
 
+#: Default logging settings for Brest
 DEFAULT_LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

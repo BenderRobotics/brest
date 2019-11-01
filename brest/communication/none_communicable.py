@@ -1,6 +1,23 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.communication.none_communicable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module implements a class for devices with no communication
+    to fit Brest.
+
+    :copyright: 2019 Bender Robotics
+"""
+
 from brest.communication import Communicable
 
 class NoneCommunicable(Communicable):
+    """
+    Class for devices with no communication
+
+    Use this class for devices which operates only as a
+    software and has no physical connections.
+    """
 
     TYPE = 'none'
     TAKEN = []

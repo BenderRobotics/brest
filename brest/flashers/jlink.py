@@ -28,6 +28,7 @@ class JLink(Flashers, FlasherCommunicable):
     :type  params: dict
 
     Supported models: PLUS, BASE, TRACER
+
     Supported CLI: JLink.exe
 
     Implicit interface definition::

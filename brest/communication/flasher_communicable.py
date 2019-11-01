@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.communication.flasher_communicable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module implements communication with flashers using cmd utility.
+
+    :copyright: 2019 Bender Robotics
+"""
+
 import weakref
 import sys
 import re
@@ -9,10 +19,11 @@ from brest.communication import Communicable
 
 
 class FlasherCommunicable(Communicable):
-    '''
-    It's purpose is to satisfy brest requirements,
-    locate connected flashers and get their serial_number
-    '''
+    """
+    Class that provides interface to use flashers cmd utilities
+
+    Locates connected flashers and gets their serial_number
+    """
 
     TYPE = 'flashers'
     TAKEN = []
@@ -92,10 +103,11 @@ class FlasherCommunicable(Communicable):
                 print('\t{}: {}'.format(name, value))
 
     def list_flashers_cli(self, interface):
-        '''
+        """
         Method connects to cli utility and sends command for listing all conected emulators
         on this list regex is called, where it's first group is added as a serial_number
-        '''
+        """
+
         list_regex = interface['list_regex']
         probed = []
 
@@ -124,10 +136,11 @@ class FlasherCommunicable(Communicable):
         return probed
 
     def list_flashers_usb(self, interface):
-        '''
+        """
         Method lists connected usb devices to the system and filter
         devices by vid and later get the serial_number by regex
-        '''
+        """
+
         probed = []
 
         if sys.platform == 'win32':

@@ -6,18 +6,9 @@ Supported devices
 Here is a list of currently supported devices.
 
 The first level indention indicates groups of resources. These names can be used
-in ``group=`` keyword argument. These classes are not meant to instantiate.
+in ``group=`` keyword argument. These classes are not meant to be instantiated.
 
 The second level of indention represent available resources.
-
-* :class:`~brest.supplies.Supplies`
-
-    * :class:`~brest.supplies.Mansup`
-    * :class:`~brest.supplies.Tenma`
-
-* :class:`~brest.loads.Loads`
-
-    * :class:`~brest.loads.Pli`
 
 * :class:`~brest.cameras.Cameras`
 
@@ -34,3 +25,12 @@ The second level of indention represent available resources.
 * :class:`~brest.io.IO`
 
     * :class:`~brest.io.USBRelay`
+
+* :class:`~brest.loads.Loads`
+
+    * :class:`~brest.loads.Pli`
+
+* :class:`~brest.supplies.Supplies`
+
+    * :class:`~brest.supplies.Mansup`
+    * :class:`~brest.supplies.Tenma`

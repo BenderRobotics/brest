@@ -16,7 +16,8 @@ from yaml.parser import ParserError
 from yaml.scanner import ScannerError
 
 class Config():
-    """Class that represent parsed configuration file
+    """
+    Class that represent parsed configuration file
 
     Serves as an unified input for some methods. Also provides constants indicating
     user configuration filename and location. After you have successfully created
@@ -57,7 +58,9 @@ class Config():
 
     @property
     def is_valid(self):
-        """Indicates if parsed config file is valid for Brest."""
+        """
+        Indicates if parsed config file is valid for Brest.
+        """
 
         self._validate()
         return self._is_valid
@@ -67,9 +70,12 @@ class Config():
         self._parse(config_path)
 
     def _parse(self, config_path):
-        '''
-        Parse config file as dictionary
-        '''
+        """
+        Parse config file as dictionary.
+
+        :param config_path: Path to configuration file.
+        :type  config_path: str
+        """
         try:
             with open(config_path, 'r') as stream:
                 self.config = load(stream, Loader=Loader)
@@ -81,9 +87,9 @@ class Config():
             raise SystemExit
 
     def _validate(self):
-        '''
+        """
         Validate the config file
-        '''
+        """
 
         self._is_valid = True
 
@@ -102,6 +108,15 @@ class Config():
         #                                 'Brest will instantiate this resource on first matching device.', extra=self.log_args)
 
     def merge_configs(self, new_config):
+        """
+        Merges two configuration files.
+
+        While merging, configuration file passed to `new_config` will
+        override existing attributes or add new ones.
+
+        :param new_config: Configuration file to be merged with
+        :type  new_config: :class:`~brest.Config`
+        """
 
         def __apply_overwrite(node, key, value):
             if isinstance(value, dict):

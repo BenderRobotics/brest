@@ -1,8 +1,20 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.communication.scpi_communicable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module implements communication using serial line and SCPI commands.
+
+    :copyright: 2019 Bender Robotics
+"""
+
 from brest.communication import SerialCommunicable, CommunicationStructure
 from brest.communication.types import str_t
 
 class SCPICommunicable(SerialCommunicable):
-    """Class that represent communication using SCPI commands.
+    """
+    Class that represent serial communication communication using
+    SCPI commands.
 
     Derived from: :class:`~brest.communication.SerialCommunicable`
     """
@@ -19,11 +31,13 @@ class SCPICommunicable(SerialCommunicable):
         self.message_suffix = self.SUFFIXES[0] #TODO: Don't forget to mention in the documentation
 
     def determine_suffix(self, command):
-        """Tries to determine communication messages suffix.
+        """
+        Tries to determine communication messages suffix.
 
         Given command should return any string response in any state of
         device. Function will interate over available suffixes until
         given command returns string.
+
         :param command: Command which should return any string response.
         :type  command: :class:`~brest.communication.SCPICommand`
         """
@@ -38,7 +52,8 @@ class SCPICommunicable(SerialCommunicable):
             response = self.transceive(command)
 
     def write(self, message):
-        """Sends a message in a blocking mode.
+        """
+        Sends a message in a blocking mode.
 
         :param message: Message to be sent
         :type  message: :class:`~brest.communication.SCPICommand` or :class:`~brest.communication.SCPIValueCommand`
@@ -51,7 +66,8 @@ class SCPICommunicable(SerialCommunicable):
         self.write_raw(data)
 
     def transceive(self, message):
-        """Sends and receive a message in a blocking mode.
+        """
+        Sends and receive a message in a blocking mode.
 
         :param message: Message to be sent
         :type  message: :class:`~brest.communication.SCPICommand` or :class:`~brest.communication.SCPIValueCommand`
@@ -64,7 +80,8 @@ class SCPICommunicable(SerialCommunicable):
         return received.decode(self.ENCODING)
 
 class SCPICommand(CommunicationStructure):
-    """Class that wraps plaintext commands
+    """
+    Class that wraps plaintext commands
 
     :param command: Plaintext command you want to send
     :type  command: str
@@ -78,12 +95,18 @@ class SCPICommand(CommunicationStructure):
         self.add('channel', str_t(channel))
 
 class SCPIQueryCommand(SCPICommand):
-    """Class that wraps plaintext commands adding a query character
+    """
+    Class that wraps plaintext commands adding a query character
+
+    Derived from :class:`~brest.communication.SCPICommand`
 
     :param command: Plaintext command you want to send
     :type  command: str
     :param channel: Number of channel if device is multichannel
     :type  channel: int
+    :param query_char: Character that indicates query command. \'?\'
+                       is default
+    :type  query_char: str
     """
 
     def __init__(self, command, channel = '', query_char = '?'):
@@ -91,15 +114,21 @@ class SCPIQueryCommand(SCPICommand):
         self.add('query_char', str_t(query_char))
 
 class SCPIValueCommand(SCPICommand):
-    """Class that wraps plaintext commands with additional value
+    """
+    Class that wraps plaintext commands with additional value
+
+    Derives from :class:`~brest.communication.SCPICommand`
 
     :param command: Plaintext command you want to send
     :type  command: str
     :param channel: Number of channel if device is multichannel
     :type  channel: int
-    :param value: Value that is converted to string and concate
-                  with leading ':'
+    :param value: Value that is converted to string and concatenated
+                  with delimiter
     :type  value: any
+    :param delimiter: Character that is used to delimit value from
+                      the command
+    :type  delimiter: str
     """
 
     def __init__(self, command, channel = '', value = '', delimiter = ':'):

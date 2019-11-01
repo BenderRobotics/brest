@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.communication.serial_communicable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module implements communication using serial line.
+
+    :copyright: 2019 Bender Robotics
+"""
+
 import serial
 import serial.tools.list_ports
 import logging
@@ -6,9 +16,12 @@ import weakref
 from brest.communication import Communicable
 
 class SerialCommunicable(Communicable):
-    '''
-    Represents a serial communication
-    '''
+    """
+    Represent communication using serial line.
+
+    :param params: Construction parameters
+    :type  params: dict
+    """
 
     #: String representing type of the communication
     TYPE = 'serial'
@@ -133,9 +146,9 @@ class SerialCommunicable(Communicable):
                     print('\t{}: {}'.format(name, value))
 
     def __filter_serial_args(self, params):
-        '''
+        """
         Filters out serial.Serial() compatible arguments
-        '''
+        """
 
         serial_args = {}
         for attr, value in params.items():

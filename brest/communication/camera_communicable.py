@@ -1,10 +1,22 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.communication.camera_communicable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module implements connected camera listing.
+
+    :copyright: 2019 Bender Robotics
+"""
+
 import logging
 import weakref
 
 from brest.communication import Communicable
 
-
 class CameraCommunicable(Communicable):
+    """
+    Class for camera probing and listing.
+    """
 
     TYPE = 'camera'
     TAKEN = []

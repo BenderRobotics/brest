@@ -12,7 +12,8 @@ from brest.supplies import Supplies
 from brest.communication import NoneCommunicable
 
 class Mansup(Supplies, NoneCommunicable):
-    """Fixed power supply controlled by human using prompts.
+    """
+    Fixed power supply controlled by human using prompts.
 
     Derived from :class:`~brest.supplies.Supplies`
 
@@ -39,18 +40,24 @@ class Mansup(Supplies, NoneCommunicable):
         self._current = 0
 
     def enable(self):
-        """Prompts you to set the power supply according to internal values and enable it."""
+        """
+        Prompts you to set the power supply according to internal values and enable it.
+        """
 
         input('{}: Supply DUT with {} volts and {} amps and press enter to continue'.format(self.name, self._voltage, self._current))
 
     def disable(self):
-        """Prompts you to disable the power supply"""
+        """
+        Prompts you to disable the power supply.
+        """
 
         input('{}: Disconnect DUT from the power supply and press enter to continue'.format(self.name))
 
     @property
     def voltage(self):
-        """Sets and gets the internal voltage value."""
+        """
+        Sets and gets the internal voltage value.
+        """
 
         return self._voltage
 
@@ -60,16 +67,18 @@ class Mansup(Supplies, NoneCommunicable):
 
     @property
     def current(self):
-        """Sets and gets the internal current value."""
+        """
+        Sets and gets the internal current value.
+        """
 
         return self._current
-
-    def detect_model(self):
-        pass
 
     @current.setter
     def current(self, value):
         self._current = value
+
+    def detect_model(self):
+        pass
 
     def default_voltage(self, value):
         self.voltage = value

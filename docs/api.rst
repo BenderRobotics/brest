@@ -45,15 +45,58 @@ Communication
 
         Plaintext command
 
+    .. attribute:: channel
+
+        Number of channel
+
+.. autoclass:: SCPIQueryCommand
+
+    .. attribute:: query_char
+
+        Character that indicates query command. '?' is default
+
 .. autoclass:: SCPIValueCommand
-
-    .. attribute:: cmd
-
-        Plaintext command
 
     .. attribute:: value
 
-        String representation of given value
+        Value that is converted to string and concatenated with delimiter
+
+    .. attribute:: delimiter
+
+        Character that is used to delimit value from the command
+
+.. autoclass:: InterfaceCommunicable
+    :members:
+
+.. autoclass:: NoneCommunicable
+
+Messages
+--------
+
+.. autoclass:: Packable
+    :members:
+
+.. autoclass:: CommunicationStructure
+    :members:
+
+.. autoclass:: CommunicationFrame
+
+Packable types
+~~~~~~~~~~~~~~
+
+.. currentmodule:: brest.communication.types
+
+.. autoclass:: uint8_t
+.. autoclass:: uint16_t
+.. autoclass:: sint16_t
+.. autoclass:: uint32_t
+.. autoclass:: str_t
+.. autoclass:: bool_t
+.. autoclass:: bit_t
+.. autoclass:: nlist_t
+.. autoclass:: bit_nlist_t
+.. autoclass:: checksum_t
+.. autoclass:: pad_t
 
 Devices
 -------
@@ -105,3 +148,36 @@ Available flashers:
 .. autoclass:: STLink
 
 .. autoclass:: JLink
+
+Cameras
+~~~~~~~
+
+.. currentmodule:: brest.cameras
+
+Cameras base class:
+
+.. autoclass:: Cameras
+    :members: cam, resolution
+
+Available cameras:
+
+.. autoclass:: GenericCamera
+    :members: acquire_image, acquire_images
+
+.. autoclass:: Backfly
+    :members: acquire_image, acquire_images, configure_trigger, reset_trigger, get_info
+
+Loads
+~~~~~
+
+.. currentmodule:: brest.loads
+
+Loads base class:
+
+.. autoclass:: Loads
+    :members: MAX_CURRENT
+
+Available loads:
+
+.. autoclass:: Pli
+    :members: enable, disable, current, get_info, clear, reset, self_test, detect_model

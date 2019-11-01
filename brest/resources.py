@@ -39,7 +39,7 @@ class Resources():
     """
 
     def __init__(self, project, user_config = Config.BREST_USER_CONFIG, project_config = None, needed = []):
-        self.log_args = {'class_name':self.__class__.__module__ + '.' + self.__class__.__name__}
+        self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
         self._resources = {}

@@ -26,6 +26,7 @@ class STLink(Flashers, FlasherCommunicable):
     :type  params: dict
 
     Supported models: V2, V3(experimental)
+
     Supported CLI: STM32_Programmer_CLI (Cube version)
 
     Implicit interface definition::

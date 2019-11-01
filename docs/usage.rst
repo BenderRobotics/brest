@@ -23,15 +23,8 @@ by Brest. You can use ``group`` argument to list only required group of resource
 of available groups, please refer to the :ref:`supported`. If nothing is provided, all available
 resources will be listed::
 
-    >>> rp.print_available(group='Supplies')
-    [0] Virsup
-        type: serial
-        vid: 4292
-        pid: 60000
-        serial_number: 0001
-        port: COM7
-
-    [1] Tenma
+    >>> rp.print_available()
+    [0] Tenma
         type: serial
         timeout: 0.1
         vid: 1046
@@ -45,16 +38,13 @@ that can be constructed using interface parameters listed on the next lines. To 
 about interface parameters please refer to the :ref:`definitions.interfaces`.
 
 The next step is to instantiate a selected resource. You can do that using
-:meth:`~brest.ResourceProvider.construct` method. For example, if I want to instantiate the
+:meth:`~brest.ResourceProvider.construct_available` method. For example, if I want to instantiate the
 Tenma supply from previous example::
 
-    >>> cons_params = rp.available(group='Supplies')[1]
-    >>> psu = rp.construct(cons_params)
+    >>> psu = rp.construct_available(0)
 
-First, you need to get the params needed for proper
-object construction. You can provide yours or use the :meth:`~brest.ResourceProvider.available`
-method which corresponds with :meth:`~brest.ResourceProvider.print_available`. But instead of printing
-available resources in readable format, it returns list of dicts containing construction parameters.
+Only thing you have to do is to pass the desired resource's index and resource provider will construct the
+object for you.
 If you have printed resources using ``group`` parameter, you also need to specify the same group to
 :meth:`~brest.ResourceProvider.available` method for corresponding indexes.
 
@@ -84,6 +74,8 @@ and its location can be specified using absolute path passed to ``project_config
 This config will be merged with user specific config. User config overrides and adds items to
 project specific config.
 
+The first parameter ``project`` indicate what project you want to use from configuration file.
+
 After you have created your configuration file, you can use it in Brest by instancing the
 :class:`~brest.Resources` class::
 
@@ -94,12 +86,9 @@ After you have created your configuration file, you can use it in Brest by insta
 If you have any custom classes which derived from any Brest’s base classes, you also have to
 import them so Brest can get to know them.
 
-The first parameter ``project`` indicate what project you want to use from configuration file.
-If your configuration file resides out of the standard path defined in :attr:`~brest.Config.BREST_USER_CONFIG`,
-you can specify it using an absolute path passed into the ``config`` argument.
 If you don't want to use every resource defined in the configuration file, you don't have to
-create a new configuration file or project. Just specify resource aliases in the ``needed``
-parameter and Brest will instantiate only them.
+create a new configuration file or project. Just specify resource aliases in the ``needed=``
+parameter as list of strings and Brest will instantiate only them.
 
 In case of successful configuration file instantiation you should see something like this in your
 command line::
@@ -148,7 +137,7 @@ Next thing is to define `needed` resources in every test::
 
         ...
 
-    # In case of running a single test
+    # In a case of running a single test
     if __name__ == __main__:
         import brest
 
@@ -159,7 +148,7 @@ Next thing is to define `needed` resources in every test::
 
         unittest.main()
 
-The ``needed`` class attribute must be a list of resources aliases from the configuration
+The ``needed=`` class attribute must be a list of resources aliases from the configuration
 file. Last thing to get the whole thing working is to call a :meth:`~brest.helpers.prepare_tests` helper
 method on discovered tests::
 

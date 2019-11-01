@@ -24,7 +24,8 @@ class USBRelayValueCommand(USBRelayCommand):
         self.add('value', uint8_t())
 
 class USBRelay(IO, SerialCommunicable):
-    """USB-RLYxx relay array.
+    """
+    USB-RLYxx relay array.
 
     Derived from: :class:`~brest.io.IO`, :class:`~brest.communicable.SerialCommunicable`
 
@@ -56,7 +57,9 @@ class USBRelay(IO, SerialCommunicable):
     ]
 
     class Commands:
-        """Available commands."""
+        """
+        Available commands.
+        """
 
         GET_INFO   = USBRelayCommand(0x5A)
         GET_STATES = USBRelayCommand(0x5B)

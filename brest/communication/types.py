@@ -1,11 +1,22 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.communication.types
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module implements packable types that are
+    used to define a message.
+
+    :copyright: 2019 Bender Robotics
+"""
+
 import struct
 
 from brest.communication import Packable
 
 class uint8_t(Packable):
-    '''
+    """
     Unsigned 8-bit integer.
-    '''
+    """
 
     def __init__(self, value = None):
         Packable.__init__(self)
@@ -23,9 +34,9 @@ class uint8_t(Packable):
         return offset + self.size
 
 class uint16_t(Packable):
-    '''
+    """
     Unsigned 16-bit integer.
-    '''
+    """
 
     def __init__(self, value = None):
         Packable.__init__(self)
@@ -43,9 +54,9 @@ class uint16_t(Packable):
         return offset + self.size
 
 class sint16_t(Packable):
-    '''
+    """
     Signed 16-bit integer.
-    '''
+    """
 
     def __init__(self, value = None):
         Packable.__init__(self)
@@ -63,9 +74,9 @@ class sint16_t(Packable):
         return offset + self.size
 
 class uint32_t(Packable):
-    '''
+    """
     Unsigned 32-bit integer.
-    '''
+    """
 
     def __init__(self, value = None):
         Packable.__init__(self)
@@ -83,9 +94,9 @@ class uint32_t(Packable):
         return offset + self.size
 
 class str_t(Packable):
-    '''
+    """
     String with variable lenght. Can\'t be unpacked!.
-    '''
+    """
 
     def __init__(self, value):
         Packable.__init__(self)
@@ -108,9 +119,9 @@ class str_t(Packable):
         return offset + self.size
 
 class bool_t(Packable):
-    '''
+    """
     Boolean packed as a whole byte
-    '''
+    """
 
     def __init__(self, value = None):
         Packable.__init__(self)
@@ -128,9 +139,9 @@ class bool_t(Packable):
         return offset + self.size
 
 class bit_t(Packable):
-    '''
+    """
     Boolean packed on `bit` position in a byte.
-    '''
+    """
 
     def __init__(self, value = None, bit = 0):
         Packable.__init__(self)
@@ -154,9 +165,9 @@ class bit_t(Packable):
         return offset + self.size
 
 class nlist_t(Packable):
-    '''
+    """
     Fixed length list of any packable type except bit_t.
-    '''
+    """
 
     def __init__(self, value, num_items, type_t):
         Packable.__init__(self)
@@ -181,9 +192,9 @@ class nlist_t(Packable):
         return offset
 
 class bit_nlist_t(Packable):
-    '''
+    """
     Fixel length list of bit_t.
-    '''
+    """
 
     def __init__(self, value, num_items):
         Packable.__init__(self)
@@ -221,6 +232,19 @@ class bit_nlist_t(Packable):
         return offset
 
 class checksum_t(Packable):
+    """
+    Calculates the checksum from previous bytes using
+    given function.
+
+    The function must have at least one parameter where
+    bytearray will be passed and return `type_t` compatible
+    argument.
+
+    :param type_t: Type in the checksum will be saved.
+    :type  type_t: :class:`brest.communication.Packable`
+    :param checksum_func: Function which calculates the checksum
+    :type  checksum_func: Callable
+    """
 
     def __init__(self, type_t, checksum_func):
         Packable.__init__(self)
@@ -242,9 +266,9 @@ class checksum_t(Packable):
         return offset
 
 class pad_t(Packable):
-    '''
+    """
     Pads the offset to the first full byte.
-    '''
+    """
 
     def __init__(self):
         Packable.__init__(self)

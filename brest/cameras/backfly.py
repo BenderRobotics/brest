@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.cameras.backfly
+    ~~~~~~~~~~~~~~~~~~~~~
+
+    This module implements Backfly camera.
+
+    :copyright: 2019 Bender Robotics
+"""
+
 import logging
 
 from brest.cameras import Cameras
@@ -5,6 +15,12 @@ from brest.communication import CameraCommunicable
 
 
 class Backfly(Cameras, CameraCommunicable):
+    """
+    Backfly cameras
+
+    :param params: Construction parameters
+    :type  params: dict
+    """
 
     Cameras.KNOWN['Backfly'] = {
         'type': 'camera',
@@ -93,8 +109,6 @@ class Backfly(Cameras, CameraCommunicable):
         return False
 
     def acquire_image(self):
-        """
-        """
         import PySpin
 
         data = None
