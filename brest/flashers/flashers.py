@@ -49,7 +49,9 @@ class Flashers(Resource):
 
     @property
     def log(self):
-        """Gets and sets type of logging [none, after, continous]"""
+        """
+        Gets and sets type of logging [none, after, continous]
+        """
         return self._log
 
     @log.setter
@@ -61,7 +63,9 @@ class Flashers(Resource):
 
     @property
     def timeout(self):
-        """Gets and set timeout"""
+        """
+        Gets and set timeout
+        """
         return self._timeout
 
     @timeout.setter

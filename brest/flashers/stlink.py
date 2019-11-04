@@ -18,7 +18,8 @@ from brest.log_subprocess import run, PIPE, STDOUT
 
 
 class STLink(Flashers, FlasherCommunicable):
-    """STMicroelectronics programmer
+    """
+    STMicroelectronics programmer
 
     Derived from :class:`~brest.flashers.Flashers`, :class:`~brest.communication.FlasherCommunicable`
 
