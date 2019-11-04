@@ -32,21 +32,10 @@ def run(args, log=False, timeout=None, buffsize=-1, executable=None, stdin=None,
     """
     copy of subprocess.run function with added logging support
     """
-    logger = logging.getLogger('brest')
+    logger = logging.getLogger('brest').getChild('subprocess')
 
     if log in ['after', 'continuous']:
-
-        redo_suffix = '%(class_name)s.%(funcName)s()'
-
-        fmt_backup = logger.handlers[0].formatter._fmt
-        if redo_suffix in logger.handlers[0].formatter._fmt:
-            cmd = os.path.basename(args[0])
-            if len(cmd) > 25:
-                cmd = cmd[:25] + "..."
-
-            logger.handlers[0].formatter._style._fmt = logger.handlers[0].formatter._style._fmt.replace(redo_suffix, cmd)
-
-        logger.info("Running subprocess: %s", " ".join(args))
+        logger.info("Running subprocess: %s", " ".join(args), extra=__get_cmd(args))
 
         if log == 'continuous':
             process = _run_continuous_logging(args, timeout, buffsize, executable, stdin, stdout,
@@ -54,15 +43,13 @@ def run(args, log=False, timeout=None, buffsize=-1, executable=None, stdin=None,
                                               universal_newlines, startupinfo, creationflags,
                                               restore_signals, start_new_session, pass_fds,
                                               encoding=encoding, errors=errors)
-        elif log == 'after':
+        else:
             process = _run_logging(args, timeout, buffsize, executable, stdin, stdout, stderr,
                                    preexec_fn, close_fds, shell, cwd, env, universal_newlines,
                                    startupinfo, creationflags, restore_signals, start_new_session,
                                    pass_fds, encoding=encoding, errors=errors)
 
-        logger.handlers[0].formatter._style._fmt = fmt_backup
         return process
-
 
     process = subprocess.Popen(args, buffsize, executable, stdin, stdout, stderr, preexec_fn,
                                close_fds, shell, cwd, env, universal_newlines, startupinfo, creationflags,
@@ -90,18 +77,7 @@ def _run_continuous_logging(args, timeout=None, buffsize=-1, executable=None, st
     !This method is designed only for logger with one handler!
     """
 
-    logger = logging.getLogger('brest')
-    char_handler = CharStreamHandler(stream=sys.stdout)
-    char_handler.setLevel(logging.INFO)
-
-    logger_bckup = logger.handlers[0]
-
-    new_formatter = logger.handlers[0].formatter
-    char_handler.setFormatter(new_formatter)
-
-    # change log handler to custom
-    logger.removeHandler(logger.handlers[0])
-    logger.addHandler(char_handler)
+    logger = logging.getLogger('brest').getChild('subprocess_continuous')
 
     # start process in another thread
     process = subprocess.Popen(args, buffsize, executable, stdin, stdout, stderr, preexec_fn,
@@ -139,9 +115,9 @@ def _run_continuous_logging(args, timeout=None, buffsize=-1, executable=None, st
                 # before = time.time() # uncomment to refresh timout on read
                 back_up += output
                 if sys.platform == "win32":
-                    logger.info(output.decode('cp1250'))
+                    logger.info(output.decode('cp1250'), extra=__get_cmd(args))
                 else:
-                    logger.info(output.decode())
+                    logger.info(output.decode(), extra=__get_cmd())
             else:
                 break
 
@@ -151,10 +127,6 @@ def _run_continuous_logging(args, timeout=None, buffsize=-1, executable=None, st
         process.stdout = fake_buffered_reader
     elif stderr == PIPE:
         process.stderr = fake_buffered_reader
-
-    # return logger to original state
-    logger.removeHandler(char_handler)
-    logger.addHandler(logger_bckup)
 
     return process
 
@@ -169,7 +141,7 @@ def _run_logging(args, timeout=None, buffsize=-1, executable=None, stdin=None, s
     ! output stream is replaced with copy !
     '''
 
-    logger = logging.getLogger('brest')
+    logger = logging.getLogger('brest').getChild('subprocess')
 
     # start subprocess
     process = subprocess.Popen(args, buffsize, executable, stdin, stdout, stderr, preexec_fn,
@@ -185,10 +157,11 @@ def _run_logging(args, timeout=None, buffsize=-1, executable=None, stdin=None, s
         output = process.stderr.read()
 
     # log program output
-    if sys.platform == "win32":
-        logger.info(output.decode('cp1250'))
-    else:
-        logger.info(output.decode())
+    for line in output.splitlines():
+        if sys.platform == "win32":
+            logger.info(line.decode('cp1250'), extra=__get_cmd(args))
+        else:
+            logger.info(line.decode(), extra=__get_cmd(args))
 
     # replace original stream with fake one
     backup = bytearray()
@@ -219,3 +192,10 @@ def __set_pipe_nonblocking(pipefd):
     else:
         flags = fcntl(pipefd, F_GETFL)
         fcntl(pipefd, F_SETFL, flags | O_NONBLOCK)
+
+
+def __get_cmd(args):
+    cmd = os.path.basename(args[0])
+    if len(cmd) > 25:
+        cmd = cmd[:25] + "..."
+    return {'cmd': cmd}
