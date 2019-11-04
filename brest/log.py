@@ -109,6 +109,9 @@ DEFAULT_LOGGING = {
         'br_base_f': {
             'format': '[%(asctime)s][%(levelname)s] : %(class_name)s.%(funcName)s() -> %(message)s',
         },
+        'br_subprocess_f': {
+            'format': '[%(asctime)s][%(levelname)s] : %(module)s.%(funcName)s - %(cmd)s -> %(message)s',
+        }
     },
     'handlers': {
         'br_console_h': {
@@ -121,16 +124,36 @@ DEFAULT_LOGGING = {
             'level': 'DEBUG',
             'formatter': 'br_base_f',
         },
+        'br_subprocess_char_handler': {
+            '()': 'brest.log.CharStreamHandler',
+            'level': 'DEBUG',
+            'formatter': 'br_subprocess_f',
+        },
+        'br_subprocess_handler': {
+            '()': 'brest.log.colored_handler_factory',
+            'level': 'DEBUG',
+            'formatter': 'br_subprocess_f',
+        },
     },
     'loggers': {
+        'root': {
+            'level': 'DEBUG',
+            'handlers': ['br_console_h'],
+        },
         'brest': {
             'level': 'DEBUG',
             'handlers': ['br_console_dbg_h'],
             'propagate': False
         },
-        'root': {
+        'brest.subprocess': {
             'level': 'DEBUG',
-            'handlers': ['br_console_h'],
+            'handlers': ['br_subprocess_handler'],
+            'propagate': False
+        },
+        'brest.subprocess_continuous': {
+            'level': 'DEBUG',
+            'handlers': ['br_subprocess_char_handler'],
+            'propagate': False
         },
     },
 }
