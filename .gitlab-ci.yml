@@ -7,7 +7,7 @@ stages:
   - deploy
 
 before_script:
-  - pip install dist/brest-0.0.2-py3-none-any.whl
+  - pip install dist/brest-*.whl
 
 build-wheel:
   stage: build
@@ -45,3 +45,29 @@ build-docs:
     expire_in: 1 week
   dependencies:
     - build-wheel
+
+deploy-wheel:
+  stage: deploy
+  tags:
+    - docker
+  script:
+    - python tests/test_version.py
+    - python setup.py sdist
+    - cp -r dist/* /opt/brest/bin
+  dependencies:
+    - build-wheel
+  only:
+    - tags
+
+deploy-docs:
+  stage: deploy
+  tags:
+    - docker
+  script:
+    - python tests/test_version.py
+    - cp -r docs/_build/html/* /opt/brest/docs
+  dependencies:
+    - build-wheel
+    - build-docs
+  only:
+    - tags
