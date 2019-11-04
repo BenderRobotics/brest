@@ -5,3 +5,5 @@ __all__ = [
     'IO',
     'USBRelay',
 ]
+
+__version__ = '0.0.2'

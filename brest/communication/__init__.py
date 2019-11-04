@@ -27,3 +27,5 @@ __all__ = [
     'FlasherCommunicable',
     'types',
     ]
+
+__version__ = '0.0.2'
