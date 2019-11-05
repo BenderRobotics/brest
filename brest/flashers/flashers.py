@@ -74,6 +74,14 @@ class Flashers(Resource):
             raise TypeError
         self._timeout = value
 
+    @property
+    def file(self):
+        return self._file
+
+    @file.setter
+    def file(self, value):
+        self._file = os.path.abspath(os.path.normpath(value))
+
     def flash(self, file="", address="", flashloader="", timeout=None):
         """
         Downloads file to MCU, optionable parameters will be set by config
