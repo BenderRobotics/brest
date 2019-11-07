@@ -8,6 +8,8 @@
     :copyright: 2019 Bender Robotics
 """
 
+import time
+
 from brest.supplies import Supplies
 from brest.communication import SCPICommunicable, SCPICommand, SCPIQueryCommand, SCPIValueCommand, CommunicableError
 
@@ -108,6 +110,12 @@ class Tenma(Supplies, SCPICommunicable):
         if len(self._aliases) == self.CHANNELS:
             command.channel = 12
         self.transceive(command)
+
+    def cycle(self, timeout=0):
+        self.disable()
+        time.sleep(1)
+        self.enable()
+        time.sleep(timeout)
 
     def release(self):
         with suppress(Exception):
@@ -240,6 +248,12 @@ class TenmaChannel():
         command.delimiter = ':'
         command.channel = str(self.channel)
         self.supply.write(command)
+
+    def cycle(self, timeout=0):
+        self.disable()
+        time.sleep(1)
+        self.enable()
+        time.sleep(timeout)
 
     @property
     def voltage(self):
