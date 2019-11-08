@@ -64,8 +64,9 @@ class Pli(Loads, SCPICommunicable):
         self.transceive(Pli.Commands.DIS_INPUT)
 
     def release(self):
-        with suppress(Exception):
-            self.disable()
+        if self.disable_on_destruct:
+            with suppress(Exception):
+                self.disable()
         SCPICommunicable.release(self)
 
     @property

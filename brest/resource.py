@@ -24,6 +24,9 @@ class Resource():
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
+        #: If ``True`` resource will try to disable itself upon destruction
+        self.disable_on_destruct = True
+
         if params and 'name' in params:
             #: Alias given to the resource
             self.name = params['name']

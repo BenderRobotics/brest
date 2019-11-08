@@ -121,8 +121,9 @@ class Tenma(Supplies, SCPICommunicable):
         time.sleep(timeout)
 
     def release(self):
-        with suppress(Exception):
-            self.disable()
+        if self.disable_on_destruct:
+            with suppress(Exception):
+                self.disable()
         SCPICommunicable.release(self)
 
     @property
