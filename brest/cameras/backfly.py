@@ -63,9 +63,12 @@ class Backfly(Cameras, CameraCommunicable):
         """
         De-initialize camera
         """
+        self.release()
+
+    def release(self):
         if self.cam is not None:
             self.cam.DeInit()
-        self.unmark_taken(self)
+        CameraCommunicable.release(self)
 
     def configure_trigger(self, trigger):
         """

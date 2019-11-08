@@ -10,7 +10,7 @@
 
 from brest.loads import Loads
 from brest.communication import SCPICommunicable, SCPICommand, SCPIQueryCommand, SCPIValueCommand, CommunicableError
-
+from contextlib import suppress
 class Pli(Loads, SCPICommunicable):
     """
     Pli programmable electric supply.
@@ -55,13 +55,18 @@ class Pli(Loads, SCPICommunicable):
         self.determine_suffix(self.Commands.GET_INFO)
 
     def __del__(self):
-        self.unmark_taken(self)
+        self.release()
 
     def enable(self):
         self.transceive(Pli.Commands.EN_INPUT)
 
     def disable(self):
         self.transceive(Pli.Commands.DIS_INPUT)
+
+    def release(self):
+        with suppress(Exception):
+            self.disable()
+        SCPICommunicable.release(self)
 
     @property
     def current(self):

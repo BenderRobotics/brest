@@ -57,6 +57,9 @@ class STLink(Flashers, FlasherCommunicable):
 
         self.mark_taken(self)
 
+    def __del__(self):
+        FlasherCommunicable.release(self)
+
     def flash(self, file="", address="", flashloader="", timeout=None):
         if timeout is None:
             timeout = self._timeout

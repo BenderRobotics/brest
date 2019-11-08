@@ -83,6 +83,9 @@ class Tenma(Supplies, SCPICommunicable):
 
         self.determine_suffix(self.Commands.GET_VOLTAGE)
 
+    def __del__(self):
+        self.release()
+
     def __getitem__(self, key):
         """
         Channels can be accessed using number indexes or aliases

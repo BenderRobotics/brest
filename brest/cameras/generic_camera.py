@@ -42,9 +42,12 @@ class GenericCamera(Cameras, CameraCommunicable):
         self.acquire_images()
 
     def __del__(self):
+        self.release()
+
+    def release(self):
         if self.cam:
             self.cam.release()
-        self.unmark_taken(self)
+        CameraCommunicable.release(self)
 
     def acquire_image(self):
         return self.cam.read()[1]
