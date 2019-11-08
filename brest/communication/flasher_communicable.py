@@ -69,18 +69,18 @@ class FlasherCommunicable(Communicable):
 
         return probed
 
-    def mark_taken(self, interface):
-        self.TAKEN.append(weakref.ref(interface))
+    def mark_taken(self, resource):
+        self.TAKEN.append(resource._serial_number)
 
     def unmark_taken(self, resource):
         try:
-            self.TAKEN.remove(weakref.ref(resource))
+            self.TAKEN.remove(resource._serial_number)
         except ValueError:
             pass
 
     def is_taken(self, interface):
-        for taken_device in self.TAKEN:
-            if interface['serial_number'] == taken_device()._serial_number:
+        for taken_serial_number in self.TAKEN:
+            if interface['serial_number'] == taken_serial_number:
                 return True
         return False
 

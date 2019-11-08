@@ -32,6 +32,7 @@ class CameraCommunicable(Communicable):
 
         if params:
             self.index = params['index']
+            self.service = params['service']
             self.mark_taken(self)
 
     def release(self):
@@ -100,17 +101,17 @@ class CameraCommunicable(Communicable):
         return (vid, pid, serial_number)
 
     def mark_taken(self, resource):
-        self.TAKEN.append(weakref.ref(resource))
+        self.TAKEN.append((self.index, self.service))
 
     def unmark_taken(self, resource):
         try:
-            self.TAKEN.remove(weakref.ref(resource))
+            self.TAKEN.remove((self.index, self.service))
         except ValueError:
             pass
 
     def is_taken(self, interface):
-        for taken_device in CameraCommunicable.TAKEN:
-            if interface['index'] == taken_device().index:
+        for taken_index in CameraCommunicable.TAKEN:
+            if interface['index'] == taken_index[0] and interface['service'] == taken_index[1]:
                 return True
         return False
 
