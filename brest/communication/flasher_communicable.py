@@ -40,6 +40,9 @@ class FlasherCommunicable(Communicable):
                     self.utility = value
                 elif attr == 'serial_number':
                     self._serial_number = value
+        else:
+            self.listed = True
+
 
     def probe(self, interface, connections=None):
         probed = []
@@ -58,8 +61,9 @@ class FlasherCommunicable(Communicable):
             else:
                 return probed
 
-            if which(utility) is None:
+            if which(utility) is None and getattr(self, "listed", False):
                 self.logger.warning("Utility %s is not executable", utility, extra=self.log_args)
+                self.listed = False
                 continue
 
             if list_type == 'cli':
