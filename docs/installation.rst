@@ -8,13 +8,9 @@ Installation
 Download and install latest release
 ------------------------------------
 
-Pro tip: You can't
-
-After you have downloaded the file, navigate to its directory and execute the following command to install Brest:
-
 .. code-block:: sh
 
-    $ pip install brest-0.0.2--py3-none-any.whl
+    $ pip install brest
 
 Brest should be installed now. You can now head to the :ref:`usage` or install Optional dependencies.
 
