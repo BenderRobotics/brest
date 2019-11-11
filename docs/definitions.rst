@@ -98,7 +98,30 @@ Under first indentation are available definitions for whole category.
 
 :class:`~brest.cameras.Cameras`
 
-:class:`~brest.flashers.Flashers`
+:class:`~brest.flashers.Flashers`::
+
+    required:
+        log: str ("continuous", "after", "none")
+        device: str
+        flashloader: str
+        file: str
+        address: str
+        mode: str ("under_reset", "hotplug", "normal")
+        reset: str ("sw", "hw", "core")
+        port: str ("JTAG", "SWD")
+        timeout: float
+
+:class:`~brest.flashers.STLink`::
+
+    # All attributes from Flashers group can be used
+    required:
+        verbosity: int (1, 2, 3)
+
+:class:`~brest.flashers.JLink`::
+
+    # All attributes from Flashers group can be used
+    required:
+        flashloader: str  # has no effect, JLinkDevices.xml is prioritized
 
 :class:`~brest.interfaces.Interfaces`
 
