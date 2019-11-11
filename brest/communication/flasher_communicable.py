@@ -37,12 +37,11 @@ class FlasherCommunicable(Communicable):
                 if hasattr(self, attr):
                     setattr(self, attr, value)
                 if attr == 'utility':
-                    self.utility = value
+                    self._utility = value
                 elif attr == 'serial_number':
                     self._serial_number = value
         else:
             self.listed = True
-
 
     def probe(self, interface, connections=None):
         probed = []

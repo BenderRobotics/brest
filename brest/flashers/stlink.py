@@ -12,6 +12,7 @@ import os
 import re
 import sys
 
+from shutil import which
 from brest.flashers import Flashers
 from brest.communication import FlasherCommunicable
 from brest.log_subprocess import run, PIPE, STDOUT
@@ -54,6 +55,10 @@ class STLink(Flashers, FlasherCommunicable):
         Flashers.__init__(self, params)
         self._verbosity = '1'
         FlasherCommunicable.__init__(self, params['interface'])
+
+        if which(self._utility) is None:
+            self.logger.error("Utility %s is not executable" % self._utility)
+            raise ValueError
 
         self.mark_taken(self)
 

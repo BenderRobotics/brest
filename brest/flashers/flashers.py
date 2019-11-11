@@ -1,6 +1,5 @@
 import logging
 import os
-from shutil import which
 
 from brest import Resource
 
@@ -33,19 +32,6 @@ class Flashers(Resource):
         self._file = ""
         self._address = ""
         self._timeout = None
-
-        if params.get('required'):
-            if params['required'].get('utility'):
-                self._utility = params['required']['utility']
-                self._utility = os.path.normpath(self._utility)
-            else:
-                self._utility = params['interface']['utility']
-        else:
-            self._utility = params['interface']['utility']
-
-        if not which(self._utility):
-            self.logger.error("Utility is not executable", extra=self.log_args)
-            raise ValueError
 
     @property
     def log(self):
