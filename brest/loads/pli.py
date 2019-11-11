@@ -26,6 +26,9 @@ class Pli(Loads, SCPICommunicable):
 
     Because Pli electric load is connected using an converter, you
     have to alway specify vid, pid or serial_number.
+
+    This resource tries to disable itself upon destruction. To change this behavior, refert to
+    :attr:`~brest.Resource.disable_on_destruct`.
     """
 
     Loads.KNOWN['Pli'] = {

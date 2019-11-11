@@ -101,6 +101,13 @@ Packable types
 Devices
 -------
 
+Base class for all devices
+
+.. currentmodule:: brest
+
+.. autoclass:: Resource
+    :members: name, disable_on_destruct
+
 Supplies
 ~~~~~~~~
 
