@@ -9,6 +9,7 @@
 """
 
 from brest import Resource
+from enum import Enum
 
 class Supplies(Resource):
     """
@@ -17,7 +18,7 @@ class Supplies(Resource):
 
     KNOWN = {}
 
-    class Protection():
+    class Protection(Enum):
         """
         Enumeration of available types of protection supported by Supplies class.
         """
@@ -332,6 +333,33 @@ class Supplies(Resource):
             )
             return False
         self.current = value
+        return True
+
+    def default_protection(self, value):
+        # Handle different input types for value, return false if unsupported.
+        if (str == type(value)):
+            protections_to_be_set = [value]
+        elif (list == type(value)):
+            protections_to_be_set = [val for val in value]
+        else:
+            self.logger.error(
+                'Unsupported `protection` format {}. '.format(type(value)) +
+                'Supplies protections in string or list format supported only.',
+                extra=self.log_args
+            )
+            return False
+        # Assemble list of supported protections for current Supply model.
+        supported_protections = [protection.name for protection in self.PROTECTION]
+        # Iterate over desired protections, make sure each is supported and set it.
+        for protection in protections_to_be_set:
+            if (protection not in supported_protections):
+                self.logger.error(
+                    'Can\'t set default `protection` to {}. '.format(protection) +
+                    'Model supports following protections: {}'.format(supported_protections),
+                    extra=self.log_args
+                )
+                return False
+            self.enable_protection(self.Protection[protection])
         return True
 
     def required_voltage_range(self, value):

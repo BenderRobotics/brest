@@ -51,6 +51,7 @@ So the example containing a single resource would look like::
             default:
                 voltage: 30
                 current: 0.3
+                protection: 'OCP'
             required:
                 voltage_range: [0, 30]
             aliases:

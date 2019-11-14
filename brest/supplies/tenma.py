@@ -60,10 +60,10 @@ class Tenma(Supplies, SCPICommunicable):
         GET_CURRENT = SCPIQueryCommand('IOUT', channel=1)
         EN_OUTPUT   = SCPIValueCommand('OUT', delimiter='', value=1)
         DIS_OUTPUT  = SCPIValueCommand('OUT', delimiter='', value=0)
-        EN_OVP      = SCPIValueCommand('OVP1')
-        DIS_OVP     = SCPIValueCommand('OVP0')
-        EN_OCP      = SCPIValueCommand('OCP1')
-        DIS_OCP     = SCPIValueCommand('OCP0')
+        EN_OVP      = SCPIValueCommand('OVP1', delimiter='')
+        DIS_OVP     = SCPIValueCommand('OVP0', delimiter='')
+        EN_OCP      = SCPIValueCommand('OCP1', delimiter='')
+        DIS_OCP     = SCPIValueCommand('OCP0', delimiter='')
 
         def RECALL(index):
             return SCPICommand('RCL' + str(index))
@@ -165,7 +165,6 @@ class Tenma(Supplies, SCPICommunicable):
                 return
             else:
                 command = self.Commands.EN_OCP
-
         self.transceive(command)
 
     def disable_protection(self, protection_type):
