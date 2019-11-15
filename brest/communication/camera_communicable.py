@@ -101,17 +101,17 @@ class CameraCommunicable(Communicable):
         return (vid, pid, serial_number)
 
     def mark_taken(self, resource):
-        self.TAKEN.append((self.index, self.service))
+        self.TAKEN.append((self.__class__.__name__, self.index, self.service))
 
     def unmark_taken(self, resource):
         try:
-            self.TAKEN.remove((self.index, self.service))
+            self.TAKEN.remove((self.__class__.__name__, self.index, self.service))
         except ValueError:
             pass
 
     def is_taken(self, interface):
-        for taken_index in CameraCommunicable.TAKEN:
-            if interface['index'] == taken_index[0] and interface['service'] == taken_index[1]:
+        for taken in CameraCommunicable.TAKEN:
+            if interface['index'] == taken[1] and interface['service'] == taken[2]:
                 return True
         return False
 

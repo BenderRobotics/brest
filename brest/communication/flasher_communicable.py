@@ -73,17 +73,17 @@ class FlasherCommunicable(Communicable):
         return probed
 
     def mark_taken(self, resource):
-        self.TAKEN.append(resource._serial_number)
+        self.TAKEN.append((resource.__class__.__name__, resource._serial_number))
 
     def unmark_taken(self, resource):
         try:
-            self.TAKEN.remove(resource._serial_number)
+            self.TAKEN.remove((resource.__class__.__name__, resource._serial_number))
         except ValueError:
             pass
 
     def is_taken(self, interface):
-        for taken_serial_number in self.TAKEN:
-            if interface['serial_number'] == taken_serial_number:
+        for taken in self.TAKEN:
+            if interface['serial_number'] == taken[1]:
                 return True
         return False
 

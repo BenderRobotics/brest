@@ -107,17 +107,17 @@ class SerialCommunicable(Communicable):
         return probed
 
     def mark_taken(self, resource):
-        self.TAKEN.append(resource.com.port)
+        self.TAKEN.append((resource.__class__.__name__, resource.com.port))
 
     def unmark_taken(self, resource):
         try:
-            self.TAKEN.remove(resource.com.port)
+            self.TAKEN.remove((resource.__class__.__name__, resource.com.port))
         except ValueError:
             pass
 
     def is_taken(self, interface):
-        for taken_port in self.TAKEN:
-            if interface['port'] == taken_port:
+        for taken in self.TAKEN:
+            if interface['port'] == taken[1]:
                 return True
         return False
 
