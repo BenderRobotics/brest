@@ -127,9 +127,8 @@ class ResourceProvider:
 
         for _, com in self._communicables.items():
             for taken in com.TAKEN:
-                resource = taken()
-                print(resource.__class__.__name__)
-                resource.print_interface(resource)
+                resource = taken
+                com.print_interface(resource)
 
     def print_all(self):
         """

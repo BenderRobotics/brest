@@ -101,9 +101,22 @@ class FlasherCommunicable(Communicable):
         return resources
 
     def print_interface(self, interface):
-        for name, value in interface.items():
-            if name in ['utility', 'type', 'serial_number']:
-                print('\t{}: {}'.format(name, value))
+        s = ''
+        # Called on constructed object
+        if isinstance(interface, FlasherCommunicable):
+            s += '\ttype: {}\n'.format(interface.TYPE)
+            s += '\tutility: {}\n'.format(interface._utility)
+            s += '\tserial_number: {}\n'.format(interface._serial_number)
+        # Called on TAKEN record
+        elif isinstance(interface, tuple):
+            s += '{}\n'.format(interface[0])
+            s += '\tserial_number: {}\n'.format(interface[1])
+        # Called on interface dict
+        elif isinstance(interface, dict):
+            for name, value in interface.items():
+                if name in ['utility', 'type', 'serial_number']:
+                    s += '\t{}: {}\n'.format(name, value)
+        print(s)
 
     def list_flashers_cli(self, interface):
         """

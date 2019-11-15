@@ -43,8 +43,12 @@ class NoneCommunicable(Communicable):
         ]
 
     def print_interface(self, interface):
+        s = ''
+        # Called on constructed object
         if isinstance(interface, NoneCommunicable):
-            print('\ttype: none\n')
-        else:
+            s += '\ttype: none\n'
+        # Called on interface dict
+        elif isinstance(interface, dict):
             for name, value in interface.items():
-                print('\t{}: {}'.format(name, value))
+                s += '\t{}: {}\n'.format(name, value)
+        print(s)
