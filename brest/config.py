@@ -11,7 +11,7 @@
 import os
 import logging
 
-from yaml import load, Loader
+from yaml import load, Loader, dump, Dumper
 from yaml.parser import ParserError
 from yaml.scanner import ScannerError
 
@@ -42,7 +42,7 @@ class Config():
         self.logger = logging.getLogger('brest')
 
         #: A dictionary which contains parsed config file
-        self.config = None
+        self.config = dict()
         #: Currently selected project name
         self.project = None
         #: A list of needed resources aliases.
@@ -69,43 +69,18 @@ class Config():
         self.project = project
         self._parse(config_path)
 
-    def _parse(self, config_path):
+    def dump_yaml(self, config_path=BREST_USER_CONFIG):
         """
-        Parse config file as dictionary.
+        Saves :attr:`~brest.Config.config` dictionary as YAML file.
+        Default configuration path is :attr:`~brest.Config.BREST_USER_CONFIG`.
 
-        :param config_path: Path to configuration file.
+        :param config_path: Absolute path
         :type  config_path: str
         """
-        try:
-            with open(config_path, 'r') as stream:
-                self.config = load(stream, Loader=Loader)
-        except OSError as ex:
-            self.logger.warning('File `{}` not found'.format(ex.filename), extra=self.log_args)
-            self.config = {}
-        except (ParserError, ScannerError) as ex:
-            self.logger.error('Error during config parsing:\n{}'.format(ex), extra=self.log_args)
-            raise SystemExit
 
-    def _validate(self):
-        """
-        Validate the config file
-        """
+        with open(config_path, 'w') as stream:
+                dump(self.config, stream=stream, Dumper=Dumper, default_flow_style=False)
 
-        self._is_valid = True
-
-        if self.project not in self.config:
-            self.logger.error('Project `{}` is not preset in the config'.format(self.project), extra=self.log_args)
-            self._is_valid = False
-            return
-
-        # for group, resources in self.config[self.project].items():
-        #     for name, params in resources.items():
-        #         if not params:
-        #             self.logger.error('Resource `{}` is missing any further definition'.format(name), extra=self.log_args)
-        #             self._is_valid = False
-        #         if 'interface' not in params:
-        #             self.logger.warning('Resource `{}` is missing any interface definition. '.format(name) +
-        #                                 'Brest will instantiate this resource on first matching device.', extra=self.log_args)
 
     def merge_configs(self, new_config):
         """
@@ -136,3 +111,43 @@ class Config():
         merged_config.config = merged_dict
         merged_config.project = self.project
         return merged_config
+
+    def _parse(self, config_path):
+        """
+        Parse config file as dictionary.
+
+        :param config_path: Path to configuration file.
+        :type  config_path: str
+        """
+        try:
+            with open(config_path, 'r') as stream:
+                self.config = load(stream, Loader=Loader)
+                if not self.config:
+                    self.config = dict()
+        except OSError as ex:
+            self.logger.warning('File `{}` not found'.format(ex.filename), extra=self.log_args)
+            self.config = {}
+        except (ParserError, ScannerError) as ex:
+            self.logger.error('Error during config parsing:\n{}'.format(ex), extra=self.log_args)
+            raise SystemExit
+
+    def _validate(self):
+        """
+        Validate the config file
+        """
+
+        self._is_valid = True
+
+        if self.project not in self.config:
+            self.logger.error('Project `{}` is not preset in the config'.format(self.project), extra=self.log_args)
+            self._is_valid = False
+            return
+
+        # for group, resources in self.config[self.project].items():
+        #     for name, params in resources.items():
+        #         if not params:
+        #             self.logger.error('Resource `{}` is missing any further definition'.format(name), extra=self.log_args)
+        #             self._is_valid = False
+        #         if 'interface' not in params:
+        #             self.logger.warning('Resource `{}` is missing any interface definition. '.format(name) +
+        #                                 'Brest will instantiate this resource on first matching device.', extra=self.log_args)

@@ -115,23 +115,23 @@ class CameraCommunicable(Communicable):
                 return True
         return False
 
-    def print_interface(self, interface):
-        s = ''
+    def format_interface(self, interface):
+        attrs = []
         # Called on constructed object
         if isinstance(interface, CameraCommunicable):
-            s += '\ttype: {}\n'.format(interface.TYPE)
-            s += '\tindex: {}\n'.format(interface.index)
-            s += '\tservice: {}\n'.format(interface.service)
+            attrs.append(('type', interface.TYPE))
+            attrs.append(('index', str(interface.index)))
+            attrs.append(('service', interface.service))
         # Called on TAKEN record
         elif isinstance(interface, tuple):
-            s += '{}\n'.format(interface[0])
-            s += '\tindex: {}\n'.format(interface[1])
-            s += '\tservice: {}\n'.format(interface[2])
+            attrs.append(('class_name', interface[0]))
+            attrs.append(('index', interface[1]))
+            attrs.append(('service', interface[2]))
         # Called on interface dict
         elif isinstance(interface, dict):
             for name, value in interface.items():
-                s += '\t{}: {}\n'.format(name, value)
-        print(s)
+                attrs.append((name, value))
+        return attrs
 
     def get_available(self, class_name, interface, connections):
         resources = []

@@ -133,24 +133,24 @@ class SerialCommunicable(Communicable):
             )
         return resources
 
-    def print_interface(self, interface):
-        s = ''
+    def format_interface(self, interface):
+        attrs = []
         # Called on constructed object
         if isinstance(interface, SerialCommunicable):
-            s += '\ttype: {}\n'.format(interface.TYPE)
-            s += '\tport: {}\n'.format(interface.com.port)
+            attrs.append(('type', interface.TYPE))
+            attrs.append(('port', interface.com.port))
         # Called on TAKEN record
         elif isinstance(interface, tuple):
-            s += '{}\n'.format(interface[0])
-            s += '\tport: {}\n'.format(interface[1])
+            attrs.append(('class_name', interface[0]))
+            attrs.append(('port', interface[1]))
         # Called on interface dict
         elif isinstance(interface, dict):
             for name, value in interface.items():
                 if name in ['vid', 'pid']:
-                    s += '\t{}: 0x{:04X}\n'.format(name, value)
+                    attrs.append((name, '0x{:04X}'.format(value)))
                 else:
-                    s += '\t{}: {}\n'.format(name, value)
-        print(s)
+                    attrs.append((name, value))
+        return attrs
 
     def __filter_serial_args(self, params):
         """

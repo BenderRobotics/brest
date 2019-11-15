@@ -19,6 +19,7 @@ import brest.flashers
 import brest.io
 
 from .log import FilterAvailable
+from .config import Config
 from .resource import Resource
 from brest.communication import CommunicableError, Communicable, SerialCommunicable, \
                                 CameraCommunicable, NoneCommunicable, FlasherCommunicable
@@ -62,7 +63,8 @@ class ResourceProvider:
         i = 0
         for interface_ in interfaces:
             print('connection {}:'.format(i))
-            com.print_interface(interface_)
+            for attr in com.format_interface(interface_):
+                print('\t{}: {}'.format(attr[0], attr[1]))
             print()
 
     def available(self, group = None, connections = None):
@@ -89,6 +91,7 @@ class ResourceProvider:
 
             for class_name, interface in resources.items():
                 com = self.__get_communicable(interface['type'])
+                class_name = '{}.{}'.format(group_.lower(), class_name)
                 resources = com.get_available(class_name, interface, connections[interface['type']])
                 if resources:
                     available.extend(resources)
@@ -106,7 +109,9 @@ class ResourceProvider:
         def print_av_dict(available_dict):
             print(available_dict['class_name'])
             com = self.__get_communicable(available_dict['interface']['type'])
-            com.print_interface(available_dict['interface'])
+            for attr in com.format_interface(available_dict['interface']):
+                print('\t{}: {}'.format(attr[0], attr[1]))
+
 
         if group:
             av = self.available(group)
@@ -127,8 +132,11 @@ class ResourceProvider:
 
         for _, com in self._communicables.items():
             for taken in com.TAKEN:
-                resource = taken
-                com.print_interface(resource)
+                attrs = com.format_interface(taken)
+                print(attrs[0][1])
+                for attr in attrs[1:]:
+                    print('\t{}: {}'.format(attr[0], attr[1]))
+                print()
 
     def print_all(self):
         """
@@ -154,7 +162,7 @@ class ResourceProvider:
 
         for cls_ in Resource.__subclasses__():
             for subcls_ in cls_.__subclasses__():
-                if subcls_.__name__ == params['class_name']:
+                if subcls_.__name__ == params['class_name'].split('.')[1]:
                     return self.__construct(subcls_.__module__, params)
 
         self.logger.warning('Can\'t construct class `{}`. Class is not subclass of any resource'.format(params['class_name']), extra=self.log_args)
@@ -335,7 +343,7 @@ class ResourceProvider:
 
             for probed_interface in com.probe(intr):
                 params = dict(definition)
-                params['class_name'] = class_name
+                params['class_name'] = '{}.{}'.format(group, class_name)
                 params['name'] = alias
                 params['interface'] = probed_interface
                 matching.append(params)
@@ -361,6 +369,44 @@ class ResourceProvider:
             return None
 
         return constructed
+
+    def generate_config(self, project_name='autogen', config_path=Config.BREST_USER_CONFIG):
+        """
+        Autogenerates configuration file from available resources.
+
+        Lists currently available resources and make a basic configuration file containing
+        filled interfaces for these resources. Default configuration path is
+        :attr:`~brest.Config.BREST_USER_CONFIG` and default project name is \'autogen\'.
+        If the file already exist, project will be appended to the end of file. In case
+        of existing project with same name, the project will be overwritten.
+
+        :param project_name: Name of the generated project
+        :type  project_name: str
+        :param config_path: Absolute path
+        :type  config_path: str
+        :returns: Generated configuration object
+        :rtype: :class:`~brest.Config`
+        """
+
+        from os.path import exists
+
+        available = self.available()
+        project_dict = dict()
+        i = 0
+        for av in available:
+            alias = 'resource_' + str(i)
+            project_dict[alias] = av
+            com = self.__get_communicable(av['interface']['type'])
+            for attr in com.format_interface(av['interface']):
+                project_dict[alias]['interface'][attr[0]] = attr[1]
+            i += 1
+
+        if exists(config_path):
+            config = Config(project_name, config_path)
+        else:
+            config = Config()
+        config.config[project_name] = project_dict
+        config.dump_yaml(config_path)
 
     def __refresh_connections(self):
         """
@@ -410,7 +456,7 @@ class ResourceProvider:
         from serial import SerialException
 
         module = importlib.import_module(module_name)
-        class_ = getattr(module, params['class_name'])
+        class_ = getattr(module, params['class_name'].split('.')[1])
         message = 'Error durning `{}` construction. '.format(params['name']) if 'name' in params else 'Error durning `{}` construction. '.format(params['class_name']) # Possible log message
         del params['class_name']          # Avoid unnecessary warning about class_name not being a class attribute
 

@@ -39,16 +39,16 @@ class NoneCommunicable(Communicable):
 
     def get_available(self, class_name, interface, connections):
         return [
-            {'class_name': 'Mansup', 'interface': {'type': 'none'}},
+            {'class_name': 'supplies.Mansup', 'interface': {'type': 'none'}},
         ]
 
-    def print_interface(self, interface):
-        s = ''
+    def format_interface(self, interface):
+        attrs = []
         # Called on constructed object
         if isinstance(interface, NoneCommunicable):
-            s += '\ttype: none\n'
+            attrs.append(('type', interface.TYPE))
         # Called on interface dict
         elif isinstance(interface, dict):
             for name, value in interface.items():
-                s += '\t{}: {}\n'.format(name, value)
-        print(s)
+                attrs.append((name, value))
+        return attrs

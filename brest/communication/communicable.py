@@ -125,9 +125,9 @@ class Communicable():
 
         raise NotImplementedError('This interface doesn\'t implement listing available resources')
 
-    def print_interface(self, interface):
+    def format_interface(self, interface):
         """
-        Prints interface in human readable format.
+        Formats interface to human readable format.
         """
 
         raise NotImplementedError('This interface doesn\'t implement interface printing in human readable format')
