@@ -79,7 +79,7 @@ class Config():
         """
 
         with open(config_path, 'w') as stream:
-                dump(self.config, stream=stream, Dumper=Dumper, default_flow_style=False)
+                dump(self.config, stream=stream, Dumper=Dumper, indent=4, default_flow_style=False)
 
 
     def merge_configs(self, new_config):

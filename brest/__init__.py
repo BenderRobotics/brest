@@ -14,6 +14,11 @@ from .log import DEFAULT_LOGGING
 
 logging.config.dictConfig(DEFAULT_LOGGING)
 
+# Add hex representer
+from yaml import add_representer
+from .helpers import HexInt, hex_representer
+add_representer(HexInt, hex_representer)
+
 from .log import CharStreamHandler
 from .config import Config
 from .resource import Resource
@@ -30,6 +35,7 @@ __all__ = [
     'Resources',
     'ResourceProvider',
     'FilterAvailable',
+    'HexInt',
     'overwrite_log_config',
     'prepare_tests',
     'create_subprocess',

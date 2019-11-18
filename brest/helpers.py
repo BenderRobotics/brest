@@ -10,7 +10,6 @@
 
 from .log import DEFAULT_LOGGING
 from .config import Config
-from .resources import Resources
 
 import logging
 
@@ -68,6 +67,8 @@ def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, pro
     :rtype: :class:`~brest.Resources`
     """
 
+    from .resources import Resources
+
     # collect needed resources
     _needed = []
     for folder_suite in test_suite:
@@ -92,3 +93,24 @@ def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, pro
                 test.resources = resources
 
     return resources
+
+class HexInt(int):
+    """
+    Helper class for representing hexadecimal integer while dumping YAML.
+    """
+
+    def __init__(self, value):
+        int.__init__(value)
+        self._value = value
+
+    def __str__(self):
+        return '0x{:04X}'.format(self._value)
+
+def hex_representer(dumper, data):
+    """
+    Representer method for hex numbers.
+    """
+
+    from yaml import ScalarNode
+
+    return ScalarNode('tag:yaml.org,2002:int', '0x{:04X}'.format(data))

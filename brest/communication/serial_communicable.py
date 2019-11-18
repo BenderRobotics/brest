@@ -13,8 +13,8 @@ import serial.tools.list_ports
 import logging
 import weakref
 
+from brest import HexInt
 from brest.communication import Communicable
-
 class SerialCommunicable(Communicable):
     """
     Represent communication using serial line.
@@ -147,7 +147,7 @@ class SerialCommunicable(Communicable):
         elif isinstance(interface, dict):
             for name, value in interface.items():
                 if name in ['vid', 'pid']:
-                    attrs.append((name, '0x{:04X}'.format(value)))
+                    attrs.append((name, HexInt(value)))
                 else:
                     attrs.append((name, value))
         return attrs
