@@ -68,6 +68,9 @@ Communication
 .. autoclass:: InterfaceCommunicable
     :members:
 
+.. autoclass:: CLICommunicable
+    :members:
+
 .. autoclass:: NoneCommunicable
 
 Messages

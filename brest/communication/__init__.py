@@ -6,6 +6,7 @@ from .camera_communicable import CameraCommunicable
 from .none_communicable import NoneCommunicable
 from .interface_communicable import InterfaceCommunicable
 from .flasher_communicable import FlasherCommunicable
+from .cli_communicable import CLICommunicable
 
 import types
 
@@ -25,6 +26,7 @@ __all__ = [
     'NoneCommunicable',
     'InterfaceCommunicable',
     'FlasherCommunicable',
+    'CLICommunicable',
     'types',
     ]
 
