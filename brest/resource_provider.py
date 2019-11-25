@@ -388,8 +388,6 @@ class ResourceProvider:
         :rtype: :class:`~brest.Config`
         """
 
-        from os.path import exists
-
         available = self.available()
         project_dict = dict()
         i = 0
@@ -401,10 +399,7 @@ class ResourceProvider:
                 project_dict[alias]['interface'][attr[0]] = attr[1]
             i += 1
 
-        if exists(config_path):
-            config = Config(project_name, config_path)
-        else:
-            config = Config()
+        config = Config()
         config.config[project_name] = project_dict
         config.dump_yaml(config_path)
 

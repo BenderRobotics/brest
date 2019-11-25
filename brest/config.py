@@ -78,7 +78,7 @@ class Config():
         :type  config_path: str
         """
 
-        with open(config_path, 'w') as stream:
+        with open(config_path, 'a') as stream:
                 dump(self.config, stream=stream, Dumper=Dumper, indent=4, default_flow_style=False)
 
 
