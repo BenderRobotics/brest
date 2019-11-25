@@ -116,12 +116,6 @@ class Tenma(Supplies, SCPICommunicable):
             command.channel = 12
         self.transceive(command)
 
-    def cycle(self, timeout=0):
-        self.disable()
-        time.sleep(1)
-        self.enable()
-        time.sleep(timeout)
-
     def release(self):
         if self.disable_on_destruct:
             with suppress(Exception):

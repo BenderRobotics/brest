@@ -119,15 +119,19 @@ class Supplies(Resource):
 
         raise NotImplementedError('This supply cannot be disabled.')
 
-    def cycle(self, timeout=0):
+    def cycle(self, delay=1.0, timeout=0.0):
         """
         Turns power supply off and on, then wait for timeout.
 
+        :param delay: Time to wait between disable and enable
+        :type  delay: float
         :param timeout: Time to wait after cycle
         :type  timeout: float
         """
-
-        raise NotImplementedError('This supply cannot be cycled.')
+        self.disable()
+        time.sleep(delay)
+        self.enable()
+        time.sleep(timeout)
 
     @property
     def voltage(self):
