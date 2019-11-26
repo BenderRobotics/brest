@@ -207,4 +207,6 @@ Switches base class:
 
 Available switches:
 
+.. autoclass:: Manswitch
+
 .. autoclass:: ClewareSwitch
