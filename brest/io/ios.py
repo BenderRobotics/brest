@@ -19,21 +19,10 @@ class IO(Resource):
     or aliases defined in the configuration file.
 
     Naming channels using aliases can be done in the configuration
-    file using `aliases` parameter. Add this to the resource definion::
-
-        aliases:
-            - channel: 0
-              name: 'my_relay'
-              value: True
+    file using `aliases` parameter. Please refer to the :ref:`definitions.resource_definitions`.
 
     This will produce a name to channel mapping in the class. The channel can be now accessed using
     both keys ``res[0]`` and ``res['my_relay']``.
-
-    Also these requirements checks in the configuration file are supported::
-
-        channels: 6       # Number of channels
-        max_current: 2.0  # Maximal current that device should stand
-        is_latching: True # Ability to preserve states without power
     """
 
     KNOWN = {}

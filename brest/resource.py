@@ -38,10 +38,10 @@ class Resource():
         """
         Checks if resource can satisfy requirements.
 
-        Requirements are defined in the configuration file under `required:`.
-        It looks for methods named `required_` + `attribute_name`.
+        Requirements are defined in the configuration file under ``required:``.
+        It looks for methods named ``required_`` + ``attribute_name``.
 
-        :param requirements: Attributes defined under `required:`
+        :param requirements: Attributes defined under ``required:``
         :type  requirements: dict
         """
 
@@ -59,10 +59,10 @@ class Resource():
         """
         Sets default values for resources.
 
-        Default values are defined in the configuration file under `default:`.
-        It looks for methods named `default_` + `attribute_name`.
+        Default values are defined in the configuration file under ``default:``.
+        It looks for methods named ``default_`` + ``attribute_name``.
 
-        :param defaults: Attributes defined under `default:`
+        :param defaults: Attributes defined under ``default:``
         :type  defaults: dict
         """
 
@@ -80,10 +80,10 @@ class Resource():
         """
         Sets aliases for channels.
 
-        Aliases are defined in the configuration file under `aliases:`.
-        It looks for method named `aliases`.
+        Aliases are defined in the configuration file under ``aliases:``.
+        It looks for method named ``aliases``.
 
-        :param aliases: Attributes defined under `aliases:`
+        :param aliases: Attributes defined under ``aliases:``
         :type  aliases: dict
         """
 
