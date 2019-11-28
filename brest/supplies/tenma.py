@@ -248,9 +248,9 @@ class TenmaChannel():
         command.channel = str(self.channel)
         self.supply.write(command)
 
-    def cycle(self, timeout=0):
+    def cycle(self, delay=1.0, timeout=0.0):
         self.disable()
-        time.sleep(1)
+        time.sleep(delay)
         self.enable()
         time.sleep(timeout)
 

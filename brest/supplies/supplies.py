@@ -8,6 +8,8 @@
     :copyright: 2019 Bender Robotics
 """
 
+import time
+
 from brest import Resource
 from enum import Enum
 
