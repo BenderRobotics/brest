@@ -157,6 +157,17 @@ Under first indentation are available definitions for whole category.
             voltage: float
             current: float
 
+:class:`~brest.Switches`::
+
+    required:
+        channels: int
+    aliases:
+        - channel: int
+          name: str
+          states: [str, ...]
+          default:
+            state: int or str (from states)
+
 .. admonition:: Default values for multichannel supplies
 
     If you happen to have multichannel power supply, values under
@@ -218,6 +229,25 @@ Attribute or groups of attributes that need to be defined:
 * **vid** + **pid** - Brest will try to look up ``port`` in connected devices matching ``vid`` and ``pid``
 * **vid** + **pid** + **serial_number** - Look up can be refined with ``serial_number``
 * **serial_number** - Brest will try to look up ``port`` in connected devices matching only ``serial_number``
+
+HID
+~~~
+
+This interface represents a hid device.
+
+================= ==== =======================================
+Attribute name    Type Description
+================= ==== =======================================
+**type**          str  Must be ``hid``
+**vid**           int  Vendor ID
+**pid**           int  Product ID
+**serial_number** str  Serial number
+**path**          int  Path to the device in operating system
+================= ==== =======================================
+
+* **vid** + **pid** - Brest will try to look up in connected devices matching ``vid`` and ``pid``
+* **vid** + **pid** + **serial_number** - Look up can be refined with ``serial_number``
+* **serial_number** - Brest will try to look up in connected devices matching only ``serial_number``
 
 Flashers
 ~~~~~~~~

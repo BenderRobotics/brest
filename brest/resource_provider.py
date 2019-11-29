@@ -17,12 +17,14 @@ import brest.cameras
 import brest.interfaces
 import brest.flashers
 import brest.io
+import brest.switches
 
 from .log import FilterAvailable
 from .config import Config
 from .resource import Resource
 from brest.communication import CommunicableError, Communicable, SerialCommunicable, \
-                                CameraCommunicable, NoneCommunicable, FlasherCommunicable
+                                CameraCommunicable, NoneCommunicable, FlasherCommunicable, \
+                                HIDCommunicable
 
 class ResourceProvider:
     """

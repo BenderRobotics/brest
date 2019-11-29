@@ -68,6 +68,9 @@ Communication
 .. autoclass:: InterfaceCommunicable
     :members:
 
+.. autoclass:: HIDCommunicable
+    :members: connect, disconnect, release, read_raw, write_raw
+
 .. autoclass:: CLICommunicable
     :members:
 
@@ -191,3 +194,17 @@ Available loads:
 
 .. autoclass:: Pli
     :members: enable, disable, current, get_info, clear, reset, self_test, detect_model
+
+Switches
+~~~~~~~~
+
+.. currentmodule:: brest.switches
+
+Switches base class:
+
+.. autoclass:: Switches
+    :members: CHANNELS, STATES
+
+Available switches:
+
+.. autoclass:: ClewareSwitch

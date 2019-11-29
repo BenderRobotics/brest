@@ -23,6 +23,7 @@ setuptools.setup(
         'colorama>=0.4.1',
         'pyserial>=3.4',
         'PyYAML>=5.1.2',
+        'hidapi>=0.7.99.post21',
     ],
     extras_require={
         'docs': [
