@@ -68,7 +68,8 @@ class Resources():
     def __setitem__(self, key, value):
         if key in self._aliases_mappings:
             self._resources[self._aliases_mappings[key]][key] = value
-        self._resources[key] = value
+        else:
+            self._resources[key] = value
 
     def __iter__(self):
         return iter(self._resources.items())
