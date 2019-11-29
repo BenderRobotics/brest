@@ -52,7 +52,7 @@ class Manswitch(Switches, NoneCommunicable):
             channel = key
 
         if isinstance(value, str):
-            state = self._channel_aliases[channel].index(value)
+            state = self._channel_state_aliases[channel].index(value)
         else:
             state = value
 
@@ -68,7 +68,7 @@ class Manswitch(Switches, NoneCommunicable):
         if isinstance(key, str):
             channel = self._aliases[key]
 
-        return self._channel_aliases[channel][self._states[channel]]
+        return self._channel_state_aliases[channel][self._states[channel]]
 
     def detect_model(self):
         pass
