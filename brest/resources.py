@@ -95,7 +95,7 @@ class Resources():
 
         res = rp.construct_config(cfg)
         if not res:
-            self.logger.error('Error durning configuration instantiation', extra=self.log_args)
+            self.logger.error('Error durning `{}` project instantiation'.format(cfg.project), extra=self.log_args)
             raise SystemExit
 
         for r in res:
@@ -111,6 +111,6 @@ class Resources():
                 raise SystemExit
 
         if self._resources:
-            self.logger.info('All resources successfully initialized\n{}'.format(str(self)), extra=self.log_args)
+            self.logger.info('All resources successfully initialized for project `{}`\n{}'.format(cfg.project, str(self)), extra=self.log_args)
         else:
             self.logger.warning('No resources were initialized', extra=self.log_args)
