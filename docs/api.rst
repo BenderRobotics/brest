@@ -177,7 +177,7 @@ Available cameras:
 .. autoclass:: GenericCamera
     :members: acquire_image, acquire_images
 
-.. autoclass:: Backfly
+.. autoclass:: PointGrey
     :members: acquire_image, acquire_images, configure_trigger, reset_trigger, get_info
 
 Loads

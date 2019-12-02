@@ -94,9 +94,17 @@ implicit definition.
 Available definitions for each resource
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Under first indentation are available definitions for whole category.
-
 :class:`~brest.cameras.Cameras`
+
+:class:`~brest.cameras.PointGrey`::
+
+    default:
+        trigger: str ('line0', 'line1', 'line2', 'line3', 'software')
+        exposure: float (milliseconds; 0 - continuous)
+        gain: float
+        gamma: float
+        framerate: float ('off', 'once', 'on')
+        white_auto_balance: str
 
 :class:`~brest.flashers.Flashers`::
 
@@ -273,13 +281,13 @@ This interface represents camera index and its library.
 Attribute name    Type Description
 ================= ==== =======================================
 **type**          str  Must be ``camera``
-**vid**           int  Vendor ID
-**pid**           int  Product ID
-**serial_number** str  Serial number
 **index**         int  Camera's index int its library listing
-**lib**           str  Library needed to operate with camera
+**service**       str  Service name for camera on windows
+                       machine. This field is implicitly
+                       filled with a value.
+**serial_number** str  Serial number
 ================= ==== =======================================
 
 Attribute or groups of attributes that need to be defined:
 
-* **index** - Brest will try to open communication with ``index`` th camera.
+* **index** + **service** - Brest will try to open communication with ``index`` th camera.

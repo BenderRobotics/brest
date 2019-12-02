@@ -13,7 +13,7 @@ The second level of indention represent available resources.
 * :class:`~brest.cameras.Cameras`
 
     * :class:`~brest.cameras.GenericCamera`
-    * :class:`~brest.cameras.Backfly`
+    * :class:`~brest.cameras.PointGrey`
 
 * :class:`~brest.flashers.Flashers`
 
