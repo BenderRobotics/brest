@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
     brest.cameras.pointgrey
-    ~~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~
 
     This module implements PointGrey camera.
 

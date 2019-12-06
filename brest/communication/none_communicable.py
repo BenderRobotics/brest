@@ -39,7 +39,7 @@ class NoneCommunicable(Communicable):
 
     def get_available(self, class_name, interface, connections):
         return [
-            {'class_name': 'supplies.Mansup', 'interface': {'type': 'none'}},
+            {'class_name': class_name, 'interface': {'type': 'none'}},
         ]
 
     def format_interface(self, interface):
