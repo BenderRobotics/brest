@@ -68,15 +68,26 @@ def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, pro
     """
 
     from .resources import Resources
+    from unittest.loader import _FailedTest
 
     # collect needed resources
     _needed = []
     for folder_suite in test_suite:
         for file_suite in folder_suite:
-            for test in file_suite:
-                for n in test.needed:
-                    if n not in _needed:
-                        _needed.append(n)
+            # In case of syntax error, loaded test is replaced
+            # with _FailedTest instance which is not iterable
+            if not isinstance(file_suite, _FailedTest):
+                for test in file_suite:
+                    for n in test.needed:
+                        if n not in _needed:
+                            _needed.append(n)
+            else:
+                logging.getLogger('brest').error(
+                    'Tests using project `{}` are not loaded correctly. '.format(project) +
+                    'Following error has occurred: \n{}'.format(str(file_suite._exception)),
+                    extra={'class_name': __package__}
+                )
+                raise SystemExit
 
     # add needed resources before tests run
     for n in needed:
