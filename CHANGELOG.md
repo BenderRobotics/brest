@@ -23,6 +23,7 @@
 - Error during taken resources checking. #2547
 - Reference loss on assignment to propagated channel. #2593
 - Documentation mismatches. #2576
+- Fixed error when prepare_tests() stumble upon failed test because of syntax error #2608
 
 ## [0.0.2] - 2019-11-04
 
