@@ -103,33 +103,34 @@ Available definitions for each resource
         exposure: float (milliseconds; 0 - continuous)
         gain: float
         gamma: float
-        framerate: float ('off', 'once', 'on')
-        white_auto_balance: str
+        framerate: float
+        white_auto_balance: str ('off', 'once', 'on')
 
 :class:`~brest.flashers.Flashers`::
 
-    required:
+    default:
         log: str ("continuous", "after", "none")
         device: str
-        flashloader: str
-        file: str
+        flashloader: abs_path
+        frequency: int
+        file: abs_path
         address: str
-        mode: str ("under_reset", "hotplug", "normal")
-        reset: str ("sw", "hw", "core")
         port: str ("JTAG", "SWD")
         timeout: float
 
 :class:`~brest.flashers.STLink`::
 
     # All attributes from Flashers group can be used
-    required:
+    default:
         verbosity: int (1, 2, 3)
+        mode: str ("under_reset", "hotplug", "normal")
+        reset: str ("sw", "hw", "core")
 
 :class:`~brest.flashers.JLink`::
 
     # All attributes from Flashers group can be used
-    required:
-        flashloader: str  # has no effect, JLinkDevices.xml is prioritized
+    default:
+        flashloader: abs_path  # has no effect, JLinkDevices.xml is prioritized
 
 :class:`~brest.interfaces.Interfaces`
 

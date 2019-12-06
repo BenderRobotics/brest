@@ -265,7 +265,7 @@ class STLink(Flashers, FlasherCommunicable):
 
         raise ConnectionError
 
-    def required_mode(self, value):
+    def default_mode(self, value):
         value = str(value)
         if value.lower() not in ['under_reset', 'hotplug', 'normal']:
             self.logger.error("Invalid value of mode", extra=self.log_args)
@@ -274,7 +274,7 @@ class STLink(Flashers, FlasherCommunicable):
         self._mode = value.upper()
         return True
 
-    def required_reset(self, value):
+    def default_reset(self, value):
         value = str(value)
         if value == 'sw':
             self._reset = 'SWrst'
@@ -288,7 +288,7 @@ class STLink(Flashers, FlasherCommunicable):
 
         return True
 
-    def required_verbosity(self, value):
+    def default_verbosity(self, value):
         try:
             value = int(value)
         except TypeError:

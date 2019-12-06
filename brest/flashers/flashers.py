@@ -169,14 +169,14 @@ class Flashers(Resource):
         """
         pass
 
-    def required_flashloader(self, value):
+    def default_flashloader(self, value):
         if value is None:
             return False
 
         self._flashloader = value
         return True
 
-    def required_frequency(self, value):
+    def default_frequency(self, value):
         if value is None:
             return False
 
@@ -189,7 +189,7 @@ class Flashers(Resource):
         self._frequency = value
         return True
 
-    def required_log(self, value):
+    def default_log(self, value):
         value = str(value)
         try:
             self.log = value
@@ -197,14 +197,14 @@ class Flashers(Resource):
         except TypeError:
             return False
 
-    def required_file(self, value):
+    def default_file(self, value):
         if value is None:
             return False
 
         self._file = value
         return True
 
-    def required_port(self, value):
+    def default_port(self, value):
         value = str(value)
         if value.lower() in ['swd', 'jtag']:
             self._port = value.upper()
@@ -213,7 +213,7 @@ class Flashers(Resource):
         self.logger.error("Invalid value of port", extra=self.log_args)
         return False
 
-    def required_device(self, value):
+    def default_device(self, value):
         if not isinstance(value, str):
             self.logger.error('Invalid device type', extra=self.log_args)
             return False
@@ -225,16 +225,13 @@ class Flashers(Resource):
         self._device = value
         return True
 
-    def required_address(self, value):
+    def default_address(self, value):
         self._address = value
         return True
 
-    def required_utility(self, value):
-        return True
-
-    def required_timeout(self, value):
+    def default_timeout(self, value):
         try:
-            self.timeout = value
+            self._timeout = float(value)
             return True
         except TypeError:
             return False
