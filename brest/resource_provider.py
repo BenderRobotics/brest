@@ -254,12 +254,15 @@ class ResourceProvider:
 
         matching = []
         constructed = []
-        needed = list(config.needed)
+        if config.needed is not None:
+            needed = list(config.needed)
+        else:
+            needed = None
 
         # Iterate over configuration file
         for alias, definition in config:
             # Check if resource is needed
-            if config.needed:
+            if config.needed is not None:
                 if alias not in config.needed:
                     # If not, continue to next resource
                     continue
@@ -319,7 +322,7 @@ class ResourceProvider:
             self.logger.removeFilter(fi)
             if const_rest:
                 constructed.append(const_rest)
-                if needed:
+                if needed is not None and needed:
                     needed.remove(const_rest.name)
                 # If there is class in available that satisfies requirements
                 # and was successfully constructed, proceed to next resource definition
@@ -358,7 +361,7 @@ class ResourceProvider:
             const_rest = __construct_from_params(matching, config)
             if const_rest:
                 constructed.append(const_rest)
-                if needed:
+                if needed is not None and needed:
                     needed.remove(const_rest.name)
                 continue
             else:
@@ -367,7 +370,7 @@ class ResourceProvider:
                 return None
 
         __log_missing_needed(needed)
-        if needed:
+        if needed is not None and needed:
             return None
 
         return constructed

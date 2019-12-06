@@ -46,7 +46,7 @@ class Config():
         #: Currently selected project name
         self.project = None
         #: A list of needed resources aliases.
-        self.needed = []
+        self.needed = None
 
         self._is_valid = False
 

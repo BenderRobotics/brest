@@ -38,7 +38,7 @@ class Resources():
     .. versionadded:: 0.0.1
     """
 
-    def __init__(self, project, user_config = Config.BREST_USER_CONFIG, project_config = None, needed = []):
+    def __init__(self, project, user_config = Config.BREST_USER_CONFIG, project_config = None, needed = None):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
@@ -94,7 +94,7 @@ class Resources():
         rp = ResourceProvider()
 
         res = rp.construct_config(cfg)
-        if not res:
+        if not res and (cfg.needed is None or len(cfg.needed) > 0):
             self.logger.error('Error durning `{}` project instantiation'.format(cfg.project), extra=self.log_args)
             raise SystemExit
 
@@ -113,4 +113,7 @@ class Resources():
         if self._resources:
             self.logger.info('All resources successfully initialized for project `{}`\n{}'.format(cfg.project, str(self)), extra=self.log_args)
         else:
-            self.logger.warning('No resources were initialized', extra=self.log_args)
+            if cfg.needed is not None and len(cfg.needed) == 0:
+                self.logger.info('No resources were initialized because no resources were needed', extra=self.log_args)
+            else:
+                self.logger.warning('No resources were initialized', extra=self.log_args)
