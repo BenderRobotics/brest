@@ -9,10 +9,10 @@
 """
 
 from brest.switches.switches import Switches
-from brest.communication.hid_communicable import HIDCommunicable
+from brest.communication import ClewareCommunicable
 
 
-class ClewareSwitch(Switches, HIDCommunicable):
+class ClewareSwitch(Switches, ClewareCommunicable):
     """
     Cleware USB-Multi 2x switch.
 
@@ -27,12 +27,12 @@ class ClewareSwitch(Switches, HIDCommunicable):
 
         interface:
             type: 'hid'
-            vid:  '0x0d50'
-            pid:  '0x0008'
+            vid:  0x0d50
+            pid:  0x0008
     """
 
     Switches.KNOWN['ClewareSwitch'] = {
-        'type': 'hid',
+        'type': 'cleware',
         'vid': 0x0d50,
         'pid': 0x0008,
     }
@@ -49,7 +49,7 @@ class ClewareSwitch(Switches, HIDCommunicable):
 
     def __init__(self, params):
         Switches.__init__(self, params)
-        HIDCommunicable.__init__(self, params['interface'])
+        ClewareCommunicable.__init__(self, params['interface'])
 
         self._states = 0
         self.CHANNELS = 1

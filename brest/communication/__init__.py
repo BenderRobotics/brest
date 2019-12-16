@@ -8,6 +8,7 @@ from .interface_communicable import InterfaceCommunicable
 from .flasher_communicable import FlasherCommunicable
 from .hid_communicable import HIDCommunicable
 from .cli_communicable import CLICommunicable
+from .cleware_communicable import ClewareCommunicable
 
 import types
 
@@ -29,6 +30,7 @@ __all__ = [
     'FlasherCommunicable',
     'HIDCommunicable',
     'CLICommunicable',
+    'ClewareCommunicable',
     'types',
     ]
 

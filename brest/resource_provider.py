@@ -22,9 +22,7 @@ import brest.switches
 from .log import FilterAvailable
 from .config import Config
 from .resource import Resource
-from brest.communication import CommunicableError, Communicable, SerialCommunicable, \
-                                CameraCommunicable, NoneCommunicable, FlasherCommunicable, \
-                                HIDCommunicable
+from brest.communication import Communicable, CommunicableError
 
 class ResourceProvider:
     """
@@ -45,7 +43,7 @@ class ResourceProvider:
             self.knowns[cls_.__name__.lower()] = cls_.KNOWN
 
         self._communicables = {}
-        for com in Communicable.__subclasses__():
+        for com in self.__all_communicables(Communicable):
             self._communicables[com.TYPE] = com(None)
 
     def print_probe(self, class_name):
@@ -466,3 +464,12 @@ class ResourceProvider:
         except (NotImplementedError, ModuleNotFoundError, ValueError, CommunicableError, SerialException) as e:
             self.logger.error(message + str(e), extra=self.log_args)
             return None
+
+    def __all_communicables(self, cls):
+        """
+        Returns list with all communicable classes containing TYPE attribute
+        """
+        def all_subclasses(cls):
+            return set(cls.__subclasses__()).union([s for c in cls.__subclasses__() for s in all_subclasses(c)])
+
+        return list(filter(lambda x: hasattr(x, 'TYPE'), all_subclasses(cls).difference(all_subclasses(Resource))))

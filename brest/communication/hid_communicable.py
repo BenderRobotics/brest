@@ -40,7 +40,7 @@ class HIDCommunicable(Communicable):
 
     def connect(self):
         if self.device:
-            self.device.open(self.vid, self.pid, self.serial_number)
+            self.device.open_path(self.path)
 
     def disconnect(self):
         if self.device:
@@ -80,7 +80,7 @@ class HIDCommunicable(Communicable):
         probed = []
 
         if not connections:
-            connections = hid.enumerate()
+            connections = self.get_connections()
 
         if 'vid' in interface and 'pid' in interface:
             for device in connections:

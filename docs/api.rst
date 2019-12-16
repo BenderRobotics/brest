@@ -71,6 +71,9 @@ Communication
 .. autoclass:: HIDCommunicable
     :members: connect, disconnect, release, read_raw, write_raw
 
+.. autoclass:: ClewareCommunicable
+    :members: get_connections
+
 .. autoclass:: CLICommunicable
     :members:
 
