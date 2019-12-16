@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.4] - 2019-12-16
+
+### Changed
+- Improved Cleware USB switch serial number detection. #2622
+- Changed exception catched return value to `sys.exit(1)`.
+
 ## [0.0.3] - 2019-12-02
 
 ### Added
