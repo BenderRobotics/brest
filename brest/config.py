@@ -129,7 +129,7 @@ class Config():
             self.config = {}
         except (ParserError, ScannerError) as ex:
             self.logger.error('Error during config parsing:\n{}'.format(ex), extra=self.log_args)
-            raise SystemExit
+            raise SystemExit(1)
 
     def _validate(self):
         """

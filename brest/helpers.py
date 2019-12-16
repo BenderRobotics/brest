@@ -87,7 +87,7 @@ def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, pro
                     'Following error has occurred: \n{}'.format(str(file_suite._exception)),
                     extra={'class_name': __package__}
                 )
-                raise SystemExit
+                raise SystemExit(1)
 
     # add needed resources before tests run
     for n in needed:

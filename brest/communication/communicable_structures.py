@@ -140,11 +140,11 @@ class CommunicationStructure(Packable):
 
         if name in ['value_', 'lengths_']:
             self.logger.error('Name can\'t be `{}` which is reserved for internal values'.format(name), extra=self.log_args)
-            raise SystemExit
+            raise SystemExit(1)
 
         if not issubclass(value.__class__, Packable):
             self.logger.error('Value in `{}` must derive from Packable class'.format(name), extra=self.log_args)
-            raise SystemExit
+            raise SystemExit(1)
 
         internal_name = '_' + name
         value.byteorder = self.byteorder           # set message specific byteorder
@@ -174,7 +174,7 @@ class CommunicationStructure(Packable):
 
         if not getattr(self, internal_name, None):
             self.logger.error('Attribute {} not found in {}'.format(name, self.__class__.__name__), extra=self.log_args)
-            raise SystemExit
+            raise SystemExit(1)
 
         setattr(self, internal_name, new_value)
 

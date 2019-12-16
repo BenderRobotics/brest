@@ -86,7 +86,7 @@ class Resources():
 
         if not cfg.is_valid:
             self.logger.error('Configuration file is not valid', extra=self.log_args)
-            raise SystemExit
+            raise SystemExit(1)
 
         # Set needed resources
         cfg.needed = needed
@@ -96,7 +96,7 @@ class Resources():
         res = rp.construct_config(cfg)
         if not res and (cfg.needed is None or len(cfg.needed) > 0):
             self.logger.error('Error durning `{}` project instantiation'.format(cfg.project), extra=self.log_args)
-            raise SystemExit
+            raise SystemExit(1)
 
         for r in res:
             # Failed object construction results in None being in the list
@@ -108,7 +108,7 @@ class Resources():
                         self._aliases_mappings[alias] = r.name
             else:
                 self.logger.error('Couldn\'t initialize all resources', extra=self.log_args)
-                raise SystemExit
+                raise SystemExit(1)
 
         if self._resources:
             self.logger.info('All resources successfully initialized for project `{}`\n{}'.format(cfg.project, str(self)), extra=self.log_args)
