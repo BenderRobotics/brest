@@ -48,7 +48,7 @@ class HIDCommunicable(Communicable):
 
     def release(self):
         self.disconnect()
-        self.unmark_taken()
+        self.unmark_taken(self)
 
     def read_raw(self, expected='', size=None):
         if size:
@@ -84,6 +84,7 @@ class HIDCommunicable(Communicable):
 
         if 'vid' in interface and 'pid' in interface:
             for device in connections:
+                self.extra_probe(interface, device)
                 if device['vendor_id'] == interface['vid'] and device['product_id'] == interface['pid']:
                     if 'serial_number' in interface and interface['serial_number']:
                         if interface['serial_number'] == device['serial_number']:
@@ -93,6 +94,7 @@ class HIDCommunicable(Communicable):
         else:
             if 'serial_number' in interface:
                 for device in connections:
+                    self.extra_probe(interface, device)
                     if device['serial_number'] == interface['serial_number']:
                         __add_to_probed(probed, __device_to_interface(interface, device))
             else:

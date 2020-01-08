@@ -104,6 +104,14 @@ class Communicable():
 
         raise NotImplementedError('This interface doesn\'t implement connections probing')
 
+    def extra_probe(self, interface, device):
+        """
+        If device needs extra steps to determine certain properties, use this method. Is called before
+        any property checks during probing.
+        """
+
+        pass
+
     def mark_taken(self, interface):
         """
         Marks given interface as taken. Such interface won't be listed or used again.

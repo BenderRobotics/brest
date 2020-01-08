@@ -18,7 +18,13 @@ class ClewareSwitch(Switches, ClewareCommunicable):
 
     Derived from :class:`~brest.switches.Switches`, :class:`~brest.communication.HIDCommunicable`
 
-    This class implements API for switch.
+    This class implements API for Cleware switch.
+
+    .. admonition:: Switches reported as not being connected
+
+        If Brest instantiation fails on switches not being connected to the system, try
+        to increase the ``sn_timeout`` value. This attribute controls the time between serial number reads.
+        On some system the timeout needs to be bigger to read the serial number correctly.
 
     :param params: Construction parameters
     :type params: dict

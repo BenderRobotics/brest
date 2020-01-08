@@ -177,6 +177,11 @@ Available definitions for each resource
           default:
             state: int or str (from states)
 
+:class:`~brest.switches.ClewareSwitch`::
+
+    interface:
+        sn_timeout: float
+
 .. admonition:: Default values for multichannel supplies
 
     If you happen to have multichannel power supply, values under

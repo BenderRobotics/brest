@@ -27,40 +27,54 @@ class ClewareCommunicable(HIDCommunicable):
     TYPE = 'cleware'
     CLEWARE_VID = 0x0d50
     CLEWARE_SWITCH = 0x0008
-    TIMEOUT = 0.4  # 1s, choose carefully may be hit often even for correct behavior
+    SN_TIMEOUT = 0.4  # 0.4s, choose carefully may be hit often even for correct behavior
 
     def __init__(self, params):
         HIDCommunicable.__init__(self, params)
 
     def get_connections(self):
-        devices = hid.enumerate(vendor_id=self.CLEWARE_VID, product_id=self.CLEWARE_SWITCH)
-        for device in devices:
-            h = hid.device()
-            h.open_path(device['path'])
+        return hid.enumerate(vendor_id=self.CLEWARE_VID, product_id=self.CLEWARE_SWITCH)
 
-            try:
-                old_data = h.read(6)
-                raw_serial_number = []
+    def extra_probe(self, interface, device):
+        """
+        Probes the Cleware switch for correct serial number.
 
-                for i in range(8, 15):
-                    h.write([0x00, 0x02, i, 0x00])
+        :param device: HID device dict
+        :type  device: dict
+        :returns: HID device dict with correct serial number
+        :rtype: dict
+        """
 
-                    timeout = time.time() + self.TIMEOUT
-                    while True:
-                        new_data = h.read(6)
-                        # check for timeout is needed as first number may not change and still be correct
-                        if new_data[5] != old_data[5] or time.time() > timeout:
-                            old_data = new_data
-                            raw_serial_number.append(new_data[5])
-                            break
-                        else:
-                            time.sleep(0.001)
-                device['serial_number'] = str(int(bytearray(raw_serial_number), 16))
-            except Exception:
-                devices.remove(device)
-            finally:
-                h.close()
+        if not device['vendor_id'] == self.CLEWARE_VID or not device['product_id'] == self.CLEWARE_SWITCH:
+            return
 
+        sn_timeout = interface['sn_timeout'] if 'sn_timeout' in interface else self.SN_TIMEOUT
+
+        h = hid.device()
+        h.open_path(device['path'])
+
+        try:
+            old_data = h.read(6)
+            raw_serial_number = []
+
+            for i in range(8, 15):
+                h.write([0x00, 0x02, i, 0x00])
+
+                timeout = time.time() + sn_timeout
+                while True:
+                    new_data = h.read(6)
+                    # check for timeout is needed as first number may not change and still be correct
+                    if new_data[5] != old_data[5] or time.time() > timeout:
+                        old_data = new_data
+                        raw_serial_number.append(new_data[5])
+                        break
+                    else:
+                        time.sleep(0.001)
             # convert ascii hex array to number
+            device['serial_number'] = str(int(bytearray(raw_serial_number), 16))
+        except Exception:
+            self.logger.warning('Getting cleware switch serial number failed', extra=self.log_args)
+        finally:
+            h.close()
 
-        return devices
+        return device

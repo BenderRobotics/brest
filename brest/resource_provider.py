@@ -264,6 +264,7 @@ class ResourceProvider:
                 if alias not in config.needed:
                     # If not, continue to next resource
                     continue
+
             matching.clear()
             # Config validity should check if class_name is present in resource definition
             # and has valid value
