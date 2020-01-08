@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.0.5] - 2019-12-16
+
+### Added
+- `sn_timeout` option under `interface` group for Cleware devices. #2669
+
 ## [0.0.4] - 2019-12-16
 
 ### Changed

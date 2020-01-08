@@ -4,4 +4,4 @@ from .jlink import JLink
 
 __all__ = ['Flashers', 'STLink', 'JLink']
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
