@@ -57,6 +57,9 @@ class Resources():
         s += "\n}"
         return s
 
+    def __len__(self):
+        return len(self._resources)
+
     def __getitem__(self, key):
         if key in self._resources:
             return self._resources[key]
@@ -71,8 +74,20 @@ class Resources():
         else:
             self._resources[key] = value
 
+    def __delitem__(self, key):
+        del self._resources[key]
+
     def __iter__(self):
-        return iter(self._resources.items())
+        return iter(self._resources.values())
+
+    def __contains__(self, item):
+        return item in self._resources
+
+    def keys(self):
+        return self._resources.keys()
+
+    def items(self):
+        return self._resources.items()
 
     def _instantiate(self, project, user_config, project_config, needed):
         # Load default configuration file
