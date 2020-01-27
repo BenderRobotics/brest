@@ -368,6 +368,27 @@ class Supplies(Resource):
             self.enable_protection(self.Protection[protection])
         return True
 
+    def default_model(self, value):
+        # Check the type
+        if (type(value) != str):
+            self.logger.error(
+                'Unsupported model name format `{}`. Must be a string.'.format(value),
+                extra=self.log_args
+            )
+            return False
+
+        # Search if the model is available, then apply it
+        for model in self.Models:
+            if model.idn == value:
+                self._apply_model(model)
+                return True
+
+        self.logger.error(
+            'Unsupported model `{}`. Supported models are: {}'.format(value, [model.idn for model in self.Models]),
+            extra=self.log_args
+        )
+        return False
+
     def required_voltage_range(self, value):
         if value[0] < 0 or value[1] > self.MAX_VOLTAGE:
             self.logger.error(

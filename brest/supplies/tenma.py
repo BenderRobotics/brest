@@ -25,7 +25,7 @@ class Tenma(Supplies, SCPICommunicable):
     :param params: Construction parameters
     :type  params: dict
 
-    Supported models in 72 series: 2535, 2540, 2545, 2550
+    Supported models: TENMA 72-2535, TENMA 72-2540, TENMA 72-2545, TENMA 72-2550, TENMA 72-13330
 
     Implicit interface definition::
 
