@@ -133,7 +133,25 @@ Available supplies:
     :members:
 
 .. autoclass:: Tenma
-    :members: enable, disable, voltage, current, enable_protection, disable_protection, save_memory, recall_memory, get_info
+    :members: enable, disable, voltage, current, enable_protection, disable_protection, save_memory, recall_memory, get_status, get_info
+
+.. class:: Tenma.StatusMessage
+
+    .. attribute:: cv
+
+        Indicates if supply output is in CV mode
+
+    .. attribute:: cc
+
+        Indicates if supply output is in CC mode
+
+    .. attribute:: protection
+
+        Indicates if both protection are enabled
+
+    .. attribute:: enabled
+
+        Indicates if output is enabled
 
 IO
 ~~

@@ -155,6 +155,7 @@ Available definitions for each resource
     default:
         voltage: float
         current: float
+        model: str
     required:
         voltage_range: [float, float]
         current_range: [float, float]

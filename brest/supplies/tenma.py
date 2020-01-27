@@ -11,7 +11,8 @@
 import time
 
 from brest.supplies import Supplies
-from brest.communication import SCPICommunicable, SCPICommand, SCPIQueryCommand, SCPIValueCommand, CommunicableError
+from brest.communication import SCPICommunicable, SCPICommand, SCPIQueryCommand, SCPIValueCommand, CommunicableError, CommunicationStructure
+from brest.communication.types import bit_t
 
 from copy import deepcopy
 from contextlib import suppress
@@ -70,6 +71,26 @@ class Tenma(Supplies, SCPICommunicable):
 
         def SAVE(index):
             return SCPICommand('SAV' + str(index))
+
+    class StatusMessage(CommunicationStructure):
+        '''
+        Status message for Tenma supplies.
+        '''
+
+        def __init__(self):
+            CommunicationStructure.__init__(self)
+            self.add('cvcc', bit_t(bit=0))
+            self.add('protection', bit_t(bit=5))
+            self.add('enabled', bit_t(bit=6))
+
+        @property
+        def cv(self):
+            return self.cvcc
+
+        @property
+        def cc(self):
+            return not self.cvcc
+
 
     Models = [
         Supplies.Model('TENMA 72-2535',  1, 5, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
@@ -146,6 +167,10 @@ class Tenma(Supplies, SCPICommunicable):
             self.Commands.SET_CURRENT.value = value
             self.transceive(self.Commands.SET_CURRENT)
 
+    @property
+    def status(self):
+        return self.get_status()
+
     def enable_protection(self, protection_type):
         if protection_type == self.Protection.OVP:
             if protection_type not in self.PROTECTION:
@@ -200,13 +225,27 @@ class Tenma(Supplies, SCPICommunicable):
         return self.transceive(self.Commands.GET_INFO)
 
     def get_status(self):
-        return self.transceive(self.Commands.GET_STATUS)
+        '''
+        Gets supply status.
+
+        :returns: Supply status message
+        :rtype: :class:`~brest.supplies.Tenma.StatusMessage`
+        '''
+
+        stat_message = Tenma.StatusMessage()
+        stat_message.raw_data = self.transceive(self.Commands.GET_STATUS, decode=False)
+        try:
+            stat_message.unpack()
+        except IndexError as ex:
+            self.logger.warning('Could not decode status message, no data received.', extra=self.log_args)
+        return stat_message
 
     def detect_model(self):
         response = self.transceive(self.Commands.GET_INFO)
         # Tenmas with added support for programing won't return anything
         # on *IDN? instruction
         if not response:
+            self.logger.warning('No IDN returned, fallback to model: {}'.format(self.Models[0].idn), extra=self.log_args)
             self._apply_model(self.Models[0])
             return
         # Old Tenmas returns INFO as comma seperated string
@@ -215,6 +254,10 @@ class Tenma(Supplies, SCPICommunicable):
         if len(splitted) == 1:
             # New Tenmas returns INFO as space separated string
             splitted = psu_idn.split(' ')
+            if len(splitted) == 1:
+                self.logger.warning('`{}` IDN is in incorrect format, fallback to model: {}'.format(splitted, self.Models[0].idn), extra=self.log_args)
+                self._apply_model(self.Models[0])
+                return
             psu_idn = splitted[0] + ' ' + splitted[1]
 
         for model in self.Models:

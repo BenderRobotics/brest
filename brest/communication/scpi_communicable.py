@@ -65,7 +65,7 @@ class SCPICommunicable(SerialCommunicable):
             data += self.message_suffix.encode(self.ENCODING)
         self.write_raw(data)
 
-    def transceive(self, message):
+    def transceive(self, message, decode=True):
         """
         Sends and receive a message in a blocking mode.
 
@@ -77,7 +77,10 @@ class SCPICommunicable(SerialCommunicable):
 
         self.write(message)
         received = self.read_raw(expected=self.message_suffix)
-        return received.decode(self.ENCODING)
+        if decode:
+            return received.decode(self.ENCODING)
+        else:
+            return received
 
 class SCPICommand(CommunicationStructure):
     """
