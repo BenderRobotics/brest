@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.0.6] - 2020-01-27
+
+### Added
+- `model` option for Tenma supplies in configuration file. #2771
+- `status` property pro Tenma supplies. #2777
+
+### Changed
+- `Resource` class now fully behaves as a dict. #2676
+
 ## [0.0.5] - 2019-12-16
 
 ### Added
