@@ -9,12 +9,16 @@
 """
 
 import serial
-import serial.tools.list_ports
 import logging
 import weakref
 
 from brest import HexInt
 from brest.communication import Communicable
+
+# Temporary workaround until new version of pyserial is released (refs #2786)
+# from serial.tools.list_ports import comports
+from brest.pyserial_tools.list_ports import comports
+
 class SerialCommunicable(Communicable):
     """
     Represent communication using serial line.
@@ -63,7 +67,7 @@ class SerialCommunicable(Communicable):
         return received
 
     def get_connections(self):
-        return serial.tools.list_ports.comports()
+        return comports()
 
     def probe(self, interface, connections = None):
 
@@ -82,7 +86,7 @@ class SerialCommunicable(Communicable):
         probed = []
 
         if not connections:
-            connections = serial.tools.list_ports.comports()
+            connections = comports()
 
         if 'port' in interface:
             return [interface]

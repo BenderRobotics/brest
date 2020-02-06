@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+- Serial numbers that contains dash will no longer be truncated #2786
+
 ## [0.0.6] - 2020-01-27
 
 ### Added
