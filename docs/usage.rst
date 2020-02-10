@@ -165,3 +165,162 @@ set it to every ``resource`` class attribute. Such code should be located in run
     If you want to run a single test, you have to instantiate configuration file. If you use ``needed`` class
     attribute as a parameter for :class:`~brest.Resources` and then created object set as ``resources``
     class attribute, the test will behave as excepted.
+
+Examples
+--------
+
+This section shows examples of basic use of each module
+
+Modbus interface
+~~~~~~~~~~~~~~~~
+
+Using in class
+^^^^^^^^^^^^^^
+Modbus interface is implemented as general interface and is meant to be inherited in your particular case. This example uses GateInterface.
+Firstly you need to create class that specifies communication::
+
+    from brest.interfaces import Interfaces
+    from brest.communication import SerialCommunicable
+    from brest.communication.modbus import ModbusInterface
+
+    class GateInterface(Interfaces, ModbusInterface, SerialCommunicable):
+
+        Interfaces.KNOWN['GateInterface'] = {
+            'type': 'serial',
+            'baudrate': 19200,
+            'timeout': 0.1,
+            'vid': 0x0403,
+            'pid': 0x6001
+            }
+
+        def __init__(self, kwargs):
+            Interfaces.__init__(self)
+            SerialCommunicable.__init__(self, kwargs['interface'])
+            ModbusInterface.__init__(self, kwargs['interface'])
+
+        def detect_model(self):
+            pass
+
+        def _read_raw_frame(self):
+            # Get blank frame
+            frame = self.get_frame()
+
+            frame.raw_data = bytearray()
+            self.com.timeout = 0.2
+            frame.raw_data += self.read_raw(size=1)
+            self.com.timeout = 0.05
+
+            # Receive data, should call read_until(expected='', size=None) and stop at timeout
+            while True:
+                received = self.read_raw(size=1)
+                if (len(received) > 0) and (len(frame.raw_data) < 255):
+                    frame.raw_data += received
+                else:
+                    break
+
+            msg = "".join("\\0x%02x" % i for i in frame.raw_data)
+            self.logger.debug('Received raw response: {}'.format(msg), extra=self.log_args)
+            return frame
+
+Class must inherit some Communicable and implement ``write`` and ``_read_raw_frame`` methods (here ``write`` from SerialCommunicable does not need to be altered)
+
+Config file
+^^^^^^^^^^^
+Usage is as with other modules. Correct parameters of converter can be specified, if default ones are not sufficient::
+
+    yourproject:
+        gate_interface:
+            class_name: 'interfaces.GateInterface'
+
+Basic use
+^^^^^^^^^
+Interface is mainly done via :meth:`~brest.communication.modbus.ModbusInterface.get_frame` and :meth:`~brest.communication.modbus.ModbusInterface.transceive` method.::
+
+    rs = brest.Resources('yourproject', project_config=os.path.abspath('pathtoyourprojectconfig'))
+    gate_if = rs['gate_interface']
+
+    # ReadHoldingRegisters
+    mba = 1
+    fc = 0x03
+    start_address = 0x00
+    quantity = 1
+
+    data = bytearray([fc])
+    data += start_address.to_bytes(2, byteorder='big')
+    data += quantity.to_bytes(2, byteorder='big')
+
+    request = gate_if.get_frame(mba=mba, functioncode=fc, data=data)
+    response = gate_if.transceive(request)
+    if (response.valid):
+        print(response.pdu.data_value)
+
+PDUMappings
+^^^^^^^^^^^
+ModbusInterface contains some default PDU mappings describing messages. If you want to use your own mappings, use :class:`~brest.communication.modbus.ModbusPDUMappings`. Here is how to do it.
+
+Firstly create PDU structure :class:`~brest.communication.modbus.ModbusGenericPDU` for each request and response you expect::
+
+    from brest.communication.types import uint8_t, uint16_t, vlist_t
+    from brest.communication.modbus import ModbusGenericPDU
+
+    class ReadHoldingRegistersRequest(ModbusGenericPDU):
+
+        def __init__(self):
+            ModbusGenericPDU.__init__(self)
+            self.add('function_code', uint8_t())
+            self.add('start_addr', uint16_t())
+            self.add('quantity', uint16_t())
+
+    class ReadHoldingRegistersResponse(ModbusGenericPDU):
+
+        def __init__(self):
+            ModbusGenericPDU.__init__(self)
+            self.add('function_code', uint8_t())
+            self.add('byte_count', uint8_t())
+            self.add('data_value', vlist_t(None, uint16_t), len_attr='byte_count')
+
+Then you can use those structures to create dict of mappings which use :class:`~brest.communication.modbus.ModbusPDUMapping` unside::
+
+    from brest.communication.modbus import ModbusPDUMapping
+    from pygate.definitions import FunctionCodes
+
+    gate_mappings = {
+        'ReadHoldingRegisters': ModbusPDUMapping(FunctionCodes.READ_HOLDING_REGISTERS,
+                                                 ReadHoldingRegistersRequest,
+                                                 ReadHoldingRegistersResponse
+                                                 ).__dict__,
+        'ReadInputRegisters': ModbusPDUMapping(FunctionCodes.READ_INPUT_REGISTERS,
+                                               ReadInputRegistersRequest,
+                                               ReadInputRegistersResponse
+                                               ).__dict__,
+        ...
+        ...
+    }
+
+To use mappings in code, you can do::
+
+    from brest.communication.modbus_interface import ModbusPDUMappings
+
+    rs = brest.Resources('yourproject', project_config=os.path.abspath('pathtoyourprojectconfig'))
+    gate_if = rs['gate_interface']
+
+    # Get and set command mappings
+    mappings = ModbusPDUMappings(gate_mappings)
+    gate_if.set_custom_pdu_mappings(mappings)
+
+    # Interface now contains your mappings and you can get your mapping on demand
+
+    # SetAllIndicatorsGateID - 0x65
+    fc = 0x65
+    mba = 0x00
+    gateid = 0x01000069
+    control_byte = 0x01
+
+    data = bytearray([fc])
+    data += gateid.to_bytes(4, byteorder='big')
+    data += control_byte.to_bytes(1, byteorder='big')
+
+    mapping_indicators_gateid = gate_if.custom_pdu_mappings.get_mapping(name='SetAllIndicatorsGateID')
+
+    request = gate_if.get_frame(mba=mba, pdu_mapping=mapping_indicators_gateid, data=data)
+    response = gate_if.transceive(request)

@@ -5,6 +5,14 @@
 ### Fixed
 - Serial numbers that contains dash will no longer be truncated #2786
 
+### Added
+- `modbus` folder for all Modbus related stuff
+- `ModbusInterface` for general Modbus use
+- Modbus `definitions` and `messages`
+
+### Changed
+- Renamed `InterfaceCommunicable` to `FrameCommunicationInterface`
+
 ## [0.0.6] - 2020-01-27
 
 ### Added

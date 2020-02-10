@@ -24,6 +24,7 @@ setuptools.setup(
         'pyserial>=3.4',
         'PyYAML>=5.1.2',
         'hidapi>=0.7.99.post21',
+        'crcmod>=1.7',
     ],
     extras_require={
         'docs': [

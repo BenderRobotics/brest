@@ -79,8 +79,27 @@ Communication
 
 .. autoclass:: NoneCommunicable
 
+MODBUS
+~~~~~~
+
+.. currentmodule:: brest.communication.modbus
+
+.. autoclass:: ModbusInterface
+    :members:
+
+.. autoclass:: ModbusGenericPDU
+    :members:
+
+.. autoclass:: ModbusPDUMapping
+    :members:
+
+.. autoclass:: ModbusPDUMappings
+    :members:
+
 Messages
 --------
+
+.. currentmodule:: brest.communication
 
 .. autoclass:: Packable
     :members:

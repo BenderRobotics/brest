@@ -11,13 +11,17 @@
 
 import logging
 
+class Endianness():
+    BIG = '>'
+    LITTLE = '<'
+
 class Packable():
     """
     Base class for structures, that can be serialized into and deserialized from a bytearray.
     """
 
     def __init__(self):
-        self.byteorder = '>'
+        self.byteorder = Endianness.LITTLE
 
     def pack(self, data, offset):
         """
@@ -91,7 +95,7 @@ class CommunicationStructure(Packable):
     :type  byteorder: str
     """
 
-    def __init__(self, byteorder = '>'):
+    def __init__(self, byteorder = Endianness.LITTLE):
         Packable.__init__(self)
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
@@ -110,7 +114,6 @@ class CommunicationStructure(Packable):
         self.full = True
 
         self.value_ = self
-        self.lengths_ = {}
 
     def __eq__(self, other):
         for pair in zip(self.get_packable_attributes(True), other.get_packable_attributes(True)):
@@ -118,12 +121,12 @@ class CommunicationStructure(Packable):
                 return False
         return True
 
-    def add(self, name, value, full_only = False, attr_len = None):
+    def add(self, name, value, byteorder = None, full_only = False, len_attr = None):
         """
         Adds packable type as an attribute.
 
         Name can\'t be `value_` or `lengths_` which are reserved for internal values.
-        If attr_len is specified, value is treated as a length for another attribute.
+        If len_attr is specified, that attribute is treated as a byte length for this attribute.
 
         :param name: Name of a attribute
         :type  name: str
@@ -132,13 +135,11 @@ class CommunicationStructure(Packable):
         :param full_only: Specifies if this parameter should be packet only if
                           full packing is requested.
         :type  full_only: bool
-        :param attr_len: Attribute is treated as a length for another attribute.
-                         Name of that attribute goes here and must be defined after
-                         this length attribute.
-        :type attr_len: str
+        :param len_attr: Attribute is treated as a length for this attribute.
+        :type len_attr: str
         """
 
-        if name in ['value_', 'lengths_']:
+        if name in ['value_']:
             self.logger.error('Name can\'t be `{}` which is reserved for internal values'.format(name), extra=self.log_args)
             raise SystemExit(1)
 
@@ -148,6 +149,8 @@ class CommunicationStructure(Packable):
 
         internal_name = '_' + name
         value.byteorder = self.byteorder           # set message specific byteorder
+        if byteorder:
+            value.byteorder = byteorder
         setattr(self, internal_name, value)        # create attribute
         setattr(self.__class__, name, property(
             lambda self: getattr(self, internal_name).value_,                           # create getter
@@ -155,8 +158,12 @@ class CommunicationStructure(Packable):
         )
         self.packable_full.append(name) if full_only else self.packable.append(name)
 
-        if attr_len:
-            self.lengths_[name] = attr_len
+        if len_attr:
+            attr = getattr(self, '_' + len_attr, None)
+            if not attr:
+                self.logger.error('Attribute `{}` is not defined'.format(len_attr), extra=self.log_args)
+                raise SystemExit
+            value.len_attr = attr
 
     def change(self, name, new_value):
         """

@@ -170,11 +170,19 @@ class nlist_t(Packable):
     """
 
     def __init__(self, value, num_items, type_t):
+        self.type_t = type_t()
         Packable.__init__(self)
         self.num_items = num_items
-        self.size = type_t.size * self.num_items
+        self.size = self.type_t.size * self.num_items
         self.value_ = value
-        self.type_t = type_t
+
+    @property
+    def byteorder(self):
+        return self.type_t.byteorder
+
+    @byteorder.setter
+    def byteorder(self, value):
+        self.type_t.byteorder = value
 
     def pack(self, data, offset):
         # value not None
@@ -188,7 +196,49 @@ class nlist_t(Packable):
         offset += self.pad_size(offset)
         for i in range(self.num_items):
             offset = self.type_t.unpack(data, offset)
-            self.value_.append(self.type_t.value)
+            self.value_.append(self.type_t.value_)
+        return offset
+
+class vlist_t(Packable):
+    """
+    Variable length list of any packable type except bit_t.
+    """
+
+    def __init__(self, value, type_t):
+        self.type_t = type_t()
+        Packable.__init__(self)
+        self._value_ = value
+        self.len_attr = None
+
+    @property
+    def value_(self):
+        return self._value_
+
+    @value_.setter
+    def value_(self, value):
+        self._value_ = value
+        self.len_attr.value_ = int(self.type_t.size / 8 * len(self._value_))
+
+    @property
+    def byteorder(self):
+        return self.type_t.byteorder
+
+    @byteorder.setter
+    def byteorder(self, value):
+        self.type_t.byteorder = value
+
+    def pack(self, data, offset):
+        for i in range(len(self.value_)):
+            self.type_t.value_ = self.value_[i]
+            offset += self.type_t.pack(data, offset)
+        return offset
+
+    def unpack(self, data, offset):
+        values = []
+        for i in range(int(self.len_attr.value_ / (self.type_t.size / 8))):
+            offset = self.type_t.unpack(data, offset)
+            values.append(self.type_t.value_)
+        self.value_ = values
         return offset
 
 class bit_nlist_t(Packable):
@@ -247,14 +297,22 @@ class checksum_t(Packable):
     """
 
     def __init__(self, type_t, checksum_func):
-        Packable.__init__(self)
         self.type_t = type_t()
+        Packable.__init__(self)
         self.size = self.type_t.size
         self.checksum_func = checksum_func
 
     @property
     def value_(self):
         return self.type_t.value_
+
+    @property
+    def byteorder(self):
+        return self.type_t.byteorder
+
+    @byteorder.setter
+    def byteorder(self, value):
+        self.type_t.byteorder = value
 
     def pack(self, data, offset):
         self.type_t.value_ = self.checksum_func(data)
