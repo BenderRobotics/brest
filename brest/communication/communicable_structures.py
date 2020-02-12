@@ -121,6 +121,15 @@ class CommunicationStructure(Packable):
                 return False
         return True
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['logger']
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.logger = self.logger = logging.getLogger('brest')
+
     def add(self, name, value, byteorder = None, full_only = False, len_attr = None):
         """
         Adds packable type as an attribute.
