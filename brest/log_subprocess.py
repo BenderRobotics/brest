@@ -26,8 +26,8 @@ STDOUT = subprocess.STDOUT
 
 
 def run(args, log=False, timeout=None, buffsize=-1, executable=None, stdin=None, stdout=None,
-        stderr=None, preexec_fn=None, close_fds=True, shell=False, cwd=None, env=None,
-        universal_newlines=None, startupinfo=None, creationflags=0, restore_signals=True,
+        stderr=None, preexec_fn=None, close_fds=(sys.platform != 'win32'), shell=False, cwd=None,
+        env=None, universal_newlines=None, startupinfo=None, creationflags=0, restore_signals=True,
         start_new_session=False, pass_fds=(), encoding=None, errors=None):
     """
     copy of subprocess.run function with added logging support
@@ -67,7 +67,7 @@ def run(args, log=False, timeout=None, buffsize=-1, executable=None, stdin=None,
 
 
 def _run_continuous_logging(args, timeout=None, buffsize=-1, executable=None, stdin=None,
-                            stdout=None, stderr=None, preexec_fn=None, close_fds=True,
+                            stdout=None, stderr=None, preexec_fn=None, close_fds=(sys.platform != 'win32'),
                             shell=False, cwd=None, env=None, universal_newlines=None,
                             startupinfo=None, creationflags=0, restore_signals=True,
                             start_new_session=False, pass_fds=(), encoding=None,
@@ -132,8 +132,8 @@ def _run_continuous_logging(args, timeout=None, buffsize=-1, executable=None, st
 
 
 def _run_logging(args, timeout=None, buffsize=-1, executable=None, stdin=None, stdout=None,
-                 stderr=None, preexec_fn=None, close_fds=True, shell=False, cwd=None,
-                 env=None, universal_newlines=None, startupinfo=None, creationflags=0,
+                 stderr=None, preexec_fn=None, close_fds=(sys.platform != 'win32'), shell=False,
+                 cwd=None, env=None, universal_newlines=None, startupinfo=None, creationflags=0,
                  restore_signals=True, start_new_session=False, pass_fds=(),
                  encoding=None, errors=None):
     """
