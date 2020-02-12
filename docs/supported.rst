@@ -22,6 +22,8 @@ The second level of indention represent available resources.
 
 * :class:`~brest.interfaces.Interfaces`
 
+    * :class:`~brest.interfaces.SerialInterface`
+
 * :class:`~brest.io.IO`
 
     * :class:`~brest.io.USBRelay`

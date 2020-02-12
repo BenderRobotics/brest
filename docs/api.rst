@@ -186,6 +186,14 @@ Available devices:
 
 .. autoclass:: USBRelay
 
+Interfaces
+~~~~~~~~~~
+
+.. currentmodule:: brest.interfaces
+
+.. autoclass:: SerialInterface
+
+
 Flashers
 ~~~~~~~~
 

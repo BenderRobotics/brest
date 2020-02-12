@@ -9,6 +9,7 @@
 - `modbus` folder for all Modbus related stuff
 - `ModbusInterface` for general Modbus use
 - Modbus `definitions` and `messages`
+- `SerialInterface` for representing a com port as a resource
 
 ### Changed
 - Renamed `InterfaceCommunicable` to `FrameCommunicationInterface`

@@ -166,3 +166,12 @@ class SerialCommunicable(Communicable):
             if hasattr(serial.Serial, attr):
                 serial_args[attr] = value
         return serial_args
+
+    def __apply_serial_args(self, params):
+        """
+        Tries to set serial arguments to serial object
+        """
+
+        for attr, value in params.items():
+            if hasattr(self.com, attr):
+                setattr(self.com, attr, value)
