@@ -1,16 +1,18 @@
 # Changelog
 
-## [Unreleased]
+## [0.0.7] - 2020-04-03
 
 ### Fixed
 - Serial numbers that contains dash will no longer be truncated #2786
+- Subprocess don't close_fds on Windows #2648
+- Deepcopy fails on Python 3.6.X #2853
 
 ### Added
-- `modbus` folder for all Modbus related stuff
-- `ModbusInterface` for general Modbus use
-- Modbus `definitions` and `messages`
-- `SerialInterface` for representing a com port as a resource
-- `enum_t` to pack enums into messages
+- `brest.communication.modbus` module for all Modbus related stuff
+- `ModbusInterface` for general Modbus use #2614
+- Modbus `definitions` and `messages` #2614
+- `SerialInterface` for representing a com port as a resource #2834
+- `enum_t` to pack enums into messages #3041
 
 ### Changed
 - `InterfaceCommunicable` to `FrameCommunicationInterface`. `InterfaceCommunicable` is marked

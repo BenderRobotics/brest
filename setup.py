@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name='brest',
-    version='0.0.6',
+    version='0.0.7',
     author='Bender Robotics',
     author_email='lesinsky@benderrobotics.com',
     description='Bender Robotics Embedded Systems Toolkit',
