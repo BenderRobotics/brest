@@ -181,7 +181,8 @@ class FlasherCommunicable(Communicable):
                     tmp.update({'serial_number': str(int(match.group(1)))})
                     probed.append(tmp)
         else:
-            raise NotImplementedError
+            self.logger.warning('Listing connected flashers is not supported besides windows.', extra=self.log_args)
+            return []
 
         return probed
 
