@@ -10,9 +10,11 @@
 - `ModbusInterface` for general Modbus use
 - Modbus `definitions` and `messages`
 - `SerialInterface` for representing a com port as a resource
+- `enum_t` to pack enums into messages
 
 ### Changed
-- Renamed `InterfaceCommunicable` to `FrameCommunicationInterface`
+- `InterfaceCommunicable` to `FrameCommunicationInterface`. `InterfaceCommunicable` is marked
+   as deprecated and will be removed in the future
 
 ## [0.0.6] - 2020-01-27
 

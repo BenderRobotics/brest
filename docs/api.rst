@@ -123,6 +123,7 @@ Packable types
 .. autoclass:: bit_t
 .. autoclass:: nlist_t
 .. autoclass:: bit_nlist_t
+.. autoclass:: enum_t
 .. autoclass:: checksum_t
 .. autoclass:: pad_t
 

@@ -11,6 +11,8 @@
 
 import struct
 
+from math import ceil, log2
+
 from brest.communication import Packable
 
 class uint8_t(Packable):
@@ -249,7 +251,7 @@ class bit_nlist_t(Packable):
     def __init__(self, value, num_items):
         Packable.__init__(self)
         self.num_items = num_items
-        self.size = num_items // 8 + 1 if num_items // 8 > 0 else num_items // 8
+        self.size = self.num_items // 8 + 1 if self.num_items // 8 > 0 else self.num_items // 8
         self.value_ = value
 
     def pack(self, data, offset):
@@ -279,6 +281,46 @@ class bit_nlist_t(Packable):
             bit += 1
             if bit > 7:
                 bit = 0
+        return offset
+
+class enum_t(Packable):
+    """
+    Enumeration created using :class:`~enum.Enum`
+
+    :param enum: Enumeration to referece
+    :type  enum: :class:`~enum.Enum`
+    :param value: Value from enumeration to pack
+    :type  value: :class:`~enum.Enum`
+    :param size: Size to be packet in bits. If omitted, enum
+                 will be packet onto minimal number of bits
+    :type  size: int
+    """
+
+    def __init__(self, enum, value=None, size=None):
+        Packable.__init__(self)
+        self.enum = enum
+        self.value_ = value
+        self.size = calc_size = ceil(log2(len(list(enum))))
+        if size and size > calc_size:
+                self.size = size
+
+    def pack(self, data, offset):
+        as_int = self.value_.value if self.value_ else 0
+        as_list = [bool(as_int >> i & 0x01) for i in range(0, self.size)]
+        as_list.reverse()
+        bit_list = bit_nlist_t(as_list, self.size)
+        offset = bit_list.pack(data, offset)
+        return offset
+
+    def unpack(self, data, offset):
+        value = 0
+        bit_list = bit_nlist_t([], self.size)
+        offset = bit_list.unpack(data, offset)
+        bit_list.value_.reverse()
+        for i in range(0, self.size):
+            if bit_list.value_[i]:
+                value |= 2 ** i
+        self.value_ = self.enum(value)
         return offset
 
 class checksum_t(Packable):
