@@ -79,10 +79,28 @@ Communication
 
 .. autoclass:: NoneCommunicable
 
+.. _modbus_api:
+
 MODBUS
 ~~~~~~
 
 .. currentmodule:: brest.communication.modbus
+
+.. autoclass:: ModbusFrame
+
+    .. attribute:: mba
+
+        Modbus address
+
+    .. attribute:: pdu
+
+        This attribute will contain message according to
+        defined mappings, or :class:`~brest.communication.CommunicationStructure`
+        if functioncode has no defined PDU.
+
+    .. attribute:: error_check
+
+        As default CRC function is used `crcmod.predefined.mkCrcFun`
 
 .. autoclass:: ModbusInterface
     :members:

@@ -234,22 +234,19 @@ Usage is as with other modules. Correct parameters of converter can be specified
 
 Basic use
 ^^^^^^^^^
-Interface is mainly done via :meth:`~brest.communication.modbus.ModbusInterface.get_frame` and :meth:`~brest.communication.modbus.ModbusInterface.transceive` method.::
+Interface is mainly done via :meth:`~brest.communication.modbus.ModbusInterface.get_frame` and :meth:`~brest.communication.modbus.ModbusInterface.transceive` method.
+Frame structure can be found in :ref:`modbus_api`.::
 
     rs = brest.Resources('yourproject', project_config=os.path.abspath('pathtoyourprojectconfig'))
     gate_if = rs['gate_interface']
 
-    # ReadHoldingRegisters
-    mba = 1
-    fc = 0x03
-    start_address = 0x00
-    quantity = 1
+    # Get frame with PDU for ReadHoldingRegistres
+    request = gate_if.get_frame(mba=0x01, functioncode=0x03)
 
-    data = bytearray([fc])
-    data += start_address.to_bytes(2, byteorder='big')
-    data += quantity.to_bytes(2, byteorder='big')
+    # Now you can set PDU's attributes accordingly
+    request.pdu.start_addr = 0x00
+    request.pdu.quantity = 1
 
-    request = gate_if.get_frame(mba=mba, functioncode=fc, data=data)
     response = gate_if.transceive(request)
     if (response.valid):
         print(response.pdu.data_value)
@@ -268,16 +265,16 @@ Firstly create PDU structure :class:`~brest.communication.modbus.ModbusGenericPD
         def __init__(self):
             ModbusGenericPDU.__init__(self)
             self.add('function_code', uint8_t())
-            self.add('start_addr', uint16_t())
-            self.add('quantity', uint16_t())
+            self.add('start_addr',    uint16_t())
+            self.add('quantity',      uint16_t())
 
     class ReadHoldingRegistersResponse(ModbusGenericPDU):
 
         def __init__(self):
             ModbusGenericPDU.__init__(self)
             self.add('function_code', uint8_t())
-            self.add('byte_count', uint8_t())
-            self.add('data_value', vlist_t(None, uint16_t), len_attr='byte_count')
+            self.add('byte_count',    uint8_t())
+            self.add('data_value',    vlist_t(None, uint16_t), len_attr='byte_count')
 
 Then you can use those structures to create dict of mappings which use :class:`~brest.communication.modbus.ModbusPDUMapping` unside::
 
@@ -311,16 +308,8 @@ To use mappings in code, you can do::
     # Interface now contains your mappings and you can get your mapping on demand
 
     # SetAllIndicatorsGateID - 0x65
-    fc = 0x65
-    mba = 0x00
-    gateid = 0x01000069
-    control_byte = 0x01
+    request = gate_if.get_frame(mba=0x00, functioncode=0x65)
+    request.pdu.gate_id = 0x01000069
+    request.pdu.control_byte = 0x01
 
-    data = bytearray([fc])
-    data += gateid.to_bytes(4, byteorder='big')
-    data += control_byte.to_bytes(1, byteorder='big')
-
-    mapping_indicators_gateid = gate_if.custom_pdu_mappings.get_mapping(name='SetAllIndicatorsGateID')
-
-    request = gate_if.get_frame(mba=mba, pdu_mapping=mapping_indicators_gateid, data=data)
     response = gate_if.transceive(request)

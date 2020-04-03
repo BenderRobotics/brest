@@ -27,6 +27,9 @@ class FrameCommunicationInterface():
     """
 
     def __init__(self, params):
+        self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
+        self.logger = logging.getLogger('brest')
+
         self.port_lock = threading.Lock()
 
         # --------- future implementation ------------
