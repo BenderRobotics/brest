@@ -98,6 +98,7 @@ class Tenma(Supplies, SCPICommunicable):
         Supplies.Model('TENMA 72-2545',  1, 5, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
         Supplies.Model('TENMA 72-2550',  1, 5, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
         Supplies.Model('TENMA 72-13330', 2, 9, 30.0, 5.0,                                                 [], Supplies.Kind.PROGRAMMABLE),
+        Supplies.Model('TENMA 72-2705',  1, 0, 30.0, 3.0,                          [Supplies.Protection.OCP], Supplies.Kind.PROGRAMMABLE),
     ]
 
     def __init__(self, params):
