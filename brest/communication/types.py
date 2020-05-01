@@ -283,6 +283,31 @@ class bit_nlist_t(Packable):
                 bit = 0
         return offset
 
+class bit_uint_t(Packable):
+    """
+    Unsigned int packet on less than byte
+    """
+
+    def __init__(self, size, value=None, bit_offset=None):
+        Packable.__init__(self)
+        self.size = size
+        self.value_ = value if value else 0
+        self.bit_offset = bit_offset if bit_offset else 0
+
+    def pack(self, data, offset):
+        num = (self.value_ & (2 ** self.size - 1)) << self.bit_offset
+        if self.is_padded(data, offset):
+            data += struct.pack('B', num)
+        else:
+            data[-1] |= num
+        return offset + self.size
+
+    def unpack(self, data, offset):
+        b_offset = offset // 8
+        num = struct.unpack_from('B', data, b_offset)[0]
+        self.value_ = (num & ((2 ** self.size - 1) << self.bit_offset)) >> self.bit_offset
+        return offset + self.size
+
 class enum_t(Packable):
     """
     Enumeration created using :class:`~enum.Enum`
@@ -364,6 +389,25 @@ class checksum_t(Packable):
     def unpack(self, data, offset):
         offset = self.type_t.unpack(data, offset)
         return offset
+
+class fill_t(Packable):
+    """
+    Fills N bytes with a uint8 value
+    """
+
+    def __init__(self, value=None, num_bytes=1):
+        Packable.__init__(self)
+        self.size = 8 * num_bytes
+        self.value_ = value if value else 0
+        self.num_bytes = num_bytes
+
+    def pack(self, data, offset):
+        for _ in range(0, self.num_bytes):
+            data += struct.pack('B', self.value_)
+        return offset + self.size + self.pad_size(offset)
+
+    def unpack(self, data, offset):
+        return offset + self.size + self.pad_size(offset)
 
 class pad_t(Packable):
     """
