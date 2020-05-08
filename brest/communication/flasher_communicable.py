@@ -27,6 +27,7 @@ class FlasherCommunicable(Communicable):
 
     TYPE = 'flashers'
     TAKEN = []
+    PATH_DELIMITER = ';'
 
     def __init__(self, params):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
@@ -60,8 +61,16 @@ class FlasherCommunicable(Communicable):
             else:
                 return probed
 
-            if which(utility) is None and getattr(self, "listed", False):
-                self.logger.warning("Utility %s is not executable", utility, extra=self.log_args)
+            utility_missing = True
+            utilities = utility.split(FlasherCommunicable.PATH_DELIMITER)
+            for utility in utilities:
+                if which(utility) is not None:
+                    utility_missing = False
+                    self._utility = utility
+                    interface['utility'] = utility
+
+            if utility_missing:
+                self.logger.warning("Unable to look for devices, since %s is not in path, check your utility parameter.", utilities[0], extra=self.log_args)
                 self.listed = False
                 continue
 

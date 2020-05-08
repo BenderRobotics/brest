@@ -47,8 +47,13 @@ class STLink(Flashers, FlasherCommunicable):
         'list_type': 'cli',
         'list_cmd': ['--list'],
         'list_regex': r'st-link\s*probe\s*\d+\s*:\s*.*\s*st-link sn\s*:\s*(\w+)\s*.*\s*st-link fw\s*:\s*(\w+)',
-        'utility': os.path.join('C:/', 'Program Files (x86)', 'STMicroelectronics', 'STM32Cube',
-                                'STM32CubeProgrammer', 'bin', 'STM32_Programmer_CLI.exe') if sys.platform == 'win32' else os.path.join('STM32_Programmer_CLI')
+        'utility': str('{0};{1};{2}'.format(os.path.join(
+            'STM32_Programmer_CLI.exe',
+        ), os.path.join(
+            'C:/', 'Program Files (x86)', 'STMicroelectronics', 'STM32Cube', 'STM32CubeProgrammer', 'bin', 'STM32_Programmer_CLI.exe'
+        ), os.path.join(
+            'C:/', 'Program Files', 'STMicroelectronics', 'STM32Cube', 'STM32CubeProgrammer', 'bin', 'STM32_Programmer_CLI.exe'
+        ))) if sys.platform == 'win32' else os.path.join('STM32_Programmer_CLI')
     }
 
     def __init__(self, params):

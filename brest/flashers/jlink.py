@@ -45,8 +45,13 @@ class JLink(Flashers, FlasherCommunicable):
         'type': 'flashers',
         'list_type': 'usb',
         'vid': '1366',
-        'utility': os.path.join('C:/', 'Program Files (x86)', 'SEGGER', 'JLink',
-                                'JLink.exe') if sys.platform == 'win32' else os.path.join('JLink')
+        'utility': str('{0};{1};{2}'.format(os.path.join(
+            'JLink.exe',
+        ), os.path.join(
+            'C:/', 'Program Files (x86)', 'SEGGER', 'JLink', 'JLink.exe'
+        ), os.path.join(
+            'C:/', 'Program Files', 'SEGGER', 'JLink', 'JLink.exe'
+        ))) if sys.platform == 'win32' else os.path.join('JLink')
     }
 
     def __init__(self, params):
