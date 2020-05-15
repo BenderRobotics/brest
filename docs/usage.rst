@@ -197,6 +197,32 @@ in case of device being connected returns a dict containing ``class_name`` and `
     port.baudrate = com['interface']['baudrate']
     ci = CommInterface(port)
 
+Getting native Serial object
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you want to get native ``serial.Serial`` object to your existing codebase instead of Brest's internal object, but also use features like config definition, consider following example::
+
+    # Resource description in e.g. project config
+    myProj:
+        cp:
+            class_name: interfaces.SerialInterface
+            interface:
+                vid: 0x10C4
+                pid: 0xEA60
+                baudrate: 115200
+
+You can use Brest to create the resource using classic usage approach as creating :class:`~brest.Resources` class. Upon creating the object, you will get information about instantiation::
+
+    Resources: {
+        cp : <brest.interfaces.serial_interface.SerialInterface object at 0x03ABA050>
+    }
+
+Instantiated :class:`~brest.interfaces.SerialInterface` object have ``com`` attribute, which holds the desired ``serial.Serial`` object that has all attributes set according to your
+configuration file definition. This can be used in your further in your existing code to create needed objects like::
+
+    res = brest.Resources('myProj', project_config='../config.yaml')
+    port = res['cp'].com
+    ci = CommInterface(port)
+
 Modbus interface
 ~~~~~~~~~~~~~~~~
 
