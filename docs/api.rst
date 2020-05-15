@@ -3,12 +3,18 @@
 API
 ===
 
-.. module:: brest
-
 This part of the documentation covers all the interfaces of Brest.
+
+Brest tools methods
+-------------------
+
+.. automodule:: brest
+    :members: find_available_resource
 
 Resource instantiation
 ----------------------
+
+.. currentmodule:: brest
 
 .. autoclass:: Resources
     :members:

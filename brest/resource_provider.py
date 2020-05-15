@@ -43,7 +43,7 @@ class ResourceProvider:
             self.knowns[cls_.__name__.lower()] = cls_.KNOWN
 
         self._communicables = {}
-        for com in self.__all_communicables(Communicable):
+        for com in self._all_communicables(Communicable):
             self._communicables[com.TYPE] = com(None)
 
     def print_probe(self, class_name):
@@ -54,11 +54,11 @@ class ResourceProvider:
         :type  class_name: str
         """
 
-        interface = self.__get_implicit_definition(class_name)
+        interface = self._get_implicit_definition(class_name)
         if not interface:
             return
 
-        com = self.__get_communicable(interface['type'])
+        com = self._get_communicable(interface['type'])
         interfaces = com.probe(interface)
         i = 0
         for interface_ in interfaces:
@@ -80,7 +80,7 @@ class ResourceProvider:
         """
 
         if not connections:
-            connections = self.__refresh_connections()
+            connections = self._refresh_connections()
 
         available = []
 
@@ -90,7 +90,7 @@ class ResourceProvider:
                 continue
 
             for class_name, interface in resources.items():
-                com = self.__get_communicable(interface['type'])
+                com = self._get_communicable(interface['type'])
                 class_name = '{}.{}'.format(group_.lower(), class_name)
                 resources = com.get_available(class_name, interface, connections[interface['type']])
                 if resources:
@@ -108,7 +108,7 @@ class ResourceProvider:
 
         def print_av_dict(available_dict):
             print(available_dict['class_name'])
-            com = self.__get_communicable(available_dict['interface']['type'])
+            com = self._get_communicable(available_dict['interface']['type'])
             for attr in com.format_interface(available_dict['interface']):
                 print('\t{}: {}'.format(attr[0], attr[1]))
 
@@ -163,7 +163,7 @@ class ResourceProvider:
         for cls_ in Resource.__subclasses__():
             for subcls_ in cls_.__subclasses__():
                 if subcls_.__name__ == params['class_name'].split('.')[1]:
-                    return self.__construct(subcls_.__module__, params)
+                    return self._construct(subcls_.__module__, params)
 
         self.logger.warning('Can\'t construct class `{}`. Class is not subclass of any resource'.format(params['class_name']), extra=self.log_args)
         return None
@@ -248,7 +248,7 @@ class ResourceProvider:
                     'Couldn\'t create all needed resources. {} {} missing'.format(needed, 'are' if len(needed) > 1 else 'is'),
                     extra=self.log_args)
 
-        connections = self.__refresh_connections()
+        connections = self._refresh_connections()
 
         matching = []
         constructed = []
@@ -336,14 +336,14 @@ class ResourceProvider:
                 return None
 
             # Get implicit arguments from Brest
-            impl_intr = self.__get_implicit_definition(class_name)
+            impl_intr = self._get_implicit_definition(class_name)
             # Make construction params from the definition
 
             if 'interface' in definition:
                 intr = {**impl_intr, **definition['interface']}
             else:
                 intr = impl_intr
-            com = self.__get_communicable(intr['type'])
+            com = self._get_communicable(intr['type'])
 
             for probed_interface in com.probe(intr):
                 params = dict(definition)
@@ -398,7 +398,7 @@ class ResourceProvider:
         for av in available:
             alias = 'resource_' + str(i)
             project_dict[alias] = av
-            com = self.__get_communicable(av['interface']['type'])
+            com = self._get_communicable(av['interface']['type'])
             for attr in com.format_interface(av['interface']):
                 project_dict[alias]['interface'][attr[0]] = attr[1]
             i += 1
@@ -407,7 +407,7 @@ class ResourceProvider:
         config.config[project_name] = project_dict
         config.dump_yaml(config_path)
 
-    def __refresh_connections(self):
+    def _refresh_connections(self):
         """
         Gets connected devices for each communicable class.
         """
@@ -417,7 +417,7 @@ class ResourceProvider:
             connections[communicable.TYPE] = communicable.get_connections()
         return connections
 
-    def __get_communicable(self, type_):
+    def _get_communicable(self, type_):
         """
         Returns communicable by type.
 
@@ -430,7 +430,7 @@ class ResourceProvider:
         else:
             self.logger.error('Interface type `{}` is not known to Brest'.format(type_), extra=self.log_args)
 
-    def __get_implicit_definition(self, class_name):
+    def _get_implicit_definition(self, class_name):
         """
         Return implicit interface definition for given class name.
 
@@ -447,7 +447,7 @@ class ResourceProvider:
             return None
         return dict(interface)
 
-    def __construct(self, module_name, params):
+    def _construct(self, module_name, params):
         """
         Generic method for class instantiation from given module.
         """
@@ -466,7 +466,7 @@ class ResourceProvider:
             self.logger.error(message + str(e), extra=self.log_args)
             return None
 
-    def __all_communicables(self, cls):
+    def _all_communicables(self, cls):
         """
         Returns list with all communicable classes containing TYPE attribute
         """

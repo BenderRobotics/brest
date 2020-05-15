@@ -171,6 +171,32 @@ Examples
 
 This section shows examples of basic use of each module
 
+Finding resource info without instantiation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you have existing codebase you can use Brest to find additional information about connected devices described in the configuration file without instantiation of the resources.
+Consider following example::
+
+    # Resource description in e.g. project config
+    myProj:
+        cp:
+            class_name: interfaces.SerialInterface
+            interface:
+                vid: 0x10C4
+                pid: 0xEA60
+                baudrate: 115200
+
+You can search for resource's additional info like ``port`` by calling :meth:`~brest.find_available_resource`. Method returns a dict used for description of the resource that
+corresponds with the configuration file structure. Calling::
+
+    com = brest.find_available_resource('myProj', 'cp', project_config='../config.yaml')
+
+in case of device being connected returns a dict containing ``class_name`` and ``interface`` extended by port. This can be used further in your existing code to create needed objects like::
+
+    port = serial.Serial()
+    port.port = com['interface']['port']
+    port.baudrate = com['interface']['baudrate']
+    ci = CommInterface(port)
+
 Modbus interface
 ~~~~~~~~~~~~~~~~
 

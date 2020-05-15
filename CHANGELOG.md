@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- `brest.find_available_resource` tool method for finding resources without instantiation #3189
+
 ## [0.0.7] - 2020-04-03
 
 ### Fixed
