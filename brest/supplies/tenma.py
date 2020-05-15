@@ -93,6 +93,7 @@ class Tenma(Supplies, SCPICommunicable):
 
 
     Models = [
+        Supplies.Model('TENMA Fallback',  1, 5, 60.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
         Supplies.Model('TENMA 72-2535',  1, 5, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
         Supplies.Model('TENMA 72-2540',  1, 5, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
         Supplies.Model('TENMA 72-2545',  1, 5, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
@@ -265,7 +266,10 @@ class Tenma(Supplies, SCPICommunicable):
             if (model.idn in psu_idn):
                 self._apply_model(model)
         if (None == self.IDN):
-            self.logger.warning('Unable to detect model', extra=self.log_args)
+            fallback_model = self.Models[0]
+            self.logger.warning('Unable to detect model, fallback to `{}` model.'.format(fallback_model.idn), extra=self.log_args)
+            self.logger.warning('\nModels limitations:\n{}'.format(fallback_model), extra=self.log_args)
+            self._apply_model(fallback_model)
 
         if self.CHANNELS >= 2:
             for i in range(0, self.CHANNELS):

@@ -37,7 +37,7 @@ class Supplies(Resource):
         #: Overtemperature protection
         OTP  = 8
 
-    class Kind():
+    class Kind(Enum):
         """
         Enumeration supported kinds of power supplies, based on the output type.
         """
@@ -74,6 +74,17 @@ class Supplies(Resource):
             self.max_current = max_current
             self.protection = protection
             self.kind = kind
+
+        def __str__(self):
+            s = ''
+            s += '{}: {}\n'.format('idn', self.idn)
+            s += '{}: {}\n'.format('channels', self.channels)
+            s += '{}: {}\n'.format('memories', self.memories)
+            s += '{}: {}\n'.format('max_voltage', self.max_voltage)
+            s += '{}: {}\n'.format('max_current', self.max_current)
+            s += '{}: {}\n'.format('protection', self.protection)
+            s += '{}: {}\n'.format('kind', self.kind.name)
+            return s
 
     def __init__(self, params = None):
         Resource.__init__(self, params)
