@@ -1,9 +1,15 @@
 # Changelog
 
-## [Unreleased]
+## [0.0.8] - 2020-05-15
 
 ### Added
 - `brest.find_available_resource` tool method for finding resources without instantiation #3189
+- Use case scenario for getting pyserial Serial object using Brest #3189
+- `fill_t` and `bit_uint_t` packable types for messages
+- Tenma model 72-2705 model support
+
+### Changed
+- Tenma model fallback in case of unrecognized model.
 
 ## [0.0.7] - 2020-04-03
 

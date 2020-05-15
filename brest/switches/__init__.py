@@ -4,4 +4,4 @@ from .manswitch import Manswitch
 
 __all__ = ['Switches', 'ClewareSwitch', 'Manswitch']
 
-__version__ = '0.0.7'
+__version__ = '0.0.8'
