@@ -2,7 +2,12 @@
 
 ## [Unreleased]
 
-## Added
+### Fixed
+- Fixed ST-Link timeout during connect operation. #3271
+
+### Added
+- Justified why ST-Link fails when it fails. #2639
+- Initial multipath support for flasher devices. #3191
 - `Manio` manual IO device. #3285
 
 ## [0.0.8] - 2020-05-15
