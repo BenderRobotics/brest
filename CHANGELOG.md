@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.0.9] - 2020-05-26
 
 ### Fixed
 - Fixed ST-Link timeout during connect operation. #3271
