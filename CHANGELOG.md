@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+## Added
+- `Manio` manual IO device. #3285
+
 ## [0.0.8] - 2020-05-15
 
 ### Added

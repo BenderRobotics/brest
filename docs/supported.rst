@@ -26,6 +26,7 @@ The second level of indention represent available resources.
 
 * :class:`~brest.io.IO`
 
+    * :class:`~brest.io.Manio`
     * :class:`~brest.io.USBRelay`
 
 * :class:`~brest.loads.Loads`

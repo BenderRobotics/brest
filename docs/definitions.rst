@@ -145,6 +145,12 @@ Available definitions for each resource
             default_value: bool
             propagate: bool
 
+:class:`~brest.io.Manio`::
+
+    # All attributes from IO group can be used
+    default:
+        bypass_user: True  # if True user will not be prompted when setting channels
+
 :class:`~brest.loads.Loads`::
 
     default:

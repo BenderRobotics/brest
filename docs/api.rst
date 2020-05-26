@@ -209,6 +209,8 @@ Input/Output base class:
 
 Available devices:
 
+.. autoclass:: Manio
+
 .. autoclass:: USBRelay
 
 Interfaces
