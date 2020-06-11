@@ -34,9 +34,7 @@ class Pli(Loads, SCPICommunicable):
     Loads.KNOWN['Pli'] = {
         'type': 'serial',
         'timeout': 0.1,
-        'baudrate': 115200,
-        'vid': 0x0000,
-        'pid': 0x0000,
+        'baudrate': 115200
     }
 
     class Commands():

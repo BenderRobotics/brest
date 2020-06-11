@@ -27,8 +27,6 @@ class SerialInterface(Interfaces, SerialCommunicable):
 
     Interfaces.KNOWN['SerialInterface'] = {
         'type': 'serial',
-        'vid': 0x0000,
-        'pid': 0x0000,
         }
 
     def __init__(self, params):

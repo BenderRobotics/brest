@@ -104,9 +104,6 @@ class SerialCommunicable(Communicable):
                 for com in connections:
                     if com.serial_number == interface['serial_number']:
                         __add_to_probed(probed, __device_to_interface(interface, com))
-            else:
-                self.logger.warning('Missing vid, pid or serial number definition in the interface: {}'.format(str(interface)), extra=self.log_args)
-                pass
 
         return probed
 
