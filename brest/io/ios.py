@@ -47,6 +47,14 @@ class IO(Resource):
             self.max_current = max_current
             self.is_latching = is_latching
 
+        def __str__(self):
+            s = ''
+            s += '{}: {}\n'.format('idn', self.idn)
+            s += '{}: {}\n'.format('channels', self.channels)
+            s += '{}: {}\n'.format('max_current', self.max_current)
+            s += '{}: {}\n'.format('is_latching', self.is_latching)
+            return s
+
     def __init__(self, params = None):
         Resource.__init__(self, params)
         #: Represents channels state in a single number

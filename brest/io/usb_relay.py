@@ -29,11 +29,17 @@ class USBRelay(IO, SerialCommunicable):
 
     Derived from: :class:`~brest.io.IO`, :class:`~brest.communicable.SerialCommunicable`
 
-    This class doesn't provide any extra functionality than :class:`~brest.io.IO`. Just
+    This class doesn't provide any extra functionality than :class:`~brest.io.IO`. It just
     implements its abstract methods to provide functionality to USB-RLYxx device family.
 
     :param params: Construction parameters
     :type  params: dict
+
+    Supported models:
+    `USB-RLY02 <https://www.robot-electronics.co.uk/htm/usb_rly02tech.htm>`_,
+    `USB-RLY08 <https://www.robot-electronics.co.uk/htm/usb_rly08tech.htm>`_,
+    `USB-RLY08B <https://www.robot-electronics.co.uk/htm/usb_rly08btech.htm>`_,
+    `USB-RLY16L <https://www.robot-electronics.co.uk/htm/usb_rly16ltech.htm>`_
 
     Implicit interface definition::
 
@@ -52,8 +58,10 @@ class USBRelay(IO, SerialCommunicable):
     }
 
     Models = [
-        IO.Model( 8, 8,  2.0, True),
-        IO.Model(15, 8, 16.0, True),
+        IO.Model(idn='USBRelay Fallback', channels=8, max_current=16.0, is_latching=True),  # Fallback model
+        IO.Model(idn=10,                  channels=2, max_current=16.0, is_latching=False), # USB-RLY02;
+        IO.Model(idn=8,                   channels=8, max_current=2.0,  is_latching=False), # USB-RLY08; USB-RLY08B; relay: http://www.farnell.com/datasheets/2302215.pdf
+        IO.Model(idn=15,                  channels=8, max_current=16.0, is_latching=True),  # USB-RLY16L
     ]
 
     class Commands:
@@ -85,7 +93,17 @@ class USBRelay(IO, SerialCommunicable):
         command.pack()
         self.write_raw(command.raw_data)
         idn = self.read_raw(size=2)[0]
-        self._apply_model(idn)
+
+        fallback_model = self.Models[0]
+        idn_to_apply = fallback_model.idn
+        for model in self.Models:
+            if idn == model.idn:
+                idn_to_apply = model.idn
+                break
+        if idn_to_apply == fallback_model.idn:
+            self.logger.warning('Unable to detect model, fallback to `{}` model.'.format(fallback_model.idn), extra=self.log_args)
+            self.logger.warning('\nModels limitations:\n{}'.format(fallback_model), extra=self.log_args)
+        self._apply_model(idn_to_apply)
 
     def _read_states(self):
         command = self.Commands.GET_STATES
@@ -103,7 +121,6 @@ class USBRelay(IO, SerialCommunicable):
         command.pack()
         self.write_raw(command.raw_data)
 
-
     def _apply_model(self, idn):
         for model in self.Models:
             if idn == model.idn:
@@ -112,5 +129,3 @@ class USBRelay(IO, SerialCommunicable):
                 self.MAX_CURRENT = model.max_current
                 self.IS_LATCHING = model.is_latching
                 return
-
-        self.logger.warning('Unable to detect model', extra=self.log_args)

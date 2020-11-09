@@ -132,24 +132,31 @@ Available definitions for each resource
     default:
         flashloader: abs_path  # has no effect, JLinkDevices.xml is prioritized
 
-:class:`~brest.interfaces.Interfaces`
+:class:`~brest.interfaces.Interfaces`::
+
+Follow the :ref:`definitions.interfaces` section down below.
 
 :class:`~brest.io.IO`::
 
     required:
         is_latching: bool
-        channel: int
+        channels: int
+        current: float
     aliases:
-          - channel: int
-            name: str
-            default_value: bool
-            propagate: bool
+        - channel: int
+          name: str
+          default_value: bool
+          propagate: bool
 
 :class:`~brest.io.Manio`::
 
     # All attributes from IO group can be used
     default:
         bypass_user: True  # if True user will not be prompted when setting channels
+
+:class:`~brest.io.USBRelay`::
+
+    # All attributes from IO group can be used
 
 :class:`~brest.loads.Loads`::
 
@@ -220,7 +227,7 @@ Attribute name    Type Description
 **serial_number** str  Serial number
 ================= ==== ==================
 
-All following attributes corresponds with class :class:`serial.Serial` so
+All following attributes correspond with class :class:`serial.Serial` so
 for possible values please refer to the class's docs.
 
 ====================== ===== =======================================
