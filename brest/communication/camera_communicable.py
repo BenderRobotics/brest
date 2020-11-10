@@ -13,6 +13,7 @@ import weakref
 
 from brest.communication import Communicable
 
+
 class CameraCommunicable(Communicable):
     """
     Class for camera probing and listing.

@@ -76,12 +76,15 @@ class PointGrey(Cameras, CameraCommunicable):
         self.release()
 
     def release(self):
-        if self.cam is not None:
-            self.cam.EndAcquisition()
-            self.cam.DeInit()
+        """
+        Releases the camera
+        """
+        Cameras.release(self)
         CameraCommunicable.release(self)
 
         if self._cam is not None:
+            self._cam.EndAcquisition()
+            self._cam.DeInit()
             del self._cam
 
     def configure_trigger(self, trigger):

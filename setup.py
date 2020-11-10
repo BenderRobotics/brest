@@ -33,9 +33,13 @@ setuptools.setup(
         'cameras_win': [
             'pywin32',
             'opencv-python',
+            'imageio',
+            'imageio-ffmpeg',
         ],
         'cameras_unix': [
             'opencv-python',
+            'imageio',
+            'imageio-ffmpeg',
         ],
     }
 )

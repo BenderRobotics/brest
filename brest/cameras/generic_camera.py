@@ -45,9 +45,12 @@ class GenericCamera(Cameras, CameraCommunicable):
         self.release()
 
     def release(self):
-        if self.cam:
-            self.cam.release()
+        Cameras.release(self)
         CameraCommunicable.release(self)
+
+        if self._cam is not None:
+            self._cam.release()
+            del self._cam
 
     def acquire_image(self):
         return self.cam.read()[1]

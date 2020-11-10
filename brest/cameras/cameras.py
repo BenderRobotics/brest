@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    brest.helpers
+    brest.cameras
     ~~~~~~~~~~~~~
 
     This module implements base abstract class for cameras.
@@ -9,6 +9,10 @@
 """
 
 import time
+import logging
+from threading import Event, Thread
+from datetime import datetime
+from typing import Optional, Tuple, Callable, Union
 
 from brest import Resource
 
@@ -19,10 +23,13 @@ class Cameras(Resource):
     """
 
     KNOWN = {}
+    VIDEO_TEXT_PLACEHOLDER_TIMESTAMP = '{timestamp}'
 
     def __init__(self, params=None):
         Resource.__init__(self, params)
         self._cam = None
+        self._stop_event = None
+        self._video_thread = None
         self.img_width = 0
         self.img_height = 0
         self.dstmaps = None
@@ -30,6 +37,14 @@ class Cameras(Resource):
         self.final_resolution = None
         self.hist_calibration = None
         self.rgb_calibration = None
+
+        self._default_video_filename = None
+        self._default_video_format = 'mp4'
+        self._default_video_codec = 'libx264'
+        self._default_video_fps = 20
+        self._default_video_width = None
+        self._default_video_text_color = (255, 255, 255)
+        self._default_video_text = None
 
     @property
     def cam(self):
@@ -70,6 +85,12 @@ class Cameras(Resource):
         """
 
         return (self.rgb_calibration is not None)
+
+    def release(self):
+        """
+        Releases the camera resource.
+        """
+        self.stop_video_record()
 
     def acquire_image(self):
         """
@@ -446,3 +467,308 @@ class Cameras(Resource):
         """
         raws = self.acquire_images(num_images, period)
         return [self._preprocess(raw) for raw in raws]
+
+    # Video support
+
+    def default_video_filename(self, value):
+        """
+        Setter of the video_filename default value
+
+        :param value: path to the filename
+        :type value: str
+        :rtype: bool
+        """
+        if not isinstance(value, str):
+            self.logger.error('Video filename value must be a string', extra=self.log_args)
+            return False
+
+        self._default_video_filename = value
+        return True
+
+    def default_video_format(self, value):
+        """
+        Setter of the video_format default value
+
+        :param value: video format
+        :type value: str
+        :rtype: bool
+        """
+        if not isinstance(value, str):
+            self.logger.error('Video format value must be a string', extra=self.log_args)
+            return False
+
+        self._default_video_format = value
+        return True
+
+    def default_video_codec(self, value):
+        """
+        Setter of the video_codec default value
+
+        :param value: video codec
+        :type value: str
+        :rtype: bool
+        """
+        if not isinstance(value, str):
+            self.logger.error('Video codec value must be a string', extra=self.log_args)
+            return False
+
+        self._default_video_codec = value
+        return True
+
+    def default_video_fps(self, value):
+        """
+        Setter of the video_fps default value
+
+        :param value: video FPS
+        :type value: int
+        :rtype: bool
+        """
+        try:
+            value = int(value)
+        except ValueError:
+            self.logger.error('Video FPS value must be an integer', extra=self.log_args)
+            return False
+        else:
+            if not value > 0:
+                self.logger.error('Video FPS value must be an integer > 0', extra=self.log_args)
+                return False
+
+        self._default_video_fps = value
+        return True
+
+    def default_video_width(self, value):
+        """
+        Setter of the video_width default value
+
+        :param value: video width
+        :type value: int | None
+        :rtype: bool
+        """
+        if value is not None:
+            try:
+                value = int(value)
+            except ValueError:
+                self.logger.error('Video width value must be an integer', extra=self.log_args)
+                return False
+            else:
+                if not isinstance(value, int) or not value > 0:
+                    self.logger.error('Video width value must be an integer > 0', extra=self.log_args)
+                    return False
+        else:
+            # if None is given, we will use the camera resolution
+            pass
+
+        self._default_video_width = value
+        return True
+
+    def default_video_text_color(self, value):
+        """
+        Setter of the video_text_color default value
+
+        :param value: video text color
+        :type value: str | tuple[int, int, int]
+        :rtype: bool
+        """
+        if isinstance(value, str):
+            value = value.strip('#')
+
+            if len(value) == 3:
+                value = (int(value[2], 16), int(value[1], 16), int(value[0], 16))           # RGB to OpenCV BGR
+            elif len(value) == 6:
+                value = (int(value[4:6], 16), int(value[2:4], 16), int(value[0:2], 16))     # RGB to OpenCV BGR
+            else:
+                self.logger.error(f'Unsupported text color format {value} for video text color', extra=self.log_args)
+                return False
+
+        if isinstance(value, list):
+            value = tuple(value)
+
+        if not isinstance(value, tuple) or len(value) != 3:
+            self.logger.error(f'Video text color value must be a tuple with 3 items, value `{value}` (type of {type(value)}) given', extra=self.log_args)
+            return False
+
+        self._default_video_text_color = value
+        return True
+
+    def default_video_text(self, value):
+        """
+        Setter of the video_text default value
+
+        :param value: video text
+        :type value: text
+        :rtype: bool
+        """
+        if (value is not None) and not isinstance(value, str):
+            self.logger.error('Video text value must be a string', extra=self.log_args)
+            return False
+
+        self._default_video_text = value
+        return True
+
+    def start_video_record(self,
+                           filename: Optional[str] = None,
+                           video_format: Optional[str] = None,
+                           codec: Optional[str] = None,
+                           fps: Optional[int] = None,
+                           frame_width: Optional[int] = None,
+                           text: Optional[str] = None,
+                           text_color: Optional[Union[str, Tuple[int, int, int]]] = None) -> None:
+        """
+        Starts recording of the video created from the camera frames
+
+        :param filename: name of the output video file,
+                         extension .mov, .avi, .mpg, .mpeg, .mp4, .mkv, .wmv are supported
+        :type filename: str
+        :param video_format: video format
+        :type video_format: str
+        :param codec: video codec
+        :type codec: str
+        :param fps: number of frames per second
+        :type fps: int
+        :param frame_width: width of the video frame in pixels
+        :type frame_width: int
+        :param text: optional text to be put in the video frames, supports '{timestamp}' placeholder
+        :type text: str
+        :param text_color: color of the text to be put in the video frames
+        :type text_color: tuple | str
+        """
+        filename = self._default_video_filename if filename is None else filename
+        video_format = self._default_video_format if video_format is None else video_format
+        codec = self._default_video_codec if codec is None else codec
+        fps = self._default_video_fps if fps is None else fps
+        frame_width = self._default_video_width if frame_width is None else frame_width
+        text_color = self._default_video_text_color if text_color is None else text_color
+        text = self._default_video_text if text is None else text
+
+        # Change color string to tuple
+        if isinstance(text_color, str):
+            text_color = text_color.strip('#')
+
+            if len(text_color) == 3:
+                text_color = (int(text_color[2], 16), int(text_color[1], 16), int(text_color[0], 16))           # RGB to OpenCV BGR
+            elif len(text_color) == 6:
+                text_color = (int(text_color[4:6], 16), int(text_color[2:4], 16), int(text_color[0:2], 16))     # RGB to OpenCV BGR
+            else:
+                raise AssertionError(f'Unsupported text color format {text_color} for video text color')
+
+        # Convert FPS if possible to int
+        try:
+            fps = int(fps)
+        except ValueError:
+            raise AssertionError(f'`fps` has to be an integer, {type(fps)} given ({fps}')
+
+        assert filename, '`filename` has to be specified!'
+        assert isinstance(video_format, str), '`video_format` has to be a string.'
+        assert isinstance(codec, str), '`codec` has to be a string.'
+        assert isinstance(fps, int) and fps > 0, '`fps` has to be an integer greater than zero.'
+        assert (frame_width is None) or (isinstance(frame_width, int) and frame_width > 0), '`frame_width` has to be an integer greater than zero.'
+        assert isinstance(text_color, tuple) and len(text_color) == 3, '`text_color` has to be a tuple with 3 items.'
+        assert (text is None) or isinstance(text, str), '`text` has to be a string.'
+
+        def _frame_grabber(frame_acquire_func: Callable, writer, period: float,
+                           video_width: int, text: Optional[str], text_color, stop_event):
+            '''This function runs in dedicated threads, reads the images from the camera and writes them to the output record.
+
+            :param frame_acquire_func: function to be used to acquire the frames from the camera
+            :type frame_acquire_func: callable
+            :param writer: video writer
+            :type writer: imageio.Writer
+            :param period: time period in between two frames (1 / FPS)
+            :type period: float
+            :param video_width: horizontal resolution of the video in px
+            :type video_width: int
+            :param text: text to be added to each frame
+            :type text: str
+            :param text_color: color of the `text`
+            :type text_color: tuple[int, int, int] | str
+            :param stop_event: thread event pill to kill
+            :type stop_event: threading.Event
+            '''
+            try:
+                import cv2 as cv
+                t = 0
+                macro_block_size = 16   # codec usually uses block size of 16px, use the multiplication of 16 in resolution
+                # take one frame to calculate output height
+                frame = frame_acquire_func()
+                (frame_width, frame_height) = (frame.shape[1], frame.shape[0])
+
+                # check if there is a specified resolution of the video, if not use the camera resolution
+                if video_width is not None:
+                    video_width = int(round(video_width / macro_block_size) * macro_block_size)
+                    video_height = (video_width / frame_width) * frame_height
+                else:
+                    video_width = int(round(frame_width / macro_block_size) * macro_block_size)
+                    video_height = frame_height
+
+                video_height = int(round(video_height / macro_block_size) * macro_block_size)
+
+                # create thickness and scale of the font based on the image resolution
+                if video_width < 600:
+                    font_thickness = 1
+                    font_scale = 0.5
+                    text_line_height = 15
+                elif video_width < 1200:
+                    font_thickness = 2
+                    font_scale = 1
+                    text_line_height = 30
+                else:
+                    font_thickness = 3
+                    font_scale = 1.5
+                    text_line_height = 45
+
+                # get the coordinates where to put the text
+                text_x, text_y = 5, 5 + text_line_height
+
+                # loop with fixed period terminated by killing pill `stop_event`
+                while not stop_event.wait(max(0, (t + period) - time.time())):
+                    t = time.time()
+
+                    # take a frame and resample it to the output resolution
+                    frame = frame_acquire_func()
+                    frame = cv.resize(frame, (video_width, video_height), interpolation=cv.INTER_AREA)
+
+                    if text:
+                        # add text line by line
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        row_y = text_y
+
+                        for line in text.split(r'\n'):
+                            line = line.replace(Cameras.VIDEO_TEXT_PLACEHOLDER_TIMESTAMP, timestamp)
+                            frame = cv.putText(frame, line, (text_x, row_y),
+                                               cv.FONT_HERSHEY_SIMPLEX, font_scale, text_color,
+                                               font_thickness, cv.LINE_8)
+                            row_y += text_line_height
+
+                    # CV by default works in BGR -> change to RGB
+                    frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+                    writer.append_data(frame)
+
+            except Exception as ex:
+                logging.getLogger().error(ex)
+
+            finally:
+                writer.close()
+
+        try:
+            import imageio
+            import cv2 as cv
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError('To use video recording you have to install `imageio` and `open-cv` modules')
+        else:
+            writer = imageio.get_writer(filename, format=video_format, mode='I', fps=fps, codec=codec)
+            period = 1.0 / float(fps) if fps != 0 else 0.05
+            self._stop_event = Event()
+            self._stop_event.clear()
+            self._video_thread = Thread(target=_frame_grabber, args=(self.acquire_image, writer, period,
+                                                                     frame_width, text, text_color, self._stop_event))
+            self._video_thread.start()
+
+    def stop_video_record(self) -> None:
+        """
+        Stops video recording
+        """
+        if self._stop_event is not None:
+            self._stop_event.set()
+
+        if self._video_thread is not None:
+            self._video_thread.join()
