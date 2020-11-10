@@ -19,7 +19,7 @@ Brest should be installed now. You can now head to the :ref:`usage` or install O
 Python version
 --------------
 
-Brest supports Python 3.5 and above on Windows and Linux
+Brest supports Python 3.5 and above on Windows and Linux.
 
 .. admonition:: pip on Linux
 
@@ -34,7 +34,7 @@ Python dependencies
 Core
 ~~~~
 
-These dependencies will be installed automatically when installing Brest
+These dependencies will be installed automatically when installing Brest:
 
 * `colorama`_ (>=0.4.1) - Colored terminal output
 * `pyserial`_ (>=3.4) - Serial communication
@@ -54,14 +54,20 @@ use them if you install them using following command:
 
     $ pip install brest[optional_dependency_name]
 
-This method will only work if you already have Brest installed.
-
-* cameras_win - Install this on Windows machine so Brest will be able to list and use `OpenCV`_ operable cameras
-* cameras_unix - Install this on Unix machine so Brest will be only able to use `OpenCV`_ operable cameras, but won\'t list then
-* docs - You will be able to build Brest documentation using `Sphinx`_
+* :code:`cameras_win`
+    * Run on Windows machine.
+    * Installs libraries for Brest to be able to list and use `OpenCV`_ operable cameras.
+* :code:`cameras_unix`
+    * Run on Unix machine.
+    * Installs libraries for Brest to be able to use `OpenCV`_ operable cameras.
+    * **NOTE:** Brest cannot list cameras on Unix machines.
+* :code:`docs`
+    * Enables user to build Brest documentation using `Sphinx`_.
 
 .. _OpenCV: https://pypi.org/project/opencv-python/
 .. _Sphinx: http://www.sphinx-doc.org/en/master/
+
+.. warning:: This method will only work if you already have Brest installed.
 
 .. _installation.external-dependencies:
 
@@ -74,10 +80,12 @@ Resource specific
 These dependencies will not be installed automatically. Brest will try to detect them and
 use them if you install them.
 
-* `STM32_Programmer_CLI`_ - Install this program so Brest will be able to list and use ST-Link programmers
-                          - It is recommended to install program in path used by :class:`~brest.flashers.STLink`
-* `JLink`_ - Install this program so Brest will be able to list and use J-Link programmers
-           - It is recommended to install program in path used by :class:`~brest.flashers.JLink`
+* `STM32_Programmer_CLI`_
+    * Install this program so Brest will be able to list and use ST-Link programmers
+    * It is recommended to install program in path used by :class:`~brest.flashers.STLink`
+* `JLink`_
+    * Install this program so Brest will be able to list and use J-Link programmers
+    * It is recommended to install program in path used by :class:`~brest.flashers.JLink`
 
 .. _STM32_Programmer_CLI: https://www.st.com/en/development-tools/stm32cubeprog.html
 .. _JLink: https://www.segger.com/downloads/jlink/
