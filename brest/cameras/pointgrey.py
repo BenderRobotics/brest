@@ -17,7 +17,9 @@ from brest.communication import CameraCommunicable
 
 class PointGrey(Cameras, CameraCommunicable):
     """
-    PointGrey cameras
+    PointGrey cameras.
+
+    Derived from: :class:`~brest.cameras.Cameras`, :class:`~brest.communication.CameraCommunicable`
 
     :param params: Construction parameters
     :type  params: dict

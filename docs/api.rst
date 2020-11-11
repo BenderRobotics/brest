@@ -8,8 +8,7 @@ This part of the documentation covers all the interfaces of Brest.
 Brest tools methods
 -------------------
 
-.. automodule:: brest
-    :members: find_available_resource
+.. autofunction:: brest::find_available_resource
 
 Resource instantiation
 ----------------------
@@ -245,15 +244,14 @@ Cameras
 Cameras base class:
 
 .. autoclass:: Cameras
-    :members: cam, resolution
+    :members: cam, resolution, acquire_image, acquire_images, start_video_record, stop_video_record
 
 Available cameras:
 
 .. autoclass:: GenericCamera
-    :members: acquire_image, acquire_images
 
 .. autoclass:: PointGrey
-    :members: acquire_image, acquire_images, configure_trigger, reset_trigger, get_info
+    :members: acquire_image, get_info, configure_trigger, reset_trigger
 
 Loads
 ~~~~~
