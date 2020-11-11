@@ -6,7 +6,7 @@
 Welcome to Brest's documentation!
 =================================
 
-Brest is currently in version ``0.0.9``
+Brest is currently in version ``0.0.10``
 
 .. toctree::
    :maxdepth: 3

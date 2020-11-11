@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.0.10] - 2020-11-11
+
+### Fixed
+- Fixed serial_number parameter to be enough for SerialInterface. #3286
+- Fixed IO parameters in 'definitions.rst'. #3707
+
+### Added
+- Added `USB-RLY02` to `brest.io.USBRelay`. #3707
+- Added support for video acquisition using `brest.cameras`. #2409
+
+### Changed
+- Added fallback device for `brest.io.USBRelay` in case of unrecognized model. #3707
+- Updated and added headers to files.
+- From now on the module version will change only when there is a change in the module.
+   In such case the version should match the corresponding Brest release version.
+
 ## [0.0.9] - 2020-05-26
 
 ### Fixed
