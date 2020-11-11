@@ -5,7 +5,7 @@
 
     This module implements communication using serial line and SCPI commands.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 from brest.communication import SerialCommunicable, CommunicationStructure

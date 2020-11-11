@@ -3,7 +3,7 @@ FROM alpine:latest
 
 # Fill image descriptors
 LABEL maintainer="lesinsky@benderrobotics.com"
-LABEL build_date="2019-11-28"
+LABEL build_date="2020-11-11"
 
 # Install necessary Alpine packages
 RUN apk update

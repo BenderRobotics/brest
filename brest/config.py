@@ -5,7 +5,7 @@
 
     This module implements configuration file parsing and validation.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 import os

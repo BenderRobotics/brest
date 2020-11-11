@@ -5,7 +5,7 @@
 
     This module implements logging facility for Brest.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 import os

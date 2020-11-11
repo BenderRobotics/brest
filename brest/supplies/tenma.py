@@ -5,7 +5,7 @@
 
     This module implements Tenma 72-25xx programmable power supply.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 import time

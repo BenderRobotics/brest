@@ -5,7 +5,7 @@
 
     This module implements various helper methods for quality of life improvements.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 from .log import DEFAULT_LOGGING

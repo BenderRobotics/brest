@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    brest.cameras
-    ~~~~~~~~~~~~~
+    brest.cameras.cameras
+    ~~~~~~~~~~~~~~~~~~~~~
 
     This module implements base abstract class for cameras.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 import time

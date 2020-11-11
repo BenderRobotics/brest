@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.tests.test_colorful_output
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module performs test print for user to verify it is colorful.
+
+    :copyright: 2020 Bender Robotics
+"""
+
 import os
 import sys
 import logging

@@ -5,7 +5,7 @@
 
     This module implements controling camera using OpenCV.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 import logging

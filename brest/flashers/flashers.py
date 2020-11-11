@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.flashers.flashers
+    ~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module implements base abstract class for programmers.
+
+    :copyright: 2020 Bender Robotics
+"""
+
 import logging
 import os
 

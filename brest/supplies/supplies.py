@@ -5,7 +5,7 @@
 
     This module implements base abstract for supplies.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 import time

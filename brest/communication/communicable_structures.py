@@ -6,7 +6,7 @@
     This module implements base functionality for message
     creating using packable types.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 import logging

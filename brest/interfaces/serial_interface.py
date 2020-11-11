@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    brest.communication.serial_communicable
+    brest.interfaces.serial_interface
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     This module implements represeting com port as a resource.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 from .interfaces import Interfaces

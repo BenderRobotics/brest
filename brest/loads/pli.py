@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    brest.loads.loads
-    ~~~~~~~~~~~~~~~~~
+    brest.loads.pli
+    ~~~~~~~~~~~~~~~
 
     This module implements base abstract class for loads.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 from brest.loads import Loads

@@ -5,7 +5,7 @@
 
     This module implements communication using serial line.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 import serial

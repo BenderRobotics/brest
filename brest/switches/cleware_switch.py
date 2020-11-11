@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    brest.switches.switches
-    ~~~~~~~~~~~~~~~~~~~~~~~
+    brest.switches.cleware_switch
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     This module implements base abstract for switches.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 from brest.switches.switches import Switches

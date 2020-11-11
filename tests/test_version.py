@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+    brest.tests.test_version
+    ~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module performs version test.
+
+    :copyright: 2020 Bender Robotics
+"""
+
 import os
 import brest
 

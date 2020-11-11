@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    brest.supplies.Mansup
+    brest.supplies.mansup
     ~~~~~~~~~~~~~~~~~~~~~
 
-    This module implements fixed power supply
+    This module implements fixed power supply.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 from brest.supplies import Supplies

@@ -5,7 +5,7 @@
 
     This module implements unified interface for MODBUS communication.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 from brest.communication.types import uint8_t, uint16_t, uint32_t, vlist_t, checksum_t

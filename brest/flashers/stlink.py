@@ -3,9 +3,9 @@
     brest.flashers.STLink
     ~~~~~~~~~~~~~~~~~~~~
 
-    This module implements ST-LinkV2/V3 progrmmers.
+    This module implements ST-LinkV2/V3 programmers.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 import os

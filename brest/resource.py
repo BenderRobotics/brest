@@ -5,7 +5,7 @@
 
     This module implements base attributes and method for resource.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 import logging

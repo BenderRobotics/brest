@@ -3,9 +3,9 @@
     brest.flashers.JLink
     ~~~~~~~~~~~~~~~~~~~~
 
-    This module implements JLink programmers
+    This module implements JLink programmers.
 
-    :copyright: 2019 Bender Robotics
+    :copyright: 2020 Bender Robotics
 """
 
 import os

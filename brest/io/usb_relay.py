@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    brest.io.USBRelay
-    ~~~~~~~~~~~~~~~~~
+    brest.io.usb_relay
+    ~~~~~~~~~~~~~~~~~~
 
     This module implements USB-RLYxx relay array.
+
+    :copyright: 2020 Bender Robotics
 """
 
 from brest.io import IO
