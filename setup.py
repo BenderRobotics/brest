@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+    brest.setup
+    ~~~~~~~~~~~
+
+    Setup file for package building.
+
+    :copyright: 2020 Bender Robotics
+"""
+
 import setuptools
 
 with open('README.md', 'r') as fh:

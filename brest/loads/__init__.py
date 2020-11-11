@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+    brest.loads.__init__
+    ~~~~~~~~~~~~~~~~~~~~
+
+    This file signifies that 'loads' is a module.
+
+    :copyright: 2020 Bender Robotics
+"""
+
 from .loads import Loads
 from .pli import Pli
 

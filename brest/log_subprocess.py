@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+    brest.log_subprocess
+    ~~~~~~~~~~~~~~~~~~~~
+
+    This module implements support for logging in subprocess.
+
+    :copyright: 2020 Bender Robotics
+"""
+
 import logging
 import sys
 import subprocess

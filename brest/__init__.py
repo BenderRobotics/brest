@@ -1,4 +1,17 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+    brest.__init__
+    ~~~~~~~~~~~~~~
+
+    This file signifies that 'brest' is a module.
+
+    Brest is package for handling of peripherals.
+    It aims at making embedded development and testing easier,
+    mainly by reducing the time needed to set up the HW.
+
+    :copyright: 2020 Bender Robotics
+"""
 
 # Set up brest logging facility
 import logging.config

@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+    brest.communication.__init__
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This file signifies that 'communication' is a module.
+
+    :copyright: 2020 Bender Robotics
+"""
+
 from .communicable import Communicable, CommunicableError
 from .serial_communicable import SerialCommunicable
 from .communicable_structures import Endianness, Packable, CommunicationStructure, CommunicationFrame

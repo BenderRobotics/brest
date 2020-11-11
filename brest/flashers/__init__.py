@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+    brest.flashers.__init__
+    ~~~~~~~~~~~~~~~~~~~~~~~
+
+    This file signifies that 'flashers' is a module.
+
+    :copyright: 2020 Bender Robotics
+"""
+
 from .flashers import Flashers
 from .stlink import STLink
 from .jlink import JLink
