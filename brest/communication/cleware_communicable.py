@@ -28,7 +28,8 @@ class ClewareCommunicable(HIDCommunicable):
     TYPE = 'cleware'
     CLEWARE_VID = 0x0d50
     CLEWARE_SWITCH = 0x0008
-    SN_TIMEOUT = 0.4  # 0.4s, choose carefully may be hit often even for correct behavior
+    SN_TIMEOUT = 2  # 2s (with 0.4 was hit often even for correct behavior)
+                    #   should not be hit in normal use with addition of parsing
 
     def __init__(self, params):
         HIDCommunicable.__init__(self, params)
@@ -60,12 +61,14 @@ class ClewareCommunicable(HIDCommunicable):
 
             for i in range(8, 15):
                 h.write([0x00, 0x02, i, 0x00])
+                expected_0 = [130, 131, 134]    # observed possible values: status of cleware: off/on1/on2
+                expected_1_5 = [i, 0, 0, i]     # observed format of the response
 
                 timeout = time.time() + sn_timeout
                 while True:
                     new_data = h.read(6)
-                    # check for timeout is needed as first number may not change and still be correct
-                    if new_data[5] != old_data[5] or time.time() > timeout:
+                    # check for timeout is left for back-compatibility (and as a failsafe)
+                    if (new_data[0] in expected_0 and new_data[1:5] == expected_1_5) or time.time() > timeout:
                         old_data = new_data
                         raw_serial_number.append(new_data[5])
                         break
