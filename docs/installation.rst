@@ -19,7 +19,11 @@ Brest should be installed now. You can now head to the :ref:`usage` or install O
 Python version
 --------------
 
-Brest supports Python 3.5 and above on Windows and Linux.
+Brest supports Python versions from 3.5 to 3.7 on Windows and Linux.
+
+.. warning::
+
+    Usage on Python 3.8 and 3.9 may be possible, but support is still in experimental phase.
 
 .. admonition:: pip on Linux
 

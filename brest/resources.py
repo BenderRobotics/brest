@@ -111,7 +111,7 @@ class Resources():
 
         res = rp.construct_config(cfg)
         if not res and (cfg.needed is None or len(cfg.needed) > 0):
-            self.logger.error('Error durning `{}` project instantiation'.format(cfg.project), extra=self.log_args)
+            self.logger.error('Error during `{}` project instantiation'.format(cfg.project), extra=self.log_args)
             raise SystemExit(1)
 
         for r in res:
