@@ -150,10 +150,6 @@ DEFAULT_LOGGING = {
         },
     },
     'loggers': {
-        'root': {
-            'level': 'DEBUG',
-            'handlers': ['br_console_h'],
-        },
         'brest': {
             'level': 'DEBUG',
             'handlers': ['br_console_dbg_h'],
