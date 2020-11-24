@@ -13,6 +13,27 @@
     :copyright: 2020 Bender Robotics
 """
 
+# Verify Python version
+import sys
+supported_versions = (
+    '\r\n\t3.5' +
+    '\r\n\t3.6' +
+    '\r\n\t3.7' +
+    '\r\n\t3.8 (experimental)' +
+    '\r\n\t3.9 (experimental)'
+)
+if sys.version_info.major != 3 or sys.version_info.minor not in range(5, 10):
+    print('\r\n============================================================')
+    print('ERROR (brest): Python version (%d.%d) invalid, exiting!' % (sys.version_info.major, sys.version_info.minor))
+    print('INFO  (brest): Supported Python versions:%s' % supported_versions)
+    print('============================================================\r\n')
+    sys.exit()
+if sys.version_info.minor in range(8, 10):
+    print('\r\n'.ljust(82, '='))
+    print('WARNING (brest): Python version (%d.%d) compatibility assumed, not verified!' % (sys.version_info.major, sys.version_info.minor))
+    print('INFO    (brest): Supported Python versions:%s' % supported_versions)
+    print('\r\n'.rjust(82, '='))
+
 # Set up brest logging facility
 import logging.config
 from .log import DEFAULT_LOGGING
@@ -79,4 +100,4 @@ def find_available_resource(project, resource, user_config = Config.BREST_USER_C
         resource_needed['interface'].update(intr[0])
         return resource_needed
     else:
-            return None
+        return None
