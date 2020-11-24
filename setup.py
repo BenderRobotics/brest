@@ -29,7 +29,7 @@ setuptools.setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
-    python_requires='>=3.5',
+    python_requires='>=3.5, <=3.9',
     install_requires=[
         'colorama>=0.4.1',
         'pyserial>=3.4',
