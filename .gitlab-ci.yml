@@ -27,6 +27,7 @@ test-unit:
   tags:
     - docker
   script:
+    - python tests/test_root_logger.py
     - python tests/test_colorful_output.py
   dependencies:
     - build-wheel
