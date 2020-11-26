@@ -70,7 +70,7 @@ class JLink(Flashers, FlasherCommunicable):
         if timeout is None:
             timeout = self._timeout
 
-        if file is "":
+        if file == "":
             if self._file == "":
                 self.logger.error("No file to flash", extra=self.log_args)
                 return
