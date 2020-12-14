@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.11] - 2020-12-14
+
+### Fixed
+- Fixed log formatting propagation that caused problems on Python 3.9. #3802
+- Fixed Cleware Serial Number reading upon probing. #3767
+- Fixed operator in one of the modules. #3812
+
+### Changed
+- Changed Python version check. #3802
+    - Can be installed on Python 3.5 - 3.9.
+    - Importing on Python 3.8 - 3.9 gives warning on unproven support.
+    - Importing on Python version other than (3.5 - 3.9) exits execution with error message.
+- Changed timeout for Cleware Serial Number reading upon probing. #3767
+
 ## [0.0.10] - 2020-11-11
 
 ### Fixed
