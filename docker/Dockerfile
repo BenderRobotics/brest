@@ -1,17 +1,15 @@
 # Download Alpine latest
-FROM alpine:latest
+FROM alpine:3.10
 
 # Fill image descriptors
 LABEL maintainer="lesinsky@benderrobotics.com"
-LABEL build_date="2020-11-11"
 
-# Install necessary Alpine packages
-RUN apk update
-RUN apk add linux-headers gcc libc-dev eudev-dev python3 python3-dev libusb-dev make
-
-# Prepare filesystem
-RUN ln -s /usr/bin/python3 /usr/bin/python
-RUN ln -s /usr/bin/pip3 /usr/bin/pip
-
-# Install necessary Python packages
-RUN pip install wheel
+# Prepare image itself, this is in one step to minimize image size
+RUN apk update --no-cache && \
+    # Install necessary Alpine packages
+    apk add --no-cache linux-headers gcc libc-dev eudev-dev python3 python3-dev py3-pip libusb-dev make && \
+    # Prepare filesystem
+    ln -s /usr/bin/python3 /usr/bin/python && \
+    ln -s /usr/bin/pip3 /usr/bin/pip && \
+    # Install necessary Python packages
+    pip install --no-cache-dir wheel

@@ -1,6 +1,7 @@
-image: brest:latest
+image: ${CI_REGISTRY_IMAGE}/toolchain
 
 stages:
+  - toolchain
   - build
   - test
   - docs
@@ -21,6 +22,24 @@ build-wheel:
     paths:
       - "dist/*.whl"
     expire_in: 1 week
+
+publish-toolchain:
+  image: docker:stable
+  stage: toolchain
+  services:
+    - docker:dind
+  before_script:
+    - echo $CI_BUILD_TOKEN | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  script:
+    - cd docker
+    - docker build --pull -t "$CI_REGISTRY_IMAGE/toolchain:$CI_COMMIT_TAG" .
+    - docker push "$CI_REGISTRY_IMAGE/toolchain:$CI_COMMIT_TAG"
+    - docker build --pull -t "$CI_REGISTRY_IMAGE/toolchain:latest" .
+    - docker push "$CI_REGISTRY_IMAGE/toolchain:latest"
+  tags:
+    - docker
+  only:
+    - web
 
 .code-quality:
   stage: test
