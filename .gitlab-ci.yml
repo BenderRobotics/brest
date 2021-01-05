@@ -20,7 +20,7 @@ build-wheel:
     - make
   artifacts:
     paths:
-      - "dist/*.whl"
+      - "dist/brest-*.*"
     expire_in: 1 week
 
 publish-toolchain:
@@ -93,6 +93,17 @@ test-unit:
   dependencies:
     - build-wheel
 
+test-version:
+  stage: test
+  tags:
+    - docker
+  script:
+    - python tests/test_version.py
+  dependencies:
+    - build-wheel
+  only:
+    - tags
+
 build-docs:
   stage: docs
   tags:
@@ -112,10 +123,16 @@ deploy-wheel:
   stage: deploy
   tags:
     - docker
+  image: chartedcode/alpine-sftp-client
+  before_script:
+    - echo "$PYPI_KEY" | tr -d '\r' > ./ssh_key
+    - chmod 600 ./ssh_key
   script:
-    - python tests/test_version.py
-    - python setup.py sdist
-    - cp -r dist/* /opt/brest/bin
+    - |
+      sftp -i ./ssh_key -oStrictHostKeyChecking=no $PYPI_USER@$PYPI_HOST:/brest/ << EOF
+        put dist/*
+        quit
+      EOF
   dependencies:
     - build-wheel
   only:
@@ -125,9 +142,16 @@ deploy-docs:
   stage: deploy
   tags:
     - docker
+  image: chartedcode/alpine-sftp-client
+  before_script:
+    - echo "$DOCS_KEY" | tr -d '\r' > ./ssh_key
+    - chmod 600 ./ssh_key
   script:
-    - python tests/test_version.py
-    - cp -r docs/_build/html/* /opt/brest/docs
+    - |
+      sftp -i ./ssh_key -oStrictHostKeyChecking=no $DOCS_USER@$DOCS_HOST:/brest/ << EOF
+        put -R docs/_build/html/*
+        quit
+      EOF
   dependencies:
     - build-wheel
     - build-docs
