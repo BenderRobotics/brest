@@ -12,6 +12,7 @@
 import os
 import re
 import sys
+import tempfile
 
 from shutil import which
 from brest.flashers import Flashers
@@ -115,13 +116,21 @@ class STLink(Flashers, FlasherCommunicable):
         command = []
         address = self._unify_address(address)
 
-        for value in data:
-            command += ['-w8', address, hex(value)]
-            address = str(hex(int(address, 16) + 8))
+        tmp_file = tempfile.NamedTemporaryFile(mode='wb', suffix=".bin", delete=False)
+        tmp_file.write(bytes(data))
+        tmp_file.flush()
+
+        # file need to be closed so CLI can open it
+        tmp_file.close()
+
+        command += ['-w', tmp_file.name, address, '--skipErase']
 
         self.connect()
         process = run(self.__parse_connect() + command, stdout=PIPE, stderr=STDOUT,
                       log=self._log, timeout=timeout)
+
+        os.remove(tmp_file.name)
+
         if process.returncode != 0:
             self.logger.error('Unable to write to MCU memory{0}{1}'.format(os.linesep, process.stdout.read().decode()), extra=self.log_args)
             raise ConnectionError()
@@ -133,7 +142,7 @@ class STLink(Flashers, FlasherCommunicable):
 
         self.connect()
         process = run(self.__parse_connect() + ['-e', 'all'], stdout=PIPE, stderr=STDOUT,
-                      log=self._log, timeout=self._timeout)
+                      log=self._log, timeout=timeout)
         if process.returncode != 0:
             self.logger.error('Unable to perform mass erase{0}{1}'.format(os.linesep, process.stdout.read().decode()), extra=self.log_args)
             raise ConnectionError()
@@ -177,12 +186,24 @@ class STLink(Flashers, FlasherCommunicable):
 
         address = self._unify_address(address)
         self.connect()
-        process = run(self.__parse_connect() + ['-r32', address, hex(size)], stdout=PIPE, stderr=STDOUT,
+        process = run(self.__parse_connect() + ['-r8', address, hex(size)], stdout=PIPE, stderr=STDOUT,
                       log=self._log, timeout=timeout)
         if process.returncode != 0:
             self.logger.error('Unable to perform read from MCU memory{0}{1}'.format(os.linesep, process.stdout.read().decode()), extra=self.log_args)
             raise ConnectionError()
-        return process
+
+        data = process.stdout.read().decode()
+        data_regex = r"0x\w+\s*:\s*((\w+ *)*\w+)"
+
+        matches = re.finditer(data_regex, data, re.MULTILINE | re.IGNORECASE)
+
+        out = []
+        for match in matches:
+            data = match.group(1).strip("\n").split(" ")
+
+            out.extend(int(i, 16) for i in data if data != '')
+
+        return out
 
     def read_to_file(self, address, size, file, timeout=None):
         if timeout is None:
