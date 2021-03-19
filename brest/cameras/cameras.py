@@ -37,7 +37,7 @@ class Cameras(Resource):
         self.transformation = None
         self.final_resolution = None
         self.hist_calibration = None
-        self.rgb_calibration = None
+        self.ccm = None
 
         self._default_video_filename = None
         self._default_video_format = 'mp4'
@@ -85,7 +85,7 @@ class Cameras(Resource):
         Returns True when color calibration is done for this camera and camera can give color-calibrated image.
         """
 
-        return (self.rgb_calibration is not None)
+        return (self.ccm is not None)
 
     def release(self):
         """
@@ -188,9 +188,11 @@ class Cameras(Resource):
             imgo[:, :, x] = np.clip((k-p[0]) * (255 / (p[2]-p[0])), 0, 255).astype('uint8')
         return imgo
 
-    def calibrate_rgb(self, img):
+    def apply_color_correction(self, img):
         """
-        RGB color calibration on acquired image
+        Applies color calibration matrix calculated in `calibrate_color` on acquired image.
+
+        WARNING: original instance of `img` is affected by this function.
 
         :param img: acquired image
         :type  img: cv2 image (b,g,r matrix)
@@ -199,26 +201,14 @@ class Cameras(Resource):
         """
         import numpy as np
 
-        imgo = img.copy()
-        bb = img[:, :, 0]
-        bg = img[:, :, 1]
-        br = img[:, :, 2]
-        gb = img[:, :, 0]
-        gg = img[:, :, 1]
-        gr = img[:, :, 2]
-        rb = img[:, :, 0]
-        rg = img[:, :, 1]
-        rr = img[:, :, 2]
-
-        bo = bb * self.rgb_calibration[0, 0] + bg * self.rgb_calibration[1, 0] + br * self.rgb_calibration[2, 0]
-        go = gb * self.rgb_calibration[0, 1] + gg * self.rgb_calibration[1, 1] + gr * self.rgb_calibration[2, 1]
-        ro = rb * self.rgb_calibration[0, 2] + rg * self.rgb_calibration[1, 2] + rr * self.rgb_calibration[2, 2]
-
-        imgo[:, :, 0] = np.clip(bo, 0, 255).astype('uint8')
-        imgo[:, :, 1] = np.clip(go, 0, 255).astype('uint8')
-        imgo[:, :, 2] = np.clip(ro, 0, 255).astype('uint8')
-
-        return imgo
+        # reshape the source image to 1 channel, width * height rows, 3 cols,
+        # apply color correction matrix and reshape back
+        h, w, ch = img.shape
+        img = np.reshape(img, (h * w, ch))
+        img = img.dot(self.ccm)
+        img = np.reshape(img, (h, w, ch))
+        img = np.uint8(np.clip(img, 0, 255))
+        return img
 
     @staticmethod
     def img_to_grayscale(img):
@@ -304,130 +294,40 @@ class Cameras(Resource):
         self.transformation = transformation
         self.final_resolution = final_resolution
 
-    def calibrate_color(self, chessboard, red, green, blue, chessboard_size):
+    def calibrate_color(self, colors, images):
         """
-        Does the calibration on the calibration images.
+        Calculates color-calibration matrix based on the images captured with the camera and the expected colors.
 
-        :param chessboard: image of the chessboard pattern
-        :type  chessboard: image
-        :param red: image of the red calibration screen
-        :type  red: image
-        :param green: image of the green calibration screen
-        :type  green: image
-        :param blue: image of the blue calibration screen
-        :type  blue: image
-        :param chessboard_size: number of black/white pairs
-        :type  chessboard_size: int/float (width, height)
+        :param colors: list of colours in tuple representation - same color order as the `images`, by default OpenCV is
+                       using color channel order (B, G, R).
+        :param images: list of images of the `colors`
         """
         import numpy as np
         import cv2 as cv
 
-        chessboard = self.rectify(chessboard)
-        red = self.rectify(red)
-        green = self.rectify(green)
-        blue = self.rectify(blue)
+        assert len(colors) == len(images)
+        n = len(colors)
+        source = np.zeros((n, 3))
+        target = np.zeros((n, 3))
 
-        # BGR screen cropped to better function
-        b = b[50:-50, 50:-50]
-        g = g[50:-50, 50:-50]
-        r = r[50:-50, 50:-50]
+        for i, img in enumerate(images):
+            # crop image to the middle part
+            h, w = img.shape[0], img.shape[1]
+            x = int(w // 4)
+            y = int(w // 4)
+            h = int(h // 2)
+            w = int(w // 2)
+            crop_img = img[y:y+h, x:x+w]
 
-        hist_bins = 255
-        hist_range = (0, 255)
-        hist_threshold = 10
+            # get average color of the given image
+            pixels = np.float32(crop_img.reshape(-1, 3))
+            source[i] = np.average(pixels, axis=0)
+            target[i] = colors[i]
 
-        crb, prb = np.histogram(np.ma.masked_less(r[:, :, 0], hist_threshold), bins=hist_bins, range=hist_range)
-        crg, prg = np.histogram(np.ma.masked_less(r[:, :, 1], hist_threshold), bins=hist_bins, range=hist_range)
-        crr, prr = np.histogram(np.ma.masked_less(r[:, :, 2], hist_threshold), bins=hist_bins, range=hist_range)
-        cbb, pbb = np.histogram(np.ma.masked_less(b[:, :, 0], hist_threshold), bins=hist_bins, range=hist_range)
-        cbg, pbg = np.histogram(np.ma.masked_less(b[:, :, 1], hist_threshold), bins=hist_bins, range=hist_range)
-        cbr, pbr = np.histogram(np.ma.masked_less(b[:, :, 2], hist_threshold), bins=hist_bins, range=hist_range)
-        cgb, pgb = np.histogram(np.ma.masked_less(g[:, :, 0], hist_threshold), bins=hist_bins, range=hist_range)
-        cgg, pgg = np.histogram(np.ma.masked_less(g[:, :, 1], hist_threshold), bins=hist_bins, range=hist_range)
-        cgr, pgr = np.histogram(np.ma.masked_less(g[:, :, 2], hist_threshold), bins=hist_bins, range=hist_range)
-        cbb = np.where(0.95*max(cbb) < cbb, 0.95*max(cbb), cbb)
-        cgg = np.where(0.95*max(cgg) < cgg, 0.95*max(cgg), cgg)
-        crr = np.where(0.95*max(crr) < crr, 0.95*max(crr), crr)
-
-        bmin = min(np.argmax(crb), np.argmax(cgb))
-        gmin = min(np.argmax(crg), np.argmax(cbg))
-        rmin = min(np.argmax(cbr), np.argmax(cbg))
-
-        if cbb[-1] > 10:
-            bmax = np.argmax(cbb)
-        else:
-            bmax = 255
-        if cgg[-1] > 10:
-            gmax = np.argmax(cgg)
-        else:
-            gmax = 255
-        if crr[-1] > 10:
-            rmax = np.argmax(crr)
-        else:
-            rmax = 255
-
-        bmean = int(np.mean(chessboard_img[:, :, 0]))
-        gmean = int(np.mean(chessboard_img[:, :, 1]))
-        rmean = int(np.mean(chessboard_img[:, :, 2]))
-
-        bp = [bmin, bmean, bmax]
-        gp = [gmin, gmean, gmax]
-        rp = [rmin, rmean, rmax]
-        self.hist_calibration = [bp, gp, rp]
-
-        b = self.calibrate_hist(b)
-        g = self.calibrate_hist(g)
-        r = self.calibrate_hist(r)
-        chessboard_img = self.calibrate_hist(chessboard_img)
-
-        Bi = [np.mean(b[:, :, 0]), np.mean(b[:, :, 1]), np.mean(b[:, :, 2])]
-        Gi = [np.mean(g[:, :, 0]), np.mean(g[:, :, 1]), np.mean(g[:, :, 2])]
-        Ri = [np.mean(r[:, :, 0]), np.mean(r[:, :, 1]), np.mean(r[:, :, 2])]
-
-        chb = cv.GaussianBlur(chessboard_img, (9, 9), 10)
-        chb = cv.GaussianBlur(chb, (5, 5), 20)
-        h, w = chb.shape[:2]  # image size
-        ws = int(w/chessboard_size[0])
-        hs = int(h/chessboard_size[1])
-
-        i = 0
-        wb = 0
-        wg = 0
-        wr = 0
-        kb = 0
-        kg = 0
-        kr = 0
-
-        for x in range(int(chessboard_size[0])):
-            for y in range(int(chessboard_size[1])):
-                # calculation of center for white and black square in black/white pair
-                x1 = int(ws*x + ws/4)
-                x2 = int(ws*x + ws*3/4)
-                y1 = int(hs*y + hs/4)
-                y2 = int(hs*y + hs*3/4)
-
-                wb += (int(chb[y1, x1, 2]) + int(chb[y2, x2, 2])) / 2
-                wg += (int(chb[y1, x1, 2]) + int(chb[y2, x2, 2])) / 2
-                wr += (int(chb[y1, x1, 2]) + int(chb[y2, x2, 2])) / 2
-                kb += (int(chb[y1, x2, 0]) + int(chb[y2, x1, 0])) / 2
-                kg += (int(chb[y1, x2, 1]) + int(chb[y2, x1, 1])) / 2
-                kr += (int(chb[y1, x2, 2]) + int(chb[y2, x1, 2])) / 2
-                i += 1
-
-        Wi = [wb/(i-1), wg/(i-1), wr/(i-1)]
-        Ki = [kb/(i-1), kg/(i-1), kr/(i-1)]
-        I = [Bi, Gi, Ri, Wi, Ki, Wi, Ki, Wi, Ki]
-
-        Bt = [255, 0, 0]
-        Gt = [0, 255, 0]
-        Rt = [0, 0, 255]
-        Wt = [255, 255, 255]
-        Kt = [0, 0, 0]
-        T = [Bt, Gt, Rt, Wt, Kt, Wt, Kt, Wt, Kt]
-
-        invI = np.linalg.pinv(I)
-
-        self.rgb_calibration = np.dot(invI, T)
+        # compute the colour correction matrix: A*CCM = B => CCM = (A' * A).inv() * A' * B
+        at_b = np.transpose(source).dot(target)
+        at_a_inv = np.linalg.pinv(np.transpose(source).dot(source))
+        self.ccm = at_a_inv.dot(at_b)
 
     def _preprocess(self, img_raw):
         """
@@ -443,8 +343,8 @@ class Cameras(Resource):
         if self.hist_calibration is not None:
             img = self.calibrate_hist(img)
 
-        if self.rgb_calibration is not None:
-            img = self.calibrate_rgb(img)
+        if self.ccm is not None:
+            img = self.apply_color_correction(img)
 
         return img
 
