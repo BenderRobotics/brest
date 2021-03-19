@@ -6,7 +6,7 @@
 
     This file signifies that 'cameras' is a module.
 
-    :copyright: 2020 Bender Robotics
+    :copyright: 2021 Bender Robotics
 """
 
 from .cameras import Cameras
@@ -19,4 +19,4 @@ __all__ = [
     'PointGrey'
     ]
 
-__version__ = '0.0.10'
+__version__ = '0.0.12'

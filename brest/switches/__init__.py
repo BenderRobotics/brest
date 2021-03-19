@@ -6,7 +6,7 @@
 
     This file signifies that 'switches' is a module.
 
-    :copyright: 2020 Bender Robotics
+    :copyright: 2021 Bender Robotics
 """
 
 from .switches import Switches

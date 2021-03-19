@@ -7,7 +7,7 @@
     This module implements packable types that are
     used to define a message.
 
-    :copyright: 2020 Bender Robotics
+    :copyright: 2021 Bender Robotics
 """
 
 import struct

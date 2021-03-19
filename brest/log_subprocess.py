@@ -6,7 +6,7 @@
 
     This module implements support for logging in subprocess.
 
-    :copyright: 2020 Bender Robotics
+    :copyright: 2021 Bender Robotics
 """
 
 import logging

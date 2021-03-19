@@ -6,7 +6,7 @@
 
     This module implements base abstract class for loads.
 
-    :copyright: 2020 Bender Robotics
+    :copyright: 2021 Bender Robotics
 """
 
 from brest.loads import Loads

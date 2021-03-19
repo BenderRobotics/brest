@@ -15,7 +15,7 @@
 
     The test logs its behavior without using logging module as that is effectively the module under test.
 
-    :copyright: 2020 Bender Robotics
+    :copyright: 2021 Bender Robotics
 """
 
 import os

@@ -6,7 +6,7 @@
 
     This file signifies that 'supplies' is a module.
 
-    :copyright: 2020 Bender Robotics
+    :copyright: 2021 Bender Robotics
 """
 
 from .supplies import Supplies

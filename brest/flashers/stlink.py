@@ -6,7 +6,7 @@
 
     This module implements ST-LinkV2/V3 programmers.
 
-    :copyright: 2020 Bender Robotics
+    :copyright: 2021 Bender Robotics
 """
 
 import os

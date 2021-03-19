@@ -6,7 +6,7 @@
 
     This module implements connected camera listing.
 
-    :copyright: 2020 Bender Robotics
+    :copyright: 2021 Bender Robotics
 """
 
 import logging

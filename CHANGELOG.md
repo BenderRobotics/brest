@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.0.12] - 2021-03-19
+
+### Fixed
+- Fixed ST-Link read / write. #4058
+- Fixed Python version requirement to allow for any Python 3.9.* version. (refs #3879)
+
+### Changed
+- Improved camera color calibration procedure. #4188
+
 ## [0.0.11] - 2020-12-14
 
 ### Fixed

@@ -6,7 +6,7 @@
 
     This module implements fixed power supply.
 
-    :copyright: 2020 Bender Robotics
+    :copyright: 2021 Bender Robotics
 """
 
 from brest.supplies import Supplies

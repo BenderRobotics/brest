@@ -6,7 +6,7 @@
 
     Setup file for package building.
 
-    :copyright: 2020 Bender Robotics
+    :copyright: 2021 Bender Robotics
 """
 
 import setuptools
@@ -16,7 +16,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name='brest',
-    version='0.0.11',
+    version='0.0.12',
     author='Bender Robotics',
     author_email='lesinsky@benderrobotics.com',
     description='Bender Robotics Embedded Systems Toolkit',

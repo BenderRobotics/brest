@@ -6,7 +6,7 @@
 
     This module implements core functionality and provides means to resource probing and instantiation.
 
-    :copyright: 2020 Bender Robotics
+    :copyright: 2021 Bender Robotics
 """
 
 import logging

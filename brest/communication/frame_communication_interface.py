@@ -6,7 +6,7 @@
 
     This module defines general communication which uses frames.
 
-    :copyright: 2020 Bender Robotics
+    :copyright: 2021 Bender Robotics
 """
 
 import logging
