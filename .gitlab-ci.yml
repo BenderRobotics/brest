@@ -5,7 +5,14 @@ stages:
   - build
   - test
   - docs
+  - docs-docker
+  - preview
   - deploy
+
+variables:
+  IMAGE_TAG: '${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}'
+  PREVIEW_URL: '${CI_COMMIT_REF_SLUG}-${DOC_REVIEW_URL}'
+  DOCKER_ENV: '-e GITLAB_SERVER=${CI_SERVER_HOST} -e GITLAB_TOKEN=${GITLAB_TOKEN}'
 
 before_script:
   - pip install dist/brest-*.whl
@@ -118,6 +125,74 @@ build-docs:
     expire_in: 1 week
   dependencies:
     - build-wheel
+
+build-docs-docker:
+  stage: docs-docker
+  image: docker
+  before_script:
+    - ''
+  tags:
+    - docker
+  script:
+    - docker build --pull -t $IMAGE_TAG -f docs/docker/Dockerfile docs/
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $IMAGE_TAG
+
+preview:
+  stage: preview
+  before_script:
+    - ''
+  script:
+    - docker stop $PREVIEW_URL || true
+    - docker rm $PREVIEW_URL || true
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker run -d --name $PREVIEW_URL --network="web" --pull=always $DOCKER_ENV $IMAGE_TAG
+  environment:
+    name: preview/$CI_COMMIT_REF_NAME
+    url: https://${CI_COMMIT_REF_SLUG}-${DOC_REVIEW_URL}
+    on_stop: stop_preview
+  only:
+    - branches
+  except:
+    - master
+    - devel
+  tags:
+    - web
+
+stop_preview:
+  stage: preview
+  before_script:
+    - ''
+  script:
+    - docker stop $preview_URL
+    - docker rm $preview_URL
+  variables:
+    GIT_STRATEGY: none
+  when: manual
+  environment:
+    name: preview/$CI_COMMIT_REF_NAME
+    action: stop
+  tags:
+    - web
+
+staging:
+  stage: preview
+  before_script:
+    - ''
+  script:
+    - docker stop $DOC_STAGING_URL || true
+    - docker rm $DOC_STAGING_URL || true
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker run -d --name $DOC_STAGING_URL --network="web" --pull=always $DOCKER_ENV $IMAGE_TAG
+  environment:
+    name: staging
+    url: https://${DOC_STAGING_URL}
+  only:
+    - devel
+  except:
+    - tags
+  tags:
+    - web
 
 deploy-wheel:
   stage: deploy
