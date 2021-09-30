@@ -51,7 +51,9 @@ class GenericCamera(Cameras, CameraCommunicable):
 
         if self._cam is not None:
             self._cam.release()
+            # Delete to ensure memory clearance and recreate variable for further functionality
             del self._cam
+            self._cam = None
 
     def acquire_image(self):
         return self.cam.read()[1]

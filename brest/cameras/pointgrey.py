@@ -88,7 +88,9 @@ class PointGrey(Cameras, CameraCommunicable):
         if self._cam is not None:
             self._cam.EndAcquisition()
             self._cam.DeInit()
+            # Delete to ensure memory clearance and recreate variable for further functionality
             del self._cam
+            self._cam = None
 
     def configure_trigger(self, trigger):
         """
