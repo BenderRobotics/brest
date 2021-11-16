@@ -603,22 +603,13 @@ class Cameras(Resource):
 
                 video_height = int(round(video_height / macro_block_size) * macro_block_size)
 
-                # create thickness and scale of the font based on the image resolution
-                if video_width < 600:
-                    font_thickness = 1
-                    font_scale = 0.5
-                    text_line_height = 15
-                elif video_width < 1200:
-                    font_thickness = 2
-                    font_scale = 1
-                    text_line_height = 30
-                else:
-                    font_thickness = 3
-                    font_scale = 1.5
-                    text_line_height = 45
+                # create thickness and scale of the font based on the image resolution, use scale 1 on resolution 1600
+                font_scale = video_width / 2048
+                text_line_height = int(30 * font_scale)
 
                 # get the coordinates where to put the text
-                text_x, text_y = 5, 5 + text_line_height
+                text_x = int(10 * font_scale)
+                text_y = text_x + text_line_height
 
                 # loop with fixed period terminated by killing pill `stop_event`
                 while not stop_event.wait(max(0, (t + period) - time.time())):
@@ -635,9 +626,8 @@ class Cameras(Resource):
 
                         for line in text.split(r'\n'):
                             line = line.replace(Cameras.VIDEO_TEXT_PLACEHOLDER_TIMESTAMP, timestamp)
-                            frame = cv.putText(frame, line, (text_x, row_y),
-                                               cv.FONT_HERSHEY_SIMPLEX, font_scale, text_color,
-                                               font_thickness, cv.LINE_8)
+                            frame = cv.putText(frame, line, (text_x, row_y), cv.FONT_HERSHEY_SIMPLEX, font_scale,
+                                               text_color, lineType=cv.LINE_8)
                             row_y += text_line_height
 
                     # CV by default works in BGR -> change to RGB
@@ -645,7 +635,8 @@ class Cameras(Resource):
                     writer.append_data(frame)
 
             except Exception as ex:
-                logging.getLogger().error(ex)
+                log_args = {'class_name': '_frame_grabber'}
+                logging.getLogger().error(ex, exc_info=ex, extra=log_args)
 
             finally:
                 writer.close()
