@@ -42,3 +42,4 @@ The second level of indention represent available resources.
 
     * :class:`~brest.switches.Manswitch`
     * :class:`~brest.switches.ClewareSwitch`
+    * :class:`~brest.switches.YepkitSwitch`

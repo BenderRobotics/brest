@@ -12,7 +12,13 @@
 from .switches import Switches
 from .cleware_switch import ClewareSwitch
 from .manswitch import Manswitch
+from .yepkit import YepkitSwitch
 
-__all__ = ['Switches', 'ClewareSwitch', 'Manswitch']
+__all__ = [
+    'Switches',
+    'ClewareSwitch',
+    'Manswitch',
+    'YepkitSwitch',
+]
 
 __version__ = '0.0.9'

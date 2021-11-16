@@ -188,6 +188,12 @@ Follow the :ref:`definitions.interfaces` section down below.
             voltage: float
             current: float
 
+.. admonition:: Default values for multichannel supplies
+
+    If you happen to have multichannel power supply, values under
+    `default:` group will apply ONLY to FIRST channel. To set default values
+    for other channels, use the same notation but in alias definition.
+
 :class:`~brest.Switches`::
 
     required:
@@ -203,12 +209,6 @@ Follow the :ref:`definitions.interfaces` section down below.
 
     interface:
         sn_timeout: float
-
-.. admonition:: Default values for multichannel supplies
-
-    If you happen to have multichannel power supply, values under
-    `default:` group will apply ONLY to FIRST channel. To se default values
-    for other channels, use the same notation but in alias definition.
 
 .. _definitions.interfaces:
 

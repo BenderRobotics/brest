@@ -283,3 +283,5 @@ Available switches:
 .. autoclass:: Manswitch
 
 .. autoclass:: ClewareSwitch
+
+.. autoclass:: YepkitSwitch
