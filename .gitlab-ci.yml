@@ -5,7 +5,6 @@ stages:
   - build
   - test
   - docs
-  - docs-docker
   - preview
   - deploy
 
@@ -31,7 +30,7 @@ build-wheel:
     expire_in: 1 week
 
 publish-toolchain:
-  image: docker:stable
+  image: docker
   stage: toolchain
   services:
     - docker:dind
@@ -52,7 +51,7 @@ publish-toolchain:
   stage: test
   tags:
     - docker
-  image: docker:stable
+  image: docker
   allow_failure: true
   variables:
     CI_DEBUG_TRACE: "false"
@@ -92,6 +91,7 @@ code-quality-html:
 
 test-unit:
   stage: test
+  needs: ["build-wheel"]
   tags:
     - docker
   script:
@@ -102,6 +102,7 @@ test-unit:
 
 test-version:
   stage: test
+  needs: ["build-wheel"]
   tags:
     - docker
   script:
@@ -113,6 +114,7 @@ test-version:
 
 build-docs:
   stage: docs
+  needs: ["build-wheel"]
   tags:
     - docker
   script:
@@ -127,8 +129,10 @@ build-docs:
     - build-wheel
 
 build-docs-docker:
-  stage: docs-docker
+  stage: preview
+  needs: ["build-docs"]
   image: docker
+  allow_failure: true
   before_script:
     - ''
   tags:
@@ -137,11 +141,24 @@ build-docs-docker:
     - docker build --pull -t $IMAGE_TAG -f docs/docker/Dockerfile docs/
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker push $IMAGE_TAG
+  except:
+    - tags
 
-preview:
+.preview:
   stage: preview
+  needs: ["build-docs-docker"]
   before_script:
     - ''
+  only:
+    - branches
+  except:
+    - master
+    - devel
+  tags:
+    - web
+
+preview:
+  extends: .preview
   script:
     - docker stop $PREVIEW_URL || true
     - docker rm $PREVIEW_URL || true
@@ -151,18 +168,9 @@ preview:
     name: preview/$CI_COMMIT_REF_NAME
     url: https://${CI_COMMIT_REF_SLUG}-${DOC_REVIEW_URL}
     on_stop: stop_preview
-  only:
-    - branches
-  except:
-    - master
-    - devel
-  tags:
-    - web
 
 stop_preview:
-  stage: preview
-  before_script:
-    - ''
+  extends: .preview
   script:
     - docker stop $preview_URL
     - docker rm $preview_URL
@@ -172,11 +180,10 @@ stop_preview:
   environment:
     name: preview/$CI_COMMIT_REF_NAME
     action: stop
-  tags:
-    - web
 
 staging:
   stage: preview
+  needs: ["build-docs-docker"]
   before_script:
     - ''
   script:
@@ -196,9 +203,10 @@ staging:
 
 deploy-wheel:
   stage: deploy
+  needs: ["build-wheel", "test-unit", "test-version"]
   tags:
     - docker
-  image: chartedcode/alpine-sftp-client
+  image: ${CI_REGISTRY}/br/toolchains/release:0.1
   before_script:
     - echo "$PYPI_KEY" | tr -d '\r' > ./ssh_key
     - chmod 600 ./ssh_key
@@ -215,9 +223,11 @@ deploy-wheel:
 
 deploy-docs:
   stage: deploy
+  needs: ["deploy-wheel", "build-docs"]
   tags:
     - docker
-  image: chartedcode/alpine-sftp-client
+  image: ${CI_REGISTRY}/br/toolchains/release:0.1
+  allow_failure: true
   before_script:
     - echo "$DOCS_KEY" | tr -d '\r' > ./ssh_key
     - chmod 600 ./ssh_key
@@ -228,7 +238,7 @@ deploy-docs:
         quit
       EOF
   dependencies:
-    - build-wheel
+    - deploy-wheel
     - build-docs
-  only:
-    - tags
+  rules:
+    - if: '$CI_COMMIT_TAG && ($CI_COMMIT_TAG !~ /dev/) && ($CI_COMMIT_TAG =~ /^\d+.\d+.\d+$/)'
