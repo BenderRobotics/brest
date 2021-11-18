@@ -1,10 +1,24 @@
 # Changelog
 
+## [0.0.13] - 2021-11-18
+
+### Fixed
+- Fixed variable deletion causing attribute error in cameras. #5079
+- Fixed _frame_grabber log_args in exception (cameras). #4021
+- Fixed the config merging upon resource searching to match config merging upon resource construction. #5258
+
+### Added
+- Added review/staging for documentation. #4586
+- Added support for YKUSH Yepkit switchable usb hub (`brest.switches.YepkitSwitch`). #3645
+
+### Changed
+- Changed documentation template, added versioning capability. #3465
+
 ## [0.0.12] - 2021-03-19
 
 ### Fixed
 - Fixed ST-Link read / write. #4058
-- Fixed Python version requirement to allow for any Python 3.9.* version. (refs #3879)
+- Fixed Python version requirement to allow for any Python 3.9.* version. #3879
 
 ### Changed
 - Improved camera color calibration procedure. #4188
