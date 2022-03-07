@@ -14,6 +14,8 @@ variables:
   DOCKER_ENV: '-e GITLAB_SERVER=${CI_SERVER_HOST} -e GITLAB_TOKEN=${GITLAB_TOKEN}'
 
 before_script:
+  # Change pending to be added to toolchain, cython needed by hidapi
+  - pip install Cython
   - pip install dist/brest-*.whl
 
 build-wheel:

@@ -11,5 +11,5 @@ RUN apk update --no-cache && \
     # Prepare filesystem
     ln -s /usr/bin/python3 /usr/bin/python && \
     ln -s /usr/bin/pip3 /usr/bin/pip && \
-    # Install necessary Python packages
-    pip install --no-cache-dir wheel
+    # Install necessary Python packages, both of these should be added to pyproject.toml in build section.
+    pip install --no-cache-dir wheel Cython
