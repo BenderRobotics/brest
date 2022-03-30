@@ -2,6 +2,13 @@
 
 This project adheres to *Semantic Versioning http://semver.org*.
 
+## **`1.1.3.post3.BR - 2022-03-30`**
+
+**Changes**
+- Set `click` version to fixed value (8) to prevent compatibility issue
+    - `AttributeError: module 'click' has no attribute 'get_os_args'`
+    - https://github.com/streamlit/streamlit/issues/4555
+
 ## **`1.1.3.post2.BR - 2021-06-03`**
 
 **Changes**
