@@ -104,6 +104,35 @@ Now you can access created class using `[]` operator and resource alias as a key
 
 This will give you direct access to the created class.
 
+Brest GUI
+---------
+
+Brest also comes bundled with a simple GUI based application, which is copied to the scripts folder during package installation. This GUI can be used to monitor :ref:`devices supported by Brest<supported>` that are currently connected to the computer in real time.
+
+.. image:: images/brest.gui.png
+   :alt: Screenshot of the GUI in action.
+   :align: center
+
+|
+
+Current features
+~~~~~~~~~~~~~~~~
+
+* List of the available devices auto-updates with 1 second interval.
+* Devices are added to the tree-view, details of each device can be expanded or collapsed.
+* Expanded view for each device shows intenral parameters.
+* Every parameter can be copied to clipboard by double-clicking.
+* Supported USB <-> serial converters also show their type (e.g. CP210x, FTDI).
+
+Running
+~~~~~~~
+
+When installing Brest by pip please execute the following command from command line in order to run the GUI:
+
+    >>> python -m brest.gui
+
+Otherwise `brest.gui` executable should be present in your python installation script folder (next to `pip` and other scripts).
+
 System tests
 ------------
 

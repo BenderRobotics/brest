@@ -26,6 +26,7 @@ class HIDCommunicable(Communicable):
 
     TYPE = 'hid'
     TAKEN = []
+    SETTINGS = ['vid', 'pid', 'serial_number', 'path']
 
     def __init__(self, params):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}

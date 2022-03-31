@@ -30,10 +30,16 @@ setuptools.setup(
         'Operating System :: OS Independent',
     ],
     python_requires='>=3.5, <3.10',
+    entry_points={
+          'console_scripts': [
+              'brest.gui = brest.gui.app:main'
+          ]
+    },
     install_requires=[
         'colorama>=0.4.1',
         'pyserial>=3.4',
         'PyYAML>=5.1.2',
+        'Cython>=0.29.26',
         'hidapi>=0.7.99.post21',
         'crcmod>=1.7',
     ],

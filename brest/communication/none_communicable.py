@@ -22,6 +22,7 @@ class NoneCommunicable(Communicable):
 
     TYPE = 'none'
     TAKEN = []
+    SETTINGS = []
 
     def __init__(self, params):
         Communicable.__init__(self)

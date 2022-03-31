@@ -32,6 +32,10 @@ class SerialCommunicable(Communicable):
     TYPE = 'serial'
     #: Tuples containing resource and its bound port
     TAKEN = []
+    SETTINGS = ['vid', 'pid', 'serial_number', 'port', 'baudrate', 'bytesize', 
+                'parity', 'stopbits', 'timeout', 'xonxoff', 'rtscts', 'dsrdtr', 
+                'write_timeout', 'inter_byte_timeout', 'exclusive'
+    ]
 
     def __init__(self, params):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
@@ -100,11 +104,14 @@ class SerialCommunicable(Communicable):
                             __add_to_probed(probed, __device_to_interface(interface, com))
                     else:
                         __add_to_probed(probed, __device_to_interface(interface, com))
-        else:
-            if 'serial_number' in interface:
+        elif 'serial_number' in interface:
                 for com in connections:
                     if com.serial_number == interface['serial_number']:
                         __add_to_probed(probed, __device_to_interface(interface, com))
+        # Handle standalone USB <-> Serial converters
+        elif 1 == len(interface):
+            for com in connections:
+                __add_to_probed(probed, __device_to_interface(interface, com))
 
         return probed
 

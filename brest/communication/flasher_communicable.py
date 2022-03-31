@@ -29,6 +29,7 @@ class FlasherCommunicable(Communicable):
     TYPE = 'flashers'
     TAKEN = []
     PATH_DELIMITER = ';'
+    SETTINGS = ['utility', 'serial_number']
 
     def __init__(self, params):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}

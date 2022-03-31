@@ -10,6 +10,7 @@
 """
 
 import logging
+import inspect
 import importlib
 
 import brest.supplies
@@ -168,6 +169,28 @@ class ResourceProvider:
 
         self.logger.warning('Can\'t construct class `{}`. Class is not subclass of any resource'.format(params['class_name']), extra=self.log_args)
         return None
+
+    def get_available_settings(self):
+        """
+        Methods return available settings for every resource class
+
+        :returns: Avaiable settings for resource class
+        :rtype: dict
+        """
+
+        available_settings = {}
+        for group in Resource.__subclasses__():
+            for resource in group.__subclasses__():
+                name = '{}.{}'.format(group.__name__.lower(), resource.__name__)
+                default = inspect.getmembers(resource, lambda value: inspect.isfunction(value) and 'default' in value.__name__)
+                required = inspect.getmembers(resource, lambda value: inspect.isfunction(value) and 'required' in value.__name__)
+                available_settings[name] = {
+                    'default': [m[0].split('_')[1] for m in default],
+                    'required': [m[0].split('_')[1] for m in required],
+                    'interface': list(resource.SETTINGS)
+                }
+        return available_settings
+
 
     def construct_available(self, index, group = None):
         """
