@@ -96,6 +96,19 @@ Available definitions for each resource
 
 :class:`~brest.cameras.Cameras`
 
+:class:`~brest.cameras.GenericCamera`::
+
+    interface:
+        cv_api: str or int  # cv::VideoCapture API backends identifier *
+
+    # * for str use OpenCV API name (e.g. 'CAP_ANY' for cv2.CAP_ANY), for int use directly identifier value (e.g. 0 for cv2.CAP_ANY)
+
+.. admonition:: Selection of OpenCV backend API
+
+    Selected API may influence camera initialization time and image acquisition time.
+    `OpenCV API reference <https://docs.opencv.org/4.x/d4/d15/group__videoio__flags__base.html#ga023786be1ee68a9105bf2e48c700294d>`_
+
+
 :class:`~brest.cameras.PointGrey`::
 
     default:
