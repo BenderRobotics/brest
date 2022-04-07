@@ -253,6 +253,9 @@ Available cameras:
 .. autoclass:: PointGrey
     :members: acquire_image, get_info, configure_trigger, reset_trigger
 
+.. autoclass:: Basler
+    :members: acquire_image, get_info, configure_trigger, reset_trigger
+
 Loads
 ~~~~~
 

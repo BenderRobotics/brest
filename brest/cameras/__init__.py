@@ -12,11 +12,13 @@
 from .cameras import Cameras
 from .generic_camera import GenericCamera
 from .pointgrey import PointGrey
+from .basler import Basler
 
 __all__ = [
     'Cameras',
     'GenericCamera',
-    'PointGrey'
+    'PointGrey',
+    'Basler'
     ]
 
 __version__ = '0.0.13'

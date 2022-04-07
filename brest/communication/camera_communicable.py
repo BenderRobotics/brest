@@ -27,10 +27,10 @@ class CameraCommunicable(Communicable):
     def __init__(self, params):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
-
         self.services = {
             'usbvideo': 0,
             'PGRUSBCam3': 0,
+            'plnu3v': 0,
         }
 
         if params:

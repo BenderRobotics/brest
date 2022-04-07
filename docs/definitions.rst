@@ -119,6 +119,16 @@ Available definitions for each resource
         framerate: float
         white_auto_balance: str ('off', 'once', 'on')
 
+:class:`~brest.cameras.Basler`::
+
+    default:
+        trigger: str ('line0', 'line1', 'line2', 'line3', 'software')
+        exposure: float (milliseconds; 0 - continuous)
+        gain: float
+        gamma: float
+        framerate: float
+        white_auto_balance: str ('off', 'once', 'on')
+
 :class:`~brest.flashers.Flashers`::
 
     default:
