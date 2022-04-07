@@ -70,25 +70,36 @@ def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, pro
 
     from .resources import Resources
     from unittest.loader import _FailedTest
+    import unittest
+
+    def _iter_suite(suite):
+        """
+        Iterate through test suites, and yield individual tests
+        """
+        for test in suite:
+            if isinstance(test, unittest.TestSuite):
+                for t in _iter_suite(test):
+                    yield t
+            else:
+                yield test
 
     # collect needed resources
     _needed = []
-    for folder_suite in test_suite:
-        for file_suite in folder_suite:
-            # In case of syntax error, loaded test is replaced
-            # with _FailedTest instance which is not iterable
-            if not isinstance(file_suite, _FailedTest):
-                for test in file_suite:
-                    for n in test.needed:
-                        if n not in _needed:
-                            _needed.append(n)
-            else:
-                logging.getLogger('brest').error(
-                    'Tests using project `{}` are not loaded correctly. '.format(project) +
-                    'Following error has occurred: \n{}'.format(str(file_suite._exception)),
-                    extra={'class_name': __package__}
-                )
-                raise SystemExit(1)
+    tests = _iter_suite(test_suite)
+    for test in tests:
+        # In case of syntax error, loaded test is replaced
+        # with _FailedTest instance which is not iterable
+        if not isinstance(test, _FailedTest):
+            for n in test.needed:
+                if n not in _needed:
+                    _needed.append(n)
+        else:
+            logging.getLogger('brest').error(
+                'Tests using project `{}` are not loaded correctly. '.format(project) +
+                'Following error has occurred: \n{}'.format(str(file_suite._exception)),
+                extra={'class_name': __package__}
+            )
+            raise SystemExit(1)
 
     # add needed resources before tests run
     for n in needed:
@@ -99,10 +110,8 @@ def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, pro
     resources = Resources(project, user_config=user_config, project_config=project_config, needed=_needed)
 
     # set constructed resources to every test
-    for folder_suite in test_suite:
-        for file_suite in folder_suite:
-            for test in file_suite:
-                test.resources = resources
+    for test in tests:
+        test.resources = resources
 
     return resources
 
