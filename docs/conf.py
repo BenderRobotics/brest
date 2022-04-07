@@ -86,7 +86,31 @@ html_css_files = [
 # https://sphinx-versions.readthedocs.io/en/latest/settings.html
 import re
 
-current_branch = 'none'             # By default and upon tagging there should always be 'none'
+branch = ''
+is_ci = os.getenv('GITLAB_CI', False)
+
+if not is_ci:
+    def get_active_branch_name():
+        head_dir = os.path.join(os.path.dirname(__file__), '..', '.git', 'HEAD')
+        with open(head_dir, mode='r') as f:
+            content = f.read().splitlines()
+
+        for line in content:
+            if line[0:4] == "ref:":
+                return line.partition("refs/heads/")[2]
+
+    branch = get_active_branch_name()
+
+is_tag = os.getenv('CI_COMMIT_TAG', '')
+branch = os.getenv('CI_COMMIT_BRANCH', branch)
+include_branch = os.getenv('INCLUDE_CURRENT_BRANCH', '1')
+
+if not is_tag and include_branch != '0':
+    current_branch = branch
+else:
+    current_branch = 'none'
+
+# current_branch = 'none'             # By default and upon tagging there should always be 'none'
                                     # For doc update testing, enter name of the branch
                                     # (e.g. r'feature/3465-doc-design-and-version')
                                     #   - for viewing switch doc version to the branch once it is generated

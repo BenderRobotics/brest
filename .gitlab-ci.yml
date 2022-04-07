@@ -13,6 +13,13 @@ variables:
   PREVIEW_URL: '${CI_COMMIT_REF_SLUG}-${DOC_REVIEW_URL}'
   DOCKER_ENV: '-e GITLAB_SERVER=${CI_SERVER_HOST} -e GITLAB_TOKEN=${GITLAB_TOKEN}'
 
+.rule-deploy-docs:
+  if: '$CI_COMMIT_TAG && ($CI_COMMIT_TAG !~ /dev/) && ($CI_COMMIT_TAG =~ /^\d+.\d+.\d+$/)'
+
+.rule-do-not-deploy-doc:
+  if: '$CI_COMMIT_TAG && ($CI_COMMIT_TAG !~ /dev/) && ($CI_COMMIT_TAG =~ /^\d+.\d+.\d+$/)'
+  when: never
+
 before_script:
   # Change pending to be added to toolchain, cython needed by hidapi
   - pip install Cython
@@ -114,11 +121,13 @@ test-version:
   only:
     - tags
 
-build-docs:
+build-docs-for-deploy:
   stage: docs
   needs: ["build-wheel"]
   tags:
     - docker
+  variables:
+    INCLUDE_CURRENT_BRANCH: '0'
   script:
     - apk add git
     - pip install brest[docs]
@@ -131,10 +140,20 @@ build-docs:
     expire_in: 1 week
   dependencies:
     - build-wheel
+  rules:
+    - !reference [.rule-deploy-docs]
+
+build-docs-for-review:
+  extends: build-docs-for-deploy
+  variables:
+    INCLUDE_CURRENT_BRANCH: '1'
+  rules:
+    - !reference [.rule-do-not-deploy-doc]
+    - when: always
 
 build-docs-docker:
   stage: preview
-  needs: ["build-docs"]
+  needs: ["build-docs-for-review"]
   image: docker
   allow_failure: true
   before_script:
@@ -227,7 +246,7 @@ deploy-wheel:
 
 deploy-docs:
   stage: deploy
-  needs: ["deploy-wheel", "build-docs"]
+  needs: ["deploy-wheel", "build-docs-for-deploy"]
   tags:
     - docker
   image: ${CI_REGISTRY}/br/toolchains/release:0.1
@@ -243,6 +262,6 @@ deploy-docs:
       EOF
   dependencies:
     - deploy-wheel
-    - build-docs
+    - build-docs-for-deploy
   rules:
-    - if: '$CI_COMMIT_TAG && ($CI_COMMIT_TAG !~ /dev/) && ($CI_COMMIT_TAG =~ /^\d+.\d+.\d+$/)'
+    - !reference [.rule-deploy-docs]
