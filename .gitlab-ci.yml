@@ -186,7 +186,7 @@ preview:
     - docker stop $PREVIEW_URL || true
     - docker rm $PREVIEW_URL || true
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker run -d --name $PREVIEW_URL --network="web" --pull=always $DOCKER_ENV $IMAGE_TAG
+    - docker run -d --name $PREVIEW_URL --network="web" -l traefik.enable=true -l traefik.http.routers.${CI_COMMIT_REF_SLUG}.rule=Host\(\`$PREVIEW_URL\`\) -l traefik.http.routers.${CI_COMMIT_REF_SLUG}.tls=true --pull=always $DOCKER_ENV $IMAGE_TAG
   environment:
     name: preview/$CI_COMMIT_REF_NAME
     url: https://${CI_COMMIT_REF_SLUG}-${DOC_REVIEW_URL}
@@ -213,7 +213,7 @@ staging:
     - docker stop $DOC_STAGING_URL || true
     - docker rm $DOC_STAGING_URL || true
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker run -d --name $DOC_STAGING_URL --network="web" --pull=always $DOCKER_ENV $IMAGE_TAG
+    - docker run -d --name $DOC_STAGING_URL --network="web" -l traefik.enable=true -l traefik.http.routers.${CI_COMMIT_REF_SLUG}.rule=Host\(\`$DOC_STAGING_URL\`\) -l traefik.http.routers.${CI_COMMIT_REF_SLUG}.tls=true --pull=always $DOCKER_ENV $IMAGE_TAG
   environment:
     name: staging
     url: https://${DOC_STAGING_URL}
