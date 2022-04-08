@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+    brest.gui.models.__init__
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This file signifies that 'models' is a module.
+
+    :copyright: 2021 Bender Robotics
+"""
+
 from .resource_model import ResourceModel
 from .project_model import ProjectModel
 from .config_model import ConfigModel
@@ -9,3 +20,5 @@ __all__ = [
     'ProjectResourceModel',
     'ConfigModel'
 ]
+
+__version__ = '0.0.14'

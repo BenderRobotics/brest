@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.0.14] - 2022-04-12
+
+### Fixed
+- Fixed versioned docs prerequisite.
+
+### Added
+- Added support for recursive test preparation. #5364
+- Added GUI for device probing. #2850
+- Added support for Basler cameras. #5180
+- Added support for camera opencv API control. #5628
+
+### Changed
+- Changed versioned documentation config.
+    - Automatic building of versioned docs including the current branch (not only tags).
+
 ## [0.0.13] - 2021-11-18
 
 ### Fixed
