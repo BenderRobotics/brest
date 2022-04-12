@@ -12,6 +12,7 @@ variables:
   IMAGE_TAG: '${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}'
   PREVIEW_URL: '${CI_COMMIT_REF_SLUG}-${DOC_REVIEW_URL}'
   DOCKER_ENV: '-e GITLAB_SERVER=${CI_SERVER_HOST} -e GITLAB_TOKEN=${GITLAB_TOKEN}'
+  ROUTER_ID: '${CI_PROJECT_ID}-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}'
 
 .rule-deploy-docs:
   if: '$CI_COMMIT_TAG && ($CI_COMMIT_TAG !~ /dev/) && ($CI_COMMIT_TAG =~ /^\d+.\d+.\d+$/)'
@@ -186,7 +187,7 @@ preview:
     - docker stop $PREVIEW_URL || true
     - docker rm $PREVIEW_URL || true
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker run -d --name $PREVIEW_URL --network="web" -l traefik.enable=true -l traefik.http.routers.${CI_COMMIT_REF_SLUG}.rule=Host\(\`$PREVIEW_URL\`\) -l traefik.http.routers.${CI_COMMIT_REF_SLUG}.tls=true --pull=always $DOCKER_ENV $IMAGE_TAG
+    - docker run -d --name $PREVIEW_URL --network="web" -l traefik.enable=true -l traefik.http.routers.$ROUTER_ID.rule=Host\(\`$PREVIEW_URL\`\) -l traefik.http.routers.$ROUTER_ID.tls=true --pull=always $DOCKER_ENV $IMAGE_TAG
   environment:
     name: preview/$CI_COMMIT_REF_NAME
     url: https://${CI_COMMIT_REF_SLUG}-${DOC_REVIEW_URL}
@@ -195,8 +196,8 @@ preview:
 stop_preview:
   extends: .preview
   script:
-    - docker stop $preview_URL
-    - docker rm $preview_URL
+    - docker stop $PREVIEW_URL
+    - docker rm $PREVIEW_URL
   variables:
     GIT_STRATEGY: none
   when: manual
@@ -213,7 +214,7 @@ staging:
     - docker stop $DOC_STAGING_URL || true
     - docker rm $DOC_STAGING_URL || true
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker run -d --name $DOC_STAGING_URL --network="web" -l traefik.enable=true -l traefik.http.routers.${CI_COMMIT_REF_SLUG}.rule=Host\(\`$DOC_STAGING_URL\`\) -l traefik.http.routers.${CI_COMMIT_REF_SLUG}.tls=true --pull=always $DOCKER_ENV $IMAGE_TAG
+    - docker run -d --name $DOC_STAGING_URL --network="web" -l traefik.enable=true -l traefik.http.routers.$ROUTER_ID.rule=Host\(\`$DOC_STAGING_URL\`\) -l traefik.http.routers.$ROUTER_ID.tls=true --pull=always $DOCKER_ENV $IMAGE_TAG
   environment:
     name: staging
     url: https://${DOC_STAGING_URL}
