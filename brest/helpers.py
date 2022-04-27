@@ -96,7 +96,7 @@ def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, pro
         else:
             logging.getLogger('brest').error(
                 'Tests using project `{}` are not loaded correctly. '.format(project) +
-                'Following error has occurred: \n{}'.format(str(file_suite._exception)),
+                'Following error has occurred: \n{}'.format(str(test._exception)),
                 extra={'class_name': __package__}
             )
             raise SystemExit(1)

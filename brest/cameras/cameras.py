@@ -653,6 +653,7 @@ class Cameras(Resource):
             self._stop_event.clear()
             self._video_thread = Thread(target=_frame_grabber, args=(self.acquire_image, writer, period,
                                                                      frame_width, text, text_color, self._stop_event))
+            self._video_thread.daemon = True
             self._video_thread.start()
 
     def stop_video_record(self) -> None:

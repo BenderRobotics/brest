@@ -54,7 +54,7 @@ class HIDCommunicable(Communicable):
 
     def read_raw(self, expected='', size=None):
         if size:
-            received = self.device.read(size)
+            received = self.device.h.read(max_length=size, timeout_ms=10000)
         else:
             raise ValueError('size argument must be defined')
         return received

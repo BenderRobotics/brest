@@ -56,7 +56,7 @@ class ClewareCommunicable(HIDCommunicable):
         h.open_path(device['path'])
 
         try:
-            old_data = h.read(6)
+            old_data = h.read(max_length=6, timeout_ms=10000)
             raw_serial_number = []
 
             for i in range(8, 15):
@@ -66,7 +66,7 @@ class ClewareCommunicable(HIDCommunicable):
 
                 timeout = time.time() + sn_timeout
                 while True:
-                    new_data = h.read(6)
+                    new_data = h.read(max_length=6, timeout_ms=10000)
                     # check for timeout is left for back-compatibility (and as a failsafe)
                     if (new_data[0] in expected_0 and new_data[1:5] == expected_1_5) or time.time() > timeout:
                         old_data = new_data
