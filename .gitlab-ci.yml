@@ -150,6 +150,8 @@ build-docs-for-review:
     INCLUDE_CURRENT_BRANCH: '1'
   rules:
     - !reference [.rule-do-not-deploy-doc]
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      when: never
     - when: always
 
 build-docs-docker:
