@@ -86,12 +86,14 @@ html_css_files = [
 # https://sphinx-versions.readthedocs.io/en/latest/settings.html
 import re
 
-branch = ''
+branch = 'none'
 is_ci = os.getenv('GITLAB_CI', False)
 
 if not is_ci:
     def get_active_branch_name():
         head_dir = os.path.join(os.path.dirname(__file__), '..', '.git', 'HEAD')
+        if not os.path.exists(head_dir):
+            return 'none'   # when run as older version, it is offline too, and should not look for HEAD
         with open(head_dir, mode='r') as f:
             content = f.read().splitlines()
 
@@ -131,5 +133,6 @@ scv_blacklist_tags = (
     # Releases 0.0.2-0.0.12 are disabled (old versions of docs replace by *.doc releases)
     re.compile(r'^0\.0\.[0-9]$'),
     re.compile(r'^0\.0\.1[0-2]$'),
+    re.compile(r'^0\.0\.14$'),
 )
 scv_delete_static = True            # Delete `_static`, `.doctree` from each version (except root)
