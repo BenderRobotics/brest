@@ -155,7 +155,7 @@ class SerialCommunicable(Communicable):
         # Called on interface dict
         elif isinstance(interface, dict):
             for name, value in interface.items():
-                if name in ['vid', 'pid']:
+                if name in ['vid', 'pid'] and value is not None:
                     attrs.append((name, HexInt(value)))
                 else:
                     attrs.append((name, value))
