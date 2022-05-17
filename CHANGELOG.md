@@ -2,6 +2,8 @@
 
 ## [0.0.14] - 2022-04-12
 
+- Warning: Usage of this version is highly discouraged. This version of Brest was unfortunately plagued with bugs.
+
 ### Fixed
 - Fixed versioned docs prerequisite.
 
