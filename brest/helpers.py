@@ -85,8 +85,7 @@ def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, pro
 
     # collect needed resources
     _needed = []
-    tests = _iter_suite(test_suite)
-    for test in tests:
+    for test in _iter_suite(test_suite):
         # In case of syntax error, loaded test is replaced
         # with _FailedTest instance which is not iterable
         if not isinstance(test, _FailedTest):
@@ -109,9 +108,19 @@ def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, pro
     # construct them
     resources = Resources(project, user_config=user_config, project_config=project_config, needed=_needed)
 
-    # set constructed resources to every test
-    for test in tests:
-        test.resources = resources
+    # set constructed resources to every test including setUpClass and tearDownClass
+    def _iter_suite_res(suite, resources):
+        """
+        Iterate through tests suites, and assign resource handles.
+        """
+
+        for test in suite:
+            if isinstance(test, unittest.TestSuite):
+                _iter_suite_res(test, resources)
+            else:
+                test.setUpClass.__self__.resources = resources
+
+    _iter_suite_res(test_suite, resources)
 
     return resources
 
