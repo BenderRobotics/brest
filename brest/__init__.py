@@ -35,6 +35,7 @@ if sys.version_info.minor in range(8, 10):
     print('\r\n'.rjust(82, '='))
 
 # Set up brest logging facility
+import logging
 import logging.config
 from .log import DEFAULT_LOGGING
 
@@ -70,7 +71,7 @@ __all__ = [
 
 __version__ = '0.0.14'
 
-def find_available_resource(project, resource, user_config = Config.BREST_USER_CONFIG, project_config = None):
+def find_available_resource(project, resource, user_config=Config.BREST_USER_CONFIG, project_config=None):
     """
     Tries to find descriptors of connected device that matches resource from given project.
 
@@ -81,23 +82,36 @@ def find_available_resource(project, resource, user_config = Config.BREST_USER_C
     :return: `dict` representing selected resource or `None` if resource not found.
     :rtype: dict
     """
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
 
     rp = ResourceProvider()
 
     config_file = Config(project, project_config)
-    config_file.merge_configs(Config(project, user_config))
-    resource_needed = config_file.config[project][resource]
+    merged_configs = config_file.merge_configs(Config(project, user_config))
 
+    if project not in merged_configs.config:
+        logger.warning("Set `project` is not found in config file created from user_config and project_config.")
+        return None
+
+    if resource not in merged_configs.config[project]:
+        logger.warning("Set `resource` is not found in config file created from user_config and project_config.")
+        return None
+
+    resource_needed = merged_configs.config[project][resource]
     class_name_split = resource_needed['class_name'].split('.')
+
     if len(class_name_split) > 1:
         needed_class_name = class_name_split[1]
 
-    impl_dict = rp._get_implicit_definition(needed_class_name)
-    com = rp._get_communicable(impl_dict['type'])
+        impl_dict = rp._get_implicit_definition(needed_class_name)
+        com = rp._get_communicable(impl_dict['type'])
 
-    intr = com.probe(resource_needed['interface'])
-    if intr:
-        resource_needed['interface'].update(intr[0])
-        return resource_needed
+        intr = com.probe(resource_needed['interface'])
+        if intr:
+            resource_needed['interface'].update(intr[0])
+            return resource_needed
     else:
-        return None
+        logger.warning("The device name in the created config file is not specific enough to find descriptors of connected device.")
+
+    return None

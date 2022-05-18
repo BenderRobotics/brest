@@ -107,6 +107,9 @@ test-unit:
   script:
     - python tests/test_root_logger.py
     - python tests/test_colorful_output.py
+    - python tests/test_helpers.py
+    - python tests/test_config.py
+    - python tests/test_init.py
   dependencies:
     - build-wheel
 
