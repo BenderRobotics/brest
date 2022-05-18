@@ -6,7 +6,7 @@
 
     This file signifies that 'utilities' is a module.
 
-    :copyright: 2021 Bender Robotics
+    :copyright: 2022 Bender Robotics
 """
 
 from .text_syntax_highliting import TextSyntaxHighlight

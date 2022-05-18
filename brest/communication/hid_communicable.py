@@ -6,7 +6,7 @@
 
     This module implements hid communication.
 
-    :copyright: 2021 Bender Robotics
+    :copyright: 2022 Bender Robotics
 """
 
 import hid

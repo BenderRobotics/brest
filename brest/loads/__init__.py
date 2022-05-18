@@ -6,7 +6,7 @@
 
     This file signifies that 'loads' is a module.
 
-    :copyright: 2021 Bender Robotics
+    :copyright: 2022 Bender Robotics
 """
 
 from .loads import Loads

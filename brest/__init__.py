@@ -10,7 +10,7 @@
     It aims at making embedded development and testing easier,
     mainly by reducing the time needed to set up the HW.
 
-    :copyright: 2021 Bender Robotics
+    :copyright: 2022 Bender Robotics
 """
 
 # Verify Python version
@@ -69,7 +69,7 @@ __all__ = [
     'run',
     ]
 
-__version__ = '0.0.14'
+__version__ = '0.0.15'
 
 def find_available_resource(project, resource, user_config=Config.BREST_USER_CONFIG, project_config=None):
     """

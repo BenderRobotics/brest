@@ -6,7 +6,7 @@
 
     This module implements base abstract class for programmers.
 
-    :copyright: 2021 Bender Robotics
+    :copyright: 2022 Bender Robotics
 """
 
 import logging

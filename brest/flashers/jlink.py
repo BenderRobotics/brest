@@ -6,7 +6,7 @@
 
     This module implements JLink programmers.
 
-    :copyright: 2021 Bender Robotics
+    :copyright: 2022 Bender Robotics
 """
 
 import os

@@ -6,7 +6,7 @@
 
     This file signifies that 'interfaces' is a module.
 
-    :copyright: 2021 Bender Robotics
+    :copyright: 2022 Bender Robotics
 """
 
 from .interfaces import Interfaces

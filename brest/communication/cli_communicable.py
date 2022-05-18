@@ -6,7 +6,7 @@
 
     This module implements base functionality for communicating with a cli utility.
 
-    :copyright: 2021 Bender Robotics
+    :copyright: 2022 Bender Robotics
 """
 
 import sys

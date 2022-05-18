@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.0.15] - 2022-05-19
+### Fixed
+- Fixed exception handling in `prepare_tests` method. #5823
+- Fixed `hidapi` freeze possibility. #5840
+    - Added explicit timeout usage to `hidapi`.
+- Fixed video recording infinity possibility. #5855
+    - Set video recording thread to daemon.
+- Fixed serial communicable fail if `vid` or `pid` is `None`.
+- Fixed missing resources in setUp. #5875
+    - Bug introduced in version 0.0.14.
+
+### Added
+- Added possibility to use resources in `setUpClass` and `tearDownClass`. #5824
+- Added warning against usage of version 0.0.14.
+- Added missing reference to Basler cameras in the docs. #5272
+
+### Changed
+- Updated `find_available_resource` method. #5823
+
 ## [0.0.14] - 2022-04-12
 
 - Warning: Usage of this version is highly discouraged. This version of Brest was unfortunately plagued with bugs.

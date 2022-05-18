@@ -6,7 +6,7 @@
 
     This module implements a wrapper class for instantied configuration file.
 
-    :copyright: 2021 Bender Robotics
+    :copyright: 2022 Bender Robotics
 """
 
 import logging

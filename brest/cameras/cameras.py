@@ -6,7 +6,7 @@
 
     This module implements base abstract class for cameras.
 
-    :copyright: 2021 Bender Robotics
+    :copyright: 2022 Bender Robotics
 """
 
 import time

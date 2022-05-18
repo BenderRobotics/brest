@@ -6,7 +6,7 @@
 
     This module implements unified interface for MODBUS communication.
 
-    :copyright: 2021 Bender Robotics
+    :copyright: 2022 Bender Robotics
 """
 
 from enum import Enum

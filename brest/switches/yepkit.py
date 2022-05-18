@@ -5,7 +5,7 @@
 
     This module implements base abstract for switches.
 
-    :copyright: 2021 Bender Robotics
+    :copyright: 2022 Bender Robotics
 """
 
 from brest.switches.switches import Switches

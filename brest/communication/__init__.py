@@ -6,7 +6,7 @@
 
     This file signifies that 'communication' is a module.
 
-    :copyright: 2021 Bender Robotics
+    :copyright: 2022 Bender Robotics
 """
 
 from .communicable import Communicable, CommunicableError
@@ -48,4 +48,4 @@ __all__ = [
     'types',
     ]
 
-__version__ = '0.0.14'
+__version__ = '0.0.15'

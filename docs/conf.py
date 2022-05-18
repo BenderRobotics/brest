@@ -17,7 +17,7 @@ from brest import __version__ as version
 
 
 project = 'Brest'
-copyright = '2021, Bender Robotics'
+copyright = '2022, Bender Robotics'
 author = 'Bender Robotics'
 
 # -- General configuration ---------------------------------------------------
