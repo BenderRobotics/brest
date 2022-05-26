@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.0.15.post0] - 2022-05-26
+### Fixed
+- Fixed logging interference of method `find_available_resource`
+
 ## [0.0.15] - 2022-05-19
 ### Fixed
 - Fixed exception handling in `prepare_tests` method. #5823
