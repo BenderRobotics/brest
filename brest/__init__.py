@@ -82,7 +82,7 @@ def find_available_resource(project, resource, user_config=Config.BREST_USER_CON
     :return: `dict` representing selected resource or `None` if resource not found.
     :rtype: dict
     """
-    logger = logging.getLogger()
+    logger = logging.getLogger('brest_find_available_resource')
     logger.setLevel(logging.INFO)
 
     rp = ResourceProvider()

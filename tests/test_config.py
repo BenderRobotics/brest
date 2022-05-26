@@ -83,6 +83,7 @@ class TestConfig(unittest.TestCase):
 
 if __name__ == '__main__':
     import io
+    import sys
 
     stream = io.StringIO()
     runner = unittest.TextTestRunner(stream=stream, failfast=False)
@@ -94,7 +95,10 @@ if __name__ == '__main__':
 
     if len(tp.result.errors) > 0:
         log.error(stream.read())
+        sys.exit(1)
     elif len(tp.result.failures) > 0:
         log.warning(stream.read())
+        sys.exit(1)
     else:
         log.info(stream.read())
+        sys.exit(0)
