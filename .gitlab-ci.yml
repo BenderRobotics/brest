@@ -45,7 +45,7 @@ publish-toolchain:
   services:
     - docker:dind
   before_script:
-    - echo $CI_BUILD_TOKEN | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - echo $CI_JOB_TOKEN | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
     - cd docker
     - docker build --pull -t "$CI_REGISTRY_IMAGE/toolchain:$CI_COMMIT_TAG" .
@@ -99,31 +99,47 @@ code-quality-html:
   artifacts:
     paths: [gl-code-quality-report.html]
 
-test-unit:
-  stage: test
-  needs: ["build-wheel"]
+# generate dynamic child pipeline
+generate-child-pipeline:
+  stage: build
+  image: python:3.7
   tags:
     - docker
+  before_script:
+    - pip install ruamel.yaml
   script:
-    - python tests/test_root_logger.py
-    - python tests/test_colorful_output.py
-    - python tests/test_helpers.py
-    - python tests/test_config.py
-    - python tests/test_init.py
-  dependencies:
-    - build-wheel
+    - python tools/child_pipeline_generator.py
+  artifacts:
+    paths:
+      - child-pipeline.yml
 
-test-version:
+# executes pipelines
+unit-tests:
   stage: test
-  needs: ["build-wheel"]
+  trigger:
+    include:
+      - artifact: child-pipeline.yml
+        job: generate-child-pipeline
+    strategy: depend
+  variables:
+    PARENT_PIPELINE_ID: $CI_PIPELINE_ID
+
+# create artifacts
+unit-tests-artifacts:
+  stage: test
+  needs: ["unit-tests"]
   tags:
     - docker
+  before_script:
+    - pip install python-gitlab
   script:
-    - python tests/test_version.py
-  dependencies:
-    - build-wheel
-  only:
-    - tags
+    - python tools/create_tests_artifacts.py
+  when: always
+  artifacts:
+    when: always
+    paths:
+      - log
+    expire_in: 1 day
 
 build-docs-for-deploy:
   stage: docs
@@ -232,7 +248,7 @@ staging:
 
 deploy-wheel:
   stage: deploy
-  needs: ["build-wheel", "test-unit", "test-version"]
+  needs: ["build-wheel", "unit-tests-artifacts"]
   tags:
     - docker
   image: ${CI_REGISTRY}/br/toolchains/release:0.1

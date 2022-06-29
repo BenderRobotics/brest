@@ -1,0 +1,5 @@
+##
+# @file   child-pipeline.yml
+# @brief  In order to be able to use the dynamic generation of child pipelines, it is necessary to have an empty file in which the generated jobs will be stored in the process.
+#
+# @copyright copyright 2022, Bender Robotics, All rights reserved
