@@ -120,7 +120,7 @@ class JLink(Flashers, FlasherCommunicable):
         if process.returncode != 0:
             raise ConnectionError
 
-    def erase_sector(self, sector, timeout=None):
+    def erase_sector(self, sector, external_memory=False, timeout=None):
         raise NotImplementedError
 
     def mass_erase(self, timeout=None):

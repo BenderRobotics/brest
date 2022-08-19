@@ -117,12 +117,14 @@ class Flashers(Resource):
         """
         pass
 
-    def erase_sector(self, sector, timeout=None):
+    def erase_sector(self, sector, external_memory=False, timeout=None):
         """
         Erase given sector, sectors can be handled as number or interval -> [x, y] | (x, y)
 
         :param sector: sectors to erase
         :type sector: tuple, list, int
+        :param external_memory: type of memory to erase
+        :type external_memory: bool
         :param timeout: override class timeout
         :type timeout: float
         """

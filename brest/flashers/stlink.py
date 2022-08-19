@@ -148,7 +148,7 @@ class STLink(Flashers, FlasherCommunicable):
             raise ConnectionError()
         return process
 
-    def erase_sector(self, sector, timeout=None):
+    def erase_sector(self, sector, external_memory=False, timeout=None):
         if timeout is None:
             timeout = self._timeout
 
@@ -173,8 +173,12 @@ class STLink(Flashers, FlasherCommunicable):
             raise ValueError('Only iterable or integer is supported')
 
         self.connect()
-        process = run(self.__parse_connect() + ['-e', sector], stdout=PIPE, stderr=STDOUT,
-                      log=self._log, timeout=timeout)
+        if external_memory:
+            process = run(self.__parse_connect() + ['-EL', self._flashloader, '-e', sector], stdout=PIPE, stderr=STDOUT,
+                          log=self._log, timeout=timeout)
+        else:
+            process = run(self.__parse_connect() + ['-e', sector], stdout=PIPE, stderr=STDOUT,
+                          log=self._log, timeout=timeout)
         if process.returncode != 0:
             self.logger.error('Unable to erase sector{0}{1}'.format(os.linesep, process.stdout.read().decode()), extra=self.log_args)
             raise ConnectionError()
