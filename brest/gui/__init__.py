@@ -6,7 +6,7 @@
 
     This file signifies that 'gui' is a module.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 __version__ = '0.0.14'

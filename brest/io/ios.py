@@ -7,7 +7,7 @@
     This module implements common methods and attributes for
     IO devices.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 from brest import Resource

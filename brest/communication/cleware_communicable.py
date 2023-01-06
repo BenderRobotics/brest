@@ -6,7 +6,7 @@
 
     This module implements communication with Cleware devices, using HID.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 import hid

@@ -7,7 +7,7 @@
     This module implements communication using serial line and
     described frames.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 import logging

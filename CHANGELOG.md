@@ -1,9 +1,18 @@
 # Changelog
 
+## [0.0.16] - 2023-01-06
+### Added
+- Added NXP MCULink support. #6319, #6652
+
+### Changed
+- Updated documentation. #5272
+
+### Fixed
+- Fixed usage of subprocess.
+
 ## [0.0.15.post1] - 2022-08-19
 ### Added
-- 
-Added possibility to erase external memory. #6185
+- Added possibility to erase external memory. #6185
 
 ## [0.0.15.post0] - 2022-05-26
 ### Fixed

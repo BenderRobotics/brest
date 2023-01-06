@@ -6,7 +6,7 @@
 
     This file signifies that 'modbus' is a module.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 from .modbus_interface import ModbusInterface

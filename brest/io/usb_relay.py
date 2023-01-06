@@ -6,7 +6,7 @@
 
     This module implements USB-RLYxx relay array.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 from brest.io import IO

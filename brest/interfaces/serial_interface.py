@@ -6,7 +6,7 @@
 
     This module implements represeting com port as a resource.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 from .interfaces import Interfaces

@@ -2,7 +2,7 @@
     brest.tests.test_helpers
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 import __init__
 

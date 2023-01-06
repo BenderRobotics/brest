@@ -6,7 +6,7 @@
 
     This module implements manual io device.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 from brest.io import IO

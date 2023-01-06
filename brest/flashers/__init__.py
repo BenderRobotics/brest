@@ -6,7 +6,7 @@
 
     This file signifies that 'flashers' is a module.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 from .flashers import Flashers
@@ -16,4 +16,4 @@ from .mculink import MCULink
 
 __all__ = ['Flashers', 'STLink', 'JLink', 'MCULink']
 
-__version__ = '0.0.15.post1'
+__version__ = '0.0.16'

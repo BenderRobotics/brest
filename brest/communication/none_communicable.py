@@ -7,7 +7,7 @@
     This module implements a class for devices with no communication
     to fit Brest.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 from brest.communication import Communicable

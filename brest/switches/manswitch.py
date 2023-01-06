@@ -6,7 +6,7 @@
 
     This module implements manually controlled switch.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 from brest.switches import Switches

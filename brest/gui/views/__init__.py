@@ -6,7 +6,7 @@
 
     This file signifies that 'views' is a module.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 from .resource_view import ResourceView

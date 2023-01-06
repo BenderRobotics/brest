@@ -6,7 +6,7 @@
 
     This file signifies that 'controllers' is a module.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 from .resource_controller import ResourceController

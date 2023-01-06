@@ -6,7 +6,7 @@
 
     This file signifies that 'observables' is a module.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 from .observable import Observable

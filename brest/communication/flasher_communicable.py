@@ -6,7 +6,7 @@
 
     This module implements communication with flashers using cmd utility.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 import weakref

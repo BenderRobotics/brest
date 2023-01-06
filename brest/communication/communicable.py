@@ -6,7 +6,7 @@
 
     This module implements base abstract for communication.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 class CommunicableError(Exception):

@@ -6,7 +6,7 @@
 
     This module implements Basler camera.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 import logging

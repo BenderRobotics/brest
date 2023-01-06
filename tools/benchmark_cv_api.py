@@ -6,7 +6,7 @@
 
     This script tests image acquisition using all opencv backend apis to benchmark performance
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 from copy import deepcopy
 import os

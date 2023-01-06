@@ -6,7 +6,7 @@
 
     This module performs version test.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 import os

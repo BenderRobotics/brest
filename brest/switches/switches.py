@@ -6,7 +6,7 @@
 
     This module implements base abstract for switches.
 
-    :copyright: 2022 Bender Robotics
+    :copyright: 2023 Bender Robotics
 """
 
 from brest import Resource
