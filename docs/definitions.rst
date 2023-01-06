@@ -141,6 +141,24 @@ Available definitions for each resource
         port: str ("JTAG", "SWD")
         timeout: float
 
+:class:`~brest.flashers.JLink`::
+
+    # All attributes from Flashers group can be used
+    default:
+        flashloader: abs_path  # has no effect, JLinkDevices.xml is prioritized
+
+:class:`~brest.flashers.MCULink`::
+
+    default:
+        # Only the following attributes from Flashers group can be used
+        log
+        flashloader
+        file
+        address
+        # These attributes must be used for flashing and mass erase
+        script: str  # name of the connection script to be used (should and with '.scp')
+        package: str  # name of the XML file without the '.xml' (should come with the flashloader)
+
 :class:`~brest.flashers.STLink`::
 
     # All attributes from Flashers group can be used
@@ -148,12 +166,6 @@ Available definitions for each resource
         verbosity: int (1, 2, 3)
         mode: str ("under_reset", "hotplug", "normal")
         reset: str ("sw", "hw", "core")
-
-:class:`~brest.flashers.JLink`::
-
-    # All attributes from Flashers group can be used
-    default:
-        flashloader: abs_path  # has no effect, JLinkDevices.xml is prioritized
 
 :class:`~brest.interfaces.Interfaces`:
 

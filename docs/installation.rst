@@ -84,12 +84,17 @@ Resource specific
 These dependencies will not be installed automatically. Brest will try to detect them and
 use them if you install them.
 
-* `STM32_Programmer_CLI`_
-    * Install this program so Brest will be able to list and use ST-Link programmers
-    * It is recommended to install program in path used by :class:`~brest.flashers.STLink`
 * `JLink`_
     * Install this program so Brest will be able to list and use J-Link programmers
     * It is recommended to install program in path used by :class:`~brest.flashers.JLink`
+* `MCUXpressoIDE`_
+    * Install this program so Brest will be able to list and use the NXP MCU-Link programmers
+    * It is recommended to install program in path similar to the path used by :class:`~brest.flashers.MCULink`
+        * The path is specific for each release of the IDE, hence the specific path mentioned might not be the correct one.
+* `STM32_Programmer_CLI`_
+    * Install this program so Brest will be able to list and use ST-Link programmers
+    * It is recommended to install program in path used by :class:`~brest.flashers.STLink`
 
-.. _STM32_Programmer_CLI: https://www.st.com/en/development-tools/stm32cubeprog.html
 .. _JLink: https://www.segger.com/downloads/jlink/
+.. _MCUXpressoIDE: https://www.nxp.com/design/software/development-software/mcuxpresso-software-and-tools-/mcuxpresso-integrated-development-environment-ide:MCUXpresso-IDE
+.. _STM32_Programmer_CLI: https://www.st.com/en/development-tools/stm32cubeprog.html

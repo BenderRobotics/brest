@@ -12,7 +12,8 @@
 from .flashers import Flashers
 from .stlink import STLink
 from .jlink import JLink
+from .mculink import MCULink
 
-__all__ = ['Flashers', 'STLink', 'JLink']
+__all__ = ['Flashers', 'STLink', 'JLink', 'MCULink']
 
 __version__ = '0.0.15.post1'

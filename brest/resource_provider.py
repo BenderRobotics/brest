@@ -234,7 +234,6 @@ class ResourceProvider:
 
             Try to find the one, that satisfies requirements.
             """
-
             # Interate over params in group
             for params in available_params:
                 # Add missing definitions to avoid errors

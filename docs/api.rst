@@ -232,9 +232,11 @@ Flashers base class:
 
 Available flashers:
 
-.. autoclass:: STLink
-
 .. autoclass:: JLink
+
+.. autoclass:: MCULink
+
+.. autoclass:: STLink
 
 Cameras
 ~~~~~~~
