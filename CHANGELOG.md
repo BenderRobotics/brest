@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.0.16.post0] - 2023-01-30
+### Fixed
+- Fixed NXP MCULink writing. #6816, 6672
+
 ## [0.0.16] - 2023-01-06
 ### Added
 - Added NXP MCULink support. #6319, #6652
