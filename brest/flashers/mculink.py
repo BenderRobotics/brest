@@ -224,19 +224,7 @@ class MCULink(Flashers, FlasherCommunicable):
         # file need to be closed so CLI can open it
         tmp_file.close()
 
-        inputs = (
-            f'PROBEOPENBYSERIAL "{self._serial_number}"\n'
-            'WIRESWDCONNECT THIS\n'
-            f'MEMLOAD THIS {tmp_file.name} {address} {len(data)}\n'
-            'EXIT'
-        )
-
-        command = [CLI_UTIL_SERVER_PATH, '--commandline']
-
-        address = self._unify_address(address)
-        self.connect()
-        process = run(command, stdout=PIPE, stderr=STDOUT,
-                      log=self._log, timeout=timeout, stdin=PIPE, input_=inputs)
+        process = self.flash(file=tmp_file.name, address=address, timeout=timeout)
 
         os.remove(tmp_file.name)
 
