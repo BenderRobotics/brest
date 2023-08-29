@@ -63,3 +63,18 @@ On Ubuntu like machines execute the following command:
 If you are on windows machine, you can install a [MinGW](http://www.mingw.org/). In the MinGW installer choose `mingw32-base-bin` and
 `msys-base-bin` packages, then click on *Installation* and *Apply changes*.
 Don't forget to add the **make** binary to the system `PATH`. Default install location should be `C:\MinGW\msys\1.0\bin\`.
+
+## Branching strategy
+Beacause Brest is a relatively small project, it uses a very basic branching strategy.
+All feature branches keep their history and merge into the 'devel' branch the regular way.
+If there has been a commit in the 'devel' branch while the feature branch was under development, 
+the procedure is to merge 'devel' into the feature branch to update changes and when the feature branch development
+is over, it can be merged with 'devel'
+
+## Versioning strategy
+Release versioning:
+    0.0.X 
+Post release versioning:
+    0.0.X.postN     - Nth fix of 0.0.X
+Development release versioning:
+    0.0.Y.devABCD+N - Y = X+1, ABCD = redmine ticket #, Nth fix

@@ -36,12 +36,12 @@ setuptools.setup(
           ]
     },
     install_requires=[
-        'colorama>=0.4.1',
-        'pyserial>=3.4',
-        'PyYAML>=5.1.2',
-        'Cython>=0.29.26',
-        'hidapi>=0.7.99.post21',
-        'crcmod>=1.7',
+        'colorama==0.4.6',
+        'pyserial==3.5',
+        'PyYAML==6.0.1',
+        'Cython==0.29.36',
+        'hidapi==0.14.0',
+        'crcmod==1.7',
     ],
     extras_require={
         'docs': [

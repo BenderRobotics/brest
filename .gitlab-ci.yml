@@ -23,7 +23,9 @@ variables:
 
 before_script:
   # Change pending to be added to toolchain, cython needed by hidapi
-  - pip install Cython
+  - pip install --upgrade pip
+  - pip install --upgrade setuptools
+  - pip install Cython==0.29.33
   - pip install dist/brest-*.whl
 
 build-wheel:
@@ -155,7 +157,7 @@ build-docs-for-deploy:
   script:
     - apk add git
     - pip install brest[docs]
-    - pip install --no-cache-dir cm/sphinx-versions/sphinx-versions-1.1.3.post3.BR.tar.gz
+    - pip install --no-cache-dir cm/sphinx-versions/sphinx-versions-1.1.3.post4.tar.gz
     - cd docs
     - make html-versioned
   artifacts:

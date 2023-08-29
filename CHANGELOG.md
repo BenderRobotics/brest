@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.0.17] - UNRELEASED
+
+### Fixed
+- Fixed documentation build. #5272
+
 ## [0.0.16.post0] - 2023-01-30
 ### Fixed
 - Fixed NXP MCULink writing. #6816, 6672
