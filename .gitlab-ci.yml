@@ -91,6 +91,10 @@ code-quality-json:
     reports:
       codequality: gl-code-quality-report.json
     paths: [gl-code-quality-report.json]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      when: never
+    - when: always
 
 code-quality-html:
   extends: .code-quality
