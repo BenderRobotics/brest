@@ -105,6 +105,19 @@ code-quality-html:
   artifacts:
     paths: [gl-code-quality-report.html]
 
+# verify version
+verify-version:
+  stage: test
+  image: python:3.7
+  tags:
+    - docker
+  script:
+    - python tools/verify_version.py
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: always
+    - when: never
+
 # generate dynamic child pipeline
 generate-child-pipeline:
   stage: build
@@ -252,9 +265,9 @@ staging:
   tags:
     - web
 
-deploy-wheel:
+.deploy-wheel:
   stage: deploy
-  needs: ["build-wheel", "unit-tests-artifacts"]
+  needs: ["build-wheel", "verify-version", "unit-tests", "unit-tests-artifacts"]
   tags:
     - docker
   image: ${CI_REGISTRY}/br/toolchains/release:0.1
@@ -267,14 +280,32 @@ deploy-wheel:
         put dist/*
         quit
       EOF
+
+deploy-wheel-release:
+  extends: .deploy-wheel
   dependencies:
     - build-wheel
-  only:
-    - tags
+    - unit-tests
+    - verify-version
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^\d+\.\d+\.\d+(\.post\d+)?$/ && $CI_COMMIT_BRANCH == "devel" || $CI_COMMIT_BRANCH == "master"'
+      when: on_success
+    - when: never
+
+deploy-wheel-dev:
+  extends: .deploy-wheel
+  needs: ["build-wheel", "verify-version", "unit-tests-artifacts"]
+  dependencies:
+    - build-wheel
+    - verify-version
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^\d+\.\d+\.\d+\.dev\d{4,5}\+\d+$/
+      when: on_success
+    - when: never
 
 deploy-docs:
   stage: deploy
-  needs: ["deploy-wheel", "build-docs-for-deploy"]
+  needs: ["deploy-wheel-release", "build-docs-for-deploy"]
   tags:
     - docker
   image: ${CI_REGISTRY}/br/toolchains/release:0.1
@@ -289,7 +320,7 @@ deploy-docs:
         quit
       EOF
   dependencies:
-    - deploy-wheel
+    - deploy-wheel-release
     - build-docs-for-deploy
   rules:
     - !reference [.rule-deploy-docs]

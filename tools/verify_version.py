@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-    brest.tests.test_version
-    ~~~~~~~~~~~~~~~~~~~~~~~~
+    brest.tools.verify_version
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    This module performs version test.
+    This module performs version verification against tag.
 
     :copyright: 2023 Bender Robotics
 """
