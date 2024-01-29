@@ -22,13 +22,13 @@ supported_versions = (
     '\r\n\t3.8 (experimental)' +
     '\r\n\t3.9 (experimental)'
 )
-if sys.version_info.major != 3 or sys.version_info.minor not in range(5, 10):
+if sys.version_info.major != 3 or sys.version_info.minor < 5:
     print('\r\n============================================================')
     print('ERROR (brest): Python version (%d.%d) invalid, exiting!' % (sys.version_info.major, sys.version_info.minor))
     print('INFO  (brest): Supported Python versions:%s' % supported_versions)
     print('============================================================\r\n')
     sys.exit()
-if sys.version_info.minor in range(8, 10):
+if sys.version_info.major == 3 and sys.version_info.minor > 7:
     print('\r\n'.ljust(82, '='))
     print('WARNING (brest): Python version (%d.%d) compatibility assumed, not verified!' % (sys.version_info.major, sys.version_info.minor))
     print('INFO    (brest): Supported Python versions:%s' % supported_versions)

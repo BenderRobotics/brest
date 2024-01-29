@@ -11,6 +11,7 @@
 
 import logging
 import weakref
+import re
 
 from brest.communication import Communicable
 
@@ -97,11 +98,37 @@ class CameraCommunicable(Communicable):
         return cameras
 
     def __parse_device_id(self, device_id):
-        splitted = device_id.split('&')
-        vid = int(splitted[0][splitted[0].find('_') + 1 : ], 16) #USB\VID_041E -> 0x041E
-        pid = int(splitted[1][splitted[1].find('_') + 1 : ], 16) #PID_4095 -> 0x4096
-        serial_number = splitted[3]
-        return (vid, pid, serial_number)
+        # Examples of the obtained device_ids:
+        # USB\VID_1E10&PID_4000\011B6F8F                -> contains VID, PID, serial number
+        # USB\VID_1E10&PID_4000&MI_00\6&7E06248&0&0000  -> contains VID, PID, MI, serial number
+        ids = {
+            'VID': None,
+            'PID': None,
+            'serial_number': None,
+        }
+
+        # parse IDs
+        parsed_ids = re.findall("([a-zA-Z]+)_([a-zA-Z_0-9]+)", device_id)
+        for id_ in ids:
+            if id_ == 'serial_number':
+                continue
+
+            for parsed_id_name, parsed_id_nr in parsed_ids:
+                if id_ in parsed_id_name:
+                    ids[id_] = parsed_id_nr
+                    break
+            else:
+                print(f"The '{id_}' of the camera wasn't found in the device ID '{device_id}'.")
+
+        # parse serial number
+        parsed_parts = re.split(r"[\\]+(?=\S)(?!\\)", device_id)
+
+        if len(parsed_parts) >= 2 and not re.search("[_]+", parsed_parts[-1]):
+            ids['serial_number'] = parsed_parts[-1]
+        else:
+            print(f"The 'serial_number' of the camera wasn't found in the device ID '{device_id}'.")
+
+        return (ids['VID'], ids['PID'], ids['serial_number'])
 
     def mark_taken(self, resource):
         self.TAKEN.append((self.__class__.__name__, self.index, self.service))

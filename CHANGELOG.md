@@ -2,6 +2,9 @@
 
 ## [0.0.17] - UNRELEASED
 
+### Added
+- Added support for Python 3.10 and SpinnakerSDK >= 3.0.0.68 (compatible with spinnaker-python for Py3.10) #7663
+
 ### Fixed
 - Fixed documentation build. #5272
 

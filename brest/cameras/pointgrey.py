@@ -13,13 +13,17 @@ import logging
 
 from brest.cameras import Cameras
 from brest.communication import CameraCommunicable
-
+from packaging import version
 
 class PointGrey(Cameras, CameraCommunicable):
     """
     PointGrey cameras.
 
     Derived from: :class:`~brest.cameras.Cameras`, :class:`~brest.communication.CameraCommunicable`
+
+    Currently known to be functional on:
+        - Python 3.7 with Spinnaker SDK v2.7.0.128 with spinnaker-python==1.25.0.52
+        - Python 3.10 with Spinnaker SDK v3.1.0.79 with spinnaker-python==3.1.0.79
 
     :param params: Construction parameters
     :type  params: dict
@@ -42,6 +46,11 @@ class PointGrey(Cameras, CameraCommunicable):
         # Retrieve singleton reference to system object
         self.system = PySpin.System.GetInstance()
 
+        # get version of the PySpin package
+        # https://www.flir.com/support-center/iis/machine-vision/knowledge-base/spinnaker-sdk-release-notes/
+        spn_version = self.system.GetLibraryVersion()
+        self.pkg_spinnaker_version = f"{spn_version.major}.{spn_version.minor}.{spn_version.type}.{spn_version.build}"
+
         # Retrieve list of cameras from the system
         cam_list = self.system.GetCameras()
         num_cameras = cam_list.GetSize()
@@ -54,13 +63,30 @@ class PointGrey(Cameras, CameraCommunicable):
         else:
             self._cam = cam_list[params['interface']['index']]
             self.cam.Init()
-            # buffer mode https://www.flir.com/support-center/iis/machine-vision/application-note/understanding-buffer-handling/
-            # Oldest first           - 0
-            # Oldest First Overwrite - 1
-            # Newest First           - 2
-            # Newest First Overwrite - 3
-            # Newest Only            - 4
-            self.cam.TLStream.StreamBufferHandlingMode.SetValue(4)
+            
+            # 3.0.0.68 Beta changes
+            # https://www.flir.com/support-center/iis/machine-vision/knowledge-base/spinnaker-sdk-release-notes/
+            if version.parse(self.pkg_spinnaker_version) >= version.parse('3.0.0.68'):
+                # examples and detailed info about API in the pyspin-3.10 pkg
+                # buffer mode https://www.flir.com/support-center/iis/machine-vision/application-note/understanding-buffer-handling/
+                # OldestFirst
+                # OldestFirstOverwrite
+                # NewestFirst
+                # NewestOnly
+                s_node_map = self.cam.GetTLStreamNodeMap()
+                handling_mode = PySpin.CEnumerationPtr(s_node_map.GetNode('StreamBufferHandlingMode'))
+                handling_mode_entry = handling_mode.GetEntryByName('NewestOnly')
+                handling_mode.SetIntValue(handling_mode_entry.GetValue())
+
+                self.processor = PySpin.ImageProcessor()
+            else:
+                # buffer mode https://www.flir.com/support-center/iis/machine-vision/application-note/understanding-buffer-handling/
+                # Oldest first           - 0
+                # Oldest First Overwrite - 1
+                # Newest First           - 2
+                # Newest First Overwrite - 3
+                # Newest Only            - 4
+                self.cam.TLStream.StreamBufferHandlingMode.SetValue(4)
 
             if self.cam.AcquisitionMode.GetAccessMode() != PySpin.RW:
                 self.logger.error('Unable to set acquisition mode to continuous', extra=self.log_args)
@@ -453,7 +479,12 @@ class PointGrey(Cameras, CameraCommunicable):
                 self.logger.warning('Image incomplete with image status: {}'.format(image_result.GetImageStatus()), extra=self.log_args)
             else:
                 # Convert the Image object to BGR array
-                image_converted = image_result.Convert(PySpin.PixelFormat_BGR8)
+                # 3.0.0.68 Beta changes
+                # https://www.flir.com/support-center/iis/machine-vision/knowledge-base/spinnaker-sdk-release-notes/
+                if version.parse(self.pkg_spinnaker_version) >= version.parse('3.0.0.68'):
+                    image_converted = self.processor.Convert(image_result, PySpin.PixelFormat_BGR8)
+                else:
+                    image_converted = image_result.Convert(PySpin.PixelFormat_BGR8)
                 self.img_width = image_result.GetWidth()
                 self.img_height = image_result.GetHeight()
                 data = image_converted.GetData()

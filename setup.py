@@ -29,7 +29,7 @@ setuptools.setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
-    python_requires='>=3.5, <3.10',
+    python_requires='>=3.5, <4',
     entry_points={
           'console_scripts': [
               'brest.gui = brest.gui.app:main'
@@ -42,6 +42,7 @@ setuptools.setup(
         'Cython==0.29.36',
         'hidapi==0.14.0',
         'crcmod==1.7',
+        'packaging==23.2',
     ],
     extras_require={
         'docs': [
