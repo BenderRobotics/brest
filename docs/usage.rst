@@ -332,6 +332,19 @@ Frame structure can be found in :ref:`modbus_api`.::
     if (response.valid):
         print(response.pdu.data_value)
 
+Preparing tests
+^^^^^^^^^^^^^^^
+:meth:`~brest.helpeers.prepare_tests` returns needed resources instantiated for a given test suite using specified projects.
+Projects including device information are defined in the Config file::
+
+    resources = brest.helpers.prepare_tests(
+        test_suite=suite,
+        projects=['project_1', 'project_2', 'project_3'], 
+        project_config=os.path.join(os.path.dirname(__file__), '../brest_config.yaml'), # Address of the project config file
+        needed=['tenma', 'clewareswitch', 'flasher'],
+        collect_test_resources=False    # Specifies whether to collect needed resources from tests, defaults to True
+    )
+
 PDUMappings
 ^^^^^^^^^^^
 ModbusInterface contains some default PDU mappings describing messages. If you want to use your own mappings, use :class:`~brest.communication.modbus.ModbusPDUMappings`. Here is how to do it.

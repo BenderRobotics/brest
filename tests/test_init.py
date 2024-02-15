@@ -42,54 +42,101 @@ class TestInit(unittest.TestCase):
             - set project, resource and config file are correct
         """
         self.log.info(" Tested function: find_available_resource() ".center(100, '-'))
-        dummy_config1 = Config()
-        dummy_config1.config = {'project2': {'psu': {'class_name': 'Supplies.Tenma', 'interface': {'serial_number': '0000'}}}}
-        mock_merge_configs.return_value = dummy_config1
+        cfg = {
+            'project2': {
+                'psu': {
+                    'class_name': 'Supplies.Tenma',
+                    'interface': {
+                        'serial_number': '0000'
+                    }
+                }
+            }
+        }
+        dummy_merged_config1 = Config('project1', config_dict=cfg)
+        mock_merge_configs.return_value = dummy_merged_config1
 
         # invalid project
-        self.log.info("1) Test case: set project is not found in config file")
-        with self.subTest(test_case='project not found in config file'):
+        msg = "1): set project is not found in config file"
+        self.log.info(f"Test case {msg}")
+        with self.subTest(test_case=msg):
             found_resource = find_available_resource('project1', 'psu')
-            self.assertIsNone(found_resource, msg="Method find_available_resource() does not work as it is expected. " \
-                                                 f"Expected result: None, obtained result: {found_resource}")
+            self.assertIsNone(
+                found_resource,
+                msg=(
+                    "Method find_available_resource() does not work as it is expected. "
+                    f"Expected result: None, obtained result: {found_resource}"
+                )
+            )
             self.log.info("Test result: OK")
 
+        # bypass first check
+        dummy_merged_config1 = Config('project2', config_dict=cfg)
+        mock_merge_configs.return_value = dummy_merged_config1
+
         # invalid resource
-        self.log.info("2) Test case: set resource is not found in config file")
-        with self.subTest(test_case='resource not found in config file'):
+        msg = "2): set resource is not found in config file"
+        self.log.info(f"Test case {msg}")
+        with self.subTest(test_case=msg):
             found_resource = find_available_resource('project2', 'bender')
-            self.assertIsNone(found_resource, msg="Method find_available_resource() does not work as it is expected. " \
-                                                 f"Expected result: None, obtained result: {found_resource}")
+            self.assertIsNone(
+                found_resource,
+                msg=(
+                    "Method find_available_resource() does not work as it is expected. "
+                    f"Expected result: None, obtained result: {found_resource}"
+                )
+            )
             self.log.info("Test result: OK")
 
         # non-specific device name
-        self.log.info("3) Test case: not specific device name in the config file")
-        with self.subTest(test_case='not specific device name'):
-            dummy_config1.config = {'project2': {'psu': {'class_name': 'Supplies'}}}
+        msg = "3): not specific device name in the config file"
+        self.log.info(f"Test case {msg}")
+        with self.subTest(test_case=msg):
+            dummy_merged_config1.config = {'psu': {'class_name': 'Supplies'}}
             found_resource = find_available_resource('project2', 'psu')
             self.assertIsNone(found_resource, msg="Method find_available_resource() does not work as it is expected. " \
                                                  f"Expected result: None, obtained result: {found_resource}")
             self.log.info("Test result: OK")
 
-        # config with incorrect interface
-        self.log.info("4) Test case: incorrect interface in config file")
-        with self.subTest(test_case='incorrect interface in config file'):
+        # # config with incorrect interface
+        msg = "4): incorrect interface in config file"
+        self.log.info(f"Test case {msg}")
+        with self.subTest(test_case=msg):
             mock_probe.return_value = []
-            dummy_config1.config = {'project2': {'psu': {'class_name': 'Supplies.Tenma', 'interface': {'serial_number': '0000'}}}}
+            dummy_merged_config1.config = {
+                'psu': {
+                    'class_name': 'Supplies.Tenma',
+                    'interface': {
+                        'serial_number': '0000'
+                    }
+                }
+            }
             found_resource = find_available_resource('project2', 'psu')
-            self.assertIsNone(found_resource, msg="Method find_available_resource() does not work as it is expected. " \
-                                                 f"Expected result: None, obtained result: {found_resource}")
+            self.assertIsNone(
+                found_resource,
+                msg=(
+                    "Method find_available_resource() does not work as it is expected. "
+                    f"Expected result: None, obtained result: {found_resource}"
+                )
+            )
             self.log.info("Test result: OK")
 
         # all params set correctly
-        self.log.info("5) Test case: set project, resource and config file are correct")
-        with self.subTest(test_case='all params set correctly'):
+        msg = "5): set project, resource and config file are correct"
+        self.log.info(f"Test case {msg}")
+        with self.subTest(test_case=msg):
             mock_probe.return_value = [{'serial_number': '0000'}]
-            expected_resource = dummy_config1.config['project2']['psu']['class_name']
+            expected_resource = dummy_merged_config1.config['psu']['class_name']
             found_resource = find_available_resource('project2', 'psu')
-            self.assertEqual(found_resource['class_name'], expected_resource,
-                            msg="Method find_available_resource() does not work as it is expected. " \
-                               f"Expected result: {expected_resource}, obtained result: {found_resource}")
+            print(found_resource)
+            print(expected_resource)
+            self.assertEqual(
+                found_resource['class_name'],
+                expected_resource,
+                msg=(
+                    "Method find_available_resource() does not work as it is expected. "
+                    f"Expected result: {expected_resource}, obtained result: {found_resource}"
+                )
+            )
             self.log.info("Test result: OK")
 
 

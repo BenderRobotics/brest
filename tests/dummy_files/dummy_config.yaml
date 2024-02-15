@@ -1,0 +1,221 @@
+project_name:
+    psu:
+        class_name: 'Supplies'
+        disable_on_destruct: False
+        default:
+            voltage: 12
+            current: 0.5
+    flasher:
+        class_name: 'Flashers'
+        default:
+            log: "after"
+            device: "STM32F303"
+            flashloader: "C:\\Program Files (x86)\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin\\ExternalLoader\\loader.stldr"
+    com:
+        class_name: "Interfaces.SerialInterface"
+    switch:
+        class_name: 'switches'
+        aliases:
+            - channel: 0
+              name: 'drive'
+              states: ['OFF', 'PC', 'DUT']
+              default:
+                  state: 'OFF'
+    pump:
+        class_name: 'interfaces.SerialInterface'
+    relay:
+        class_name: "Io.USBRelay"
+        aliases:
+            - channel: 0
+              name: "button 1"
+              default_value: False
+              propagate: True
+            - channel: 1
+              name: "button 2"
+              default_value: True
+              propagate: True
+            - channel: 2
+              name: "button 3"
+              default_value: False
+              propagate: True
+            - channel: 3
+              name: "thermostat"
+              default_value: False
+              propagate: True
+            - channel: 4
+              name: "water"
+              default_value: True
+              propagate: True
+            - channel: 5
+              name: "adapter"
+              default_value: False
+              propagate: True
+            - channel: 6
+              name: "reserved-1"
+              default_value: False
+              propagate: False
+            - channel: 7
+              name: "reserved-2"
+              default_value: False
+              propagate: False
+    cam:
+        class_name: 'cameras.PointGrey'
+        default:
+            trigger: 'line3'
+            exposure: 4
+            gain: 0
+            gamma: 0.75
+            white_auto_balance: 'off'
+        interface:
+            service: "PGRUSBCam3"     # makes camera discoverable via brest.find_available_resource
+    simulator:
+      class_name: 'interfaces.SerialInterface'
+    canopen:
+        class_name: 'Interfaces.CANopenSimIface'
+
+project_name_2:
+    psu:
+        class_name: 'Supplies'
+        disable_on_destruct: False
+        default:
+            voltage: 12
+            current: 0.5
+    flasher:
+        class_name: 'Flashers'
+        default:
+            log: "after"
+    com:
+        class_name: "Interfaces.SerialInterface"
+    switch:
+        class_name: 'switches'
+        aliases:
+            - channel: 0
+              name: 'drive'
+              states: ['OFF', 'PC', 'DUT']
+              default:
+                  state: 'OFF'
+    pump:
+        class_name: 'interfaces.SerialInterface'
+    relay:
+        class_name: "Io.USBRelay"
+        aliases:
+            - channel: 0
+              name: "button 1"
+              default_value: False
+              propagate: True
+            - channel: 1
+              name: "button 2"
+              default_value: True
+              propagate: True
+            - channel: 2
+              name: "button 3"
+              default_value: False
+              propagate: True
+            - channel: 3
+              name: "thermostat"
+              default_value: False
+              propagate: True
+            - channel: 4
+              name: "water"
+              default_value: True
+              propagate: True
+            - channel: 5
+              name: "adapter"
+              default_value: False
+              propagate: True
+            - channel: 6
+              name: "reserved-1"
+              default_value: False
+              propagate: False
+            - channel: 7
+              name: "reserved-2"
+              default_value: False
+              propagate: False
+    cam:
+        class_name: 'cameras.PointGrey'
+        default:
+            trigger: 'line3'
+            exposure: 4
+            gain: 0
+            gamma: 0.75
+            white_auto_balance: 'off'
+        interface:
+            service: "PGRUSBCam3"     # makes camera discoverable via brest.find_available_resource
+    simulator:
+      class_name: 'interfaces.SerialInterface'
+    canopen:
+        class_name: 'Interfaces.CANopenSimIface'
+project_name_3:
+    psu:
+        class_name: 'Supplies'
+        disable_on_destruct: False
+        default:
+            voltage: 12
+            current: 0.5
+    flasher:
+        class_name: 'Flashers'
+        default:
+            log: "after"
+            device: "STM32L543"
+            flashloader: "C:\\Program Files (x86)\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin\\ExternalLoader\\loader.stldr"
+    com:
+        class_name: "Interfaces.SerialInterface"
+    switch:
+        class_name: 'switches'
+        aliases:
+            - channel: 0
+              name: 'drive'
+              states: ['OFF', 'PC', 'DUT']
+              default:
+                  state: 'OFF'
+    pump:
+        class_name: 'interfaces.SerialInterface'
+    relay:
+        class_name: "Io.USBRelay"
+        aliases:
+            - channel: 0
+              name: "button 1"
+              default_value: True
+              propagate: True
+            - channel: 1
+              name: "button 2"
+              default_value: False
+              propagate: True
+            - channel: 2
+              name: "button 3"
+              default_value: False
+              propagate: True
+            - channel: 3
+              name: "thermostat"
+              default_value: False
+              propagate: True
+            - channel: 4
+              name: "water"
+              default_value: True
+              propagate: True
+            - channel: 5
+              name: "adapter"
+              default_value: False
+              propagate: True
+            - channel: 6
+              name: "reserved-1"
+              default_value: False
+              propagate: False
+            - channel: 7
+              name: "reserved-2"
+              default_value: False
+              propagate: False
+    cam:
+        class_name: 'cameras.PointGrey'
+        default:
+            trigger: 'line3'
+            exposure: 4
+            gain: 0
+            gamma: 0.75
+            white_auto_balance: 'off'
+        interface:
+            service: "PGRUSBCam3"     # makes camera discoverable via brest.find_available_resource
+    simulator:
+      class_name: 'interfaces.SerialInterface'
+    canopen:
+        class_name: 'Interfaces.CANopenSimIface'

@@ -69,44 +69,47 @@ __all__ = [
     'run',
     ]
 
-__version__ = '0.0.16.post0'
+__version__ = '0.0.17.dev7426+6'
 
-def find_available_resource(project, resource, user_config=Config.BREST_USER_CONFIG, project_config=None):
+def find_available_resource(projects, resource, user_config=Config.BREST_USER_CONFIG, project_config=None):
     """
     Tries to find descriptors of connected device that matches resource from given project.
 
-    :param str project: Selected brest project name.
-    :param str resource: Selected resource to be found.
-    :param str user_config: An absolute path to user configuration file in non standard location
-    :param str project_config: Optional project config to be merged with default user config.
+    :param projects: List of selected projects that Brest will look for in your config files.
+    :type projects: str, list
+    :param resource: Selected resource to be found.
+    :type resource: str
+    :param user_config: An absolute path to user configuration file in non standard location
+    :type user_config: str
+    :param project_config: Optional project config to be merged with default user config.
+    :type project_config: str
     :return: `dict` representing selected resource or `None` if resource not found.
     :rtype: dict
     """
     logger = logging.getLogger('brest_find_available_resource')
     logger.setLevel(logging.INFO)
-
     rp = ResourceProvider()
 
-    config_file = Config(project, project_config)
-    merged_configs = config_file.merge_configs(Config(project, user_config))
+    config_file = Config(projects, project_config)
+    merged_configs = config_file.merge_configs(Config(projects, user_config))
 
-    if project not in merged_configs.config:
-        logger.warning("Set `project` is not found in config file created from user_config and project_config.")
+    if not merged_configs.is_valid:
+        logger.warning(
+            "Set `project`/`projects` is not found in config file created from user_config and project_config."
+        )
         return None
 
-    if resource not in merged_configs.config[project]:
-        logger.warning("Set `resource` is not found in config file created from user_config and project_config.")
+    if resource not in merged_configs.config:
+        logger.warning(f"Set {resource} is not found in config file created from user_config and project_config.")
         return None
 
-    resource_needed = merged_configs.config[project][resource]
+    resource_needed = merged_configs.config[resource]
     class_name_split = resource_needed['class_name'].split('.')
 
     if len(class_name_split) > 1:
         needed_class_name = class_name_split[1]
-
         impl_dict = rp._get_implicit_definition(needed_class_name)
         com = rp._get_communicable(impl_dict['type'])
-
         intr = com.probe(resource_needed['interface'])
         if intr:
             resource_needed['interface'].update(intr[0])

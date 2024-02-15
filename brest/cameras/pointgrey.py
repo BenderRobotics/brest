@@ -15,6 +15,7 @@ from brest.cameras import Cameras
 from brest.communication import CameraCommunicable
 from packaging import version
 
+
 class PointGrey(Cameras, CameraCommunicable):
     """
     PointGrey cameras.
@@ -63,7 +64,7 @@ class PointGrey(Cameras, CameraCommunicable):
         else:
             self._cam = cam_list[params['interface']['index']]
             self.cam.Init()
-            
+
             # 3.0.0.68 Beta changes
             # https://www.flir.com/support-center/iis/machine-vision/knowledge-base/spinnaker-sdk-release-notes/
             if version.parse(self.pkg_spinnaker_version) >= version.parse('3.0.0.68'):

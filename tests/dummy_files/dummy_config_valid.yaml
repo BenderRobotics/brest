@@ -1,0 +1,19 @@
+project1:
+    psu:
+        class_name: 'supplies.Tenma'
+        default:
+            voltage: 20
+            current: 0.2
+            protection: 'OCP'
+        interface: 
+            serial_number: '0123456789'
+
+project2:
+    switch:
+        class_name: 'switches.ClewareSwitch'
+        aliases:
+            - channel: 0
+              name: 'cleware'
+              states: ['OFF', 'DUT', 'NOT_USED']
+              default:
+                  state: 'DUT'

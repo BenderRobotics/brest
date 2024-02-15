@@ -66,10 +66,10 @@ Don't forget to add the **make** binary to the system `PATH`. Default install lo
 
 ## Branching strategy
 Beacause Brest is a relatively small project, it uses a very basic branching strategy.
-All feature branches keep their history and merge into the 'devel' branch the regular way.
+All feature branches keep their history and merge into the 'devel' branch the as merge-commits.
 If there has been a commit in the 'devel' branch while the feature branch was under development, 
-the procedure is to merge 'devel' into the feature branch to update changes and when the feature branch development
-is over, it can be merged with 'devel'
+the procedure is to merge 'devel' into the feature branch (as a merge-commit) to update changes and when the feature 
+branch development is over, it can be merged with 'devel'.
 
 ## Versioning strategy
 Release versioning:
@@ -77,4 +77,4 @@ Release versioning:
 Post release versioning:
     0.0.X.postN     - Nth fix of 0.0.X
 Development release versioning:
-    0.0.Y.devABCD+N - Y = X+1, ABCD = redmine ticket #, Nth fix
+    0.0.Y.devABCD+N - Y = X+1, ABCD = redmine ticket #, Nth dev release

@@ -90,7 +90,6 @@ class ResourceProvider:
             # If we have specified group of resources, skip all others
             if group and group_ != group:
                 continue
-
             for class_name, interface in resources.items():
                 com = self._get_communicable(interface['type'])
                 class_name = '{}.{}'.format(group_.lower(), class_name)
@@ -296,10 +295,8 @@ class ResourceProvider:
             class_name = None
             if len(cls_name_split) > 1:
                 class_name = definition['class_name'].split('.')[1]
-
             # Try to match resource from the available
             available_in_group = self.available(group=group, connections=connections)
-
             for available in available_in_group:
                 if available['interface']['type'] == 'none':
                     # Resources that don't have to have physical connection
@@ -314,6 +311,7 @@ class ResourceProvider:
                 if 'interface' in definition:
                     # Check if defined interface params matches available interface params
                     skip = False
+
                     for key in set(definition['interface']) & set(available['interface']):
                         if definition['interface'][key] != available['interface'][key]:
                             skip = True
@@ -336,7 +334,6 @@ class ResourceProvider:
                         continue
                 else:
                     matching.append(params)
-
             # Try to construct class, that satisfies requirements
             fi = FilterAvailable()
             self.logger.addFilter(fi)
@@ -353,8 +350,11 @@ class ResourceProvider:
             # Try to construct the resources, that didn't matched in available
             matching.clear()
             if not class_name:
-                self.logger.error('Resource `{}` didn\'t match anything in '.format(alias) +
-                                  'the available and is missing class definition', extra=self.log_args)
+                self.logger.error(
+                    f"Resource `{alias}` didn\'t match anything in "
+                    "the available and is missing class definition",
+                    extra=self.log_args
+                )
                 __log_missing_needed(needed)
                 return None
 
@@ -376,8 +376,10 @@ class ResourceProvider:
                 matching.append(params)
 
             if not matching:
-                self.logger.error('Resource `{}` doesn\'t seem to be connected to the system'.format(alias),
-                                   extra=self.log_args)
+                self.logger.error(
+                    f"Resource `{alias}` doesn\'t seem to be connected to the system",
+                    extra=self.log_args
+                )
                 __log_missing_needed(needed)
                 return None
             const_rest = __construct_from_params(matching, config)
@@ -426,9 +428,22 @@ class ResourceProvider:
                 project_dict[alias]['interface'][attr[0]] = attr[1]
             i += 1
 
-        config = Config()
-        config.config[project_name] = project_dict
-        config.dump_yaml(config_path)
+        config = Config(config_path=config_path)
+        project_configs = []
+
+        for project in config.read_projects():
+            project_config = Config(project, config_path=config_path)
+
+            if project == project_name:
+                project_config = project_config.merge_configs(
+                    Config(project_name, config_dict={project_name: project_dict})
+                )
+
+            project_configs.append(project_config)
+
+        config.clear_yaml(config_path)
+        for project_config in project_configs:
+            project_config.dump_yaml(config_path)
 
     def _refresh_connections(self):
         """

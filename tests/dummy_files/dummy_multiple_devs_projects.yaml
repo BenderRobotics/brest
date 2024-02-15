@@ -1,0 +1,77 @@
+project1:
+    engine:
+        class_name: 'interfaces.SerialInterface'
+        interface:
+          port: 'COM65'
+    brakes:
+        class_name: 'interfaces.SerialInterface'
+        interface:
+          port: 'COM12'
+    oxygen_sensor:
+        class_name: 'interfaces.SerialInterface'
+        interface:
+          port: 'COM35'
+    psu:
+        class_name: 'Supplies.Mansup'
+        interface:
+          type: 'none'
+    pump:
+        class_name: 'interfaces.SerialInterface'
+        interface:
+          port: 'COM44'
+          baudrate: 9600
+          bytesize: 8
+          stopbits: 1
+          parity: 'E'
+          timeout: 5
+    relay:
+        class_name: 'IO.Manio'
+        interface:
+          type: 'none'
+        default:
+          bypass_user: true
+    flasher:
+        class_name: 'Flashers.STLink'
+        default:
+            log: "after"
+            device: "STM32F303"
+            flashloader: "C:\\Program Files (x86)\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin\\ExternalLoader\\loader.stldr"
+
+project2:
+    psu_ext:
+        class_name: 'Supplies.Mansup'
+        interface:
+          type: 'none'
+    brakes:
+        class_name: 'interfaces.SerialInterface'
+        interface:
+          port: 'COM12'
+    oxygen_sensor:
+        class_name: 'interfaces.SerialInterface'
+        interface:
+          port: 'COM35'
+    psu:
+        class_name: 'Supplies.Mansup'
+        interface:
+          type: 'none'
+    pump:
+        class_name: 'interfaces.SerialInterface'
+        interface:
+          port: 'COM44'
+          baudrate: 9600
+          bytesize: 8
+          stopbits: 1
+          parity: 'E'
+          timeout: 5
+    relay:
+        class_name: 'IO.Manio'
+        interface:
+          type: 'none'
+        default:
+          bypass_user: true
+    flasher:
+        class_name: 'Flashers.STLink'
+        default:
+            log: "after"
+            device: "STM32F303"
+            flashloader: "C:\\Program Files (x86)\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin\\ExternalLoader\\loader.stldr"

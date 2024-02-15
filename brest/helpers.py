@@ -37,7 +37,8 @@ def __apply_overwrite(node, key, value):
     else:
         node[key] = value
 
-def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, project_config=None, needed=[]):
+def prepare_tests(test_suite, projects, user_config=Config.BREST_USER_CONFIG,
+                  project_config=None, needed=[], collect_test_resources=True):
     """
     Method that prepares tests to be used with Brest.
 
@@ -58,16 +59,19 @@ def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, pro
 
     :param test_suite: An object returned by :meth:`unittest.TestLoader.discover`
     :type  test_suite: :class:`unittest.TestSuite`
-    :param project: A project name you want to instantiate defined in the config file
-    :type  project: str
+    :param projects: A list of projects you want to use to instantiate resources (projects are defined in config files)
+    :type  projectS: list or str
     :param user_config: An absolute path to user configuration file in non standard location
     :type  user_config: str
     :param project_config: An absolute path to project configuration file
     :type  project_config: str
+    :param needed: A list of aliases of resources the test suite requires
+    :type  needed: list
+    :param collect_test_resources: A flag determining whether to collect needed resources from tests or not
+    :type  collect_test_resources: bool
     :return: Same object obtained through :class:`~brest.Resources` initialization
     :rtype: :class:`~brest.Resources`
     """
-
     from .resources import Resources
     from unittest.loader import _FailedTest
     import unittest
@@ -83,22 +87,31 @@ def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, pro
             else:
                 yield test
 
+    def _collect_test_resources(test_suite):
+        """
+        Collect needed devs in the test suite.
+        """
+        _needed = []
+        for test in _iter_suite(test_suite):
+            # In case of syntax error, loaded test is replaced
+            # with _FailedTest instance which is not iterable
+            if not isinstance(test, _FailedTest):
+                for n in test.needed:
+                    if n not in _needed:
+                        _needed.append(n)
+            else:
+                logging.getLogger('brest').error(
+                    'Tests using projects `{}` are not loaded correctly. '.format(projects) +
+                    'Following error has occurred: \n{}'.format(str(test._exception)),
+                    extra={'class_name': __package__}
+                )
+                raise SystemExit(1)
+        return _needed
+
     # collect needed resources
     _needed = []
-    for test in _iter_suite(test_suite):
-        # In case of syntax error, loaded test is replaced
-        # with _FailedTest instance which is not iterable
-        if not isinstance(test, _FailedTest):
-            for n in test.needed:
-                if n not in _needed:
-                    _needed.append(n)
-        else:
-            logging.getLogger('brest').error(
-                'Tests using project `{}` are not loaded correctly. '.format(project) +
-                'Following error has occurred: \n{}'.format(str(test._exception)),
-                extra={'class_name': __package__}
-            )
-            raise SystemExit(1)
+    if collect_test_resources:
+        _needed = _collect_test_resources(test_suite)
 
     # add needed resources before tests run
     for n in needed:
@@ -106,7 +119,7 @@ def prepare_tests(test_suite, project, user_config=Config.BREST_USER_CONFIG, pro
             _needed.append(n)
 
     # construct them
-    resources = Resources(project, user_config=user_config, project_config=project_config, needed=_needed)
+    resources = Resources(projects, user_config=user_config, project_config=project_config, needed=_needed)
 
     # set constructed resources to every test including setUpClass and tearDownClass
     def _iter_suite_res(suite, resources):

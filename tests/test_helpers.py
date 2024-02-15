@@ -41,9 +41,10 @@ class PrepareTests(unittest.TestCase):
         self.log.info(" Tested function: prepare_tests() ".center(100, '-'))
         test_suite = unittest.suite.TestSuite()
 
-        # loaded correctly
-        self.log.info("1) Test case: tests are loaded correctly")
-        with self.subTest(test_case='correct load of the tests'):
+        # loaded correctly - single project
+        msg = "1): tests are loaded correctly - single project"
+        self.log.info(f"Test case {msg}")
+        with self.subTest(test_case=msg):
             dummy_test_case = unittest.TestCase()
             dummy_test_case._testMethodName = 'test_01'
             setattr(dummy_test_case, 'needed', ['psu'])
@@ -54,9 +55,24 @@ class PrepareTests(unittest.TestCase):
             self.assertTrue(resources, msg="Tests are not loaded correctly.")
             self.log.info("Test result: OK")
 
+        # loaded correctly - multiple projects
+        msg = "2): tests are loaded correctly - multiple projects"
+        self.log.info(f"Test case {msg}")
+        with self.subTest(test_case=msg):
+            dummy_test_case = unittest.TestCase()
+            dummy_test_case._testMethodName = 'test_01'
+            setattr(dummy_test_case, 'needed', ['psu', 'switch'])
+            test_suite._tests = [dummy_test_case]
+
+            mock_resources.return_value = True
+            resources = prepare_tests(test_suite, ['project1', 'project2', 'project3'])
+            self.assertTrue(resources, msg="Tests are not loaded correctly.")
+            self.log.info("Test result: OK")
+
         # not loaded correctly - syntax error
-        self.log.info("2) Test case: tests are not loaded correctly (syntax error)")
-        with self.subTest(test_case='syntax error'):
+        msg = "3): tests are not loaded correctly (syntax error)"
+        self.log.info(f"Test case {msg}")
+        with self.subTest(test_case=msg):
             failed_test = _FailedTest('test_01', 'syntax error')
             test_suite._tests = [failed_test]
 

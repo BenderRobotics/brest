@@ -27,26 +27,29 @@ class Resources():
 
         res[resource_name]
 
-    :param project: A project name you want to instantiate defined in the config file
-    :type  project: str
+    :param projects: A project name(s) you want to instantiate defined in the config file
+    :type  project: str (one project) or list of strings (multiple projects)
     :param user_config: An absolute path to user configuration file in non standard location
     :type  user_config: str
-    :param project_config: An absolute path to project configuration file
-    :type  project_config: str
+    :param project_config: An absolute path to project configuration file or a dict in the Config format
+    :type  project_config: str or dict
     :param needed: List of resource names that should be instantiated. If nothing is provided, Brest will try to instantiate every resource in selected project
     :type  needed: list
 
     .. versionadded:: 0.0.1
     """
 
-    def __init__(self, project, user_config = Config.BREST_USER_CONFIG, project_config = None, needed = None):
+    def __init__(self, projects, user_config = Config.BREST_USER_CONFIG, project_config = None, needed = None):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
         self._resources = {}
         self._aliases_mappings = {}
 
-        self._instantiate(project, user_config, project_config, needed)
+        if isinstance(projects, str):
+            projects = [projects]
+
+        self._instantiate(projects, user_config, project_config, needed)
 
     def __str__(self):
         if not self._resources:
@@ -90,19 +93,31 @@ class Resources():
     def items(self):
         return self._resources.items()
 
-    def _instantiate(self, project, user_config, project_config, needed):
+    def _instantiate(self, projects, user_config, project_config, needed):
         # Load default configuration file
-        cfg = Config(project, user_config)
+        if isinstance(projects, str):
+            projects = [projects]
+        project_set = list(set(projects))
+        if len(projects) != len(project_set):
+            raise SyntaxError('Found duplicit projects')
+        cfg = Config(projects, user_config)
 
         if project_config:
-            # If project specific configuration file is preset, load it
-            project_cfg = Config(project, project_config)
-            # And merge it with user configuration, making user configuration overwrite add add items
-            cfg = project_cfg.merge_configs(cfg)
+            if isinstance(project_config, dict):
+                project_cfg = Config(projects, config_dict=project_config)
+            else:
+                # If project specific configuration file is preset, load it
+                project_cfg = Config(projects, config_path=project_config)
+        else:
+            project_cfg = Config(projects)
+        # And merge it with user configuration, making user configuration overwrite and add items
+        cfg = project_cfg.merge_configs(cfg)
 
         if not cfg.is_valid:
-            self.logger.error('Configuration file is not valid', extra=self.log_args)
+            self.logger.error('Merged config is not valid!', extra=self.log_args)
             raise SystemExit(1)
+        else:
+            self.logger.info('Merged config is valid', extra=self.log_args)
 
         # Set needed resources
         cfg.needed = needed
@@ -111,7 +126,9 @@ class Resources():
 
         res = rp.construct_config(cfg)
         if not res and (cfg.needed is None or len(cfg.needed) > 0):
-            self.logger.error('Error during `{}` project instantiation'.format(cfg.project), extra=self.log_args)
+            self.logger.error(
+                'Error during `{}` project instantiation'.format(cfg.required_projects), extra=self.log_args
+            )
             raise SystemExit(1)
 
         for r in res:
@@ -125,9 +142,11 @@ class Resources():
             else:
                 self.logger.error('Couldn\'t initialize all resources', extra=self.log_args)
                 raise SystemExit(1)
-
         if self._resources:
-            self.logger.info('All resources successfully initialized for project `{}`\n{}'.format(cfg.project, str(self)), extra=self.log_args)
+            self.logger.info(
+                'All resources successfully initialized for project `{}`\n{}'.format(cfg.required_projects, str(self)),
+                extra=self.log_args
+            )
         else:
             if cfg.needed is not None and len(cfg.needed) == 0:
                 self.logger.info('No resources were initialized because no resources were needed', extra=self.log_args)
