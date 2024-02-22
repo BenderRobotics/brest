@@ -1,22 +1,27 @@
 # Changelog
 
-## [0.0.17] - UNRELEASED
+## [1.0.0] - NOT RELEASED
 ### Added
-- Added possibility to use more than one project when preparing tests. #7426
-- Added possibility to ignore 'needed' in tests to be executed. #7426
-- Added possibility to input a config as a dict when initializing Resources. #7426
-- Added versioning and branching strategy in the README.md. #7426
+- Added versioning and branching strategy in the README.md. #5272
+- Added support for Python 3.10 and SpinnakerSDK >= 3.0.0.68. # 8166 (, #7663)
+    - compatible with spinnaker-python for Py3.10
+- Added an optional dependency to allow JLink usage. #4054
 
 ### Changed
-- After Config is created, the project keywords are deleted from the config dict 
-  so it consists of needed resources only (project keywords are irrelevant after Config initialization)
-- Updated documentation. #7426
-
-### Added
-- Added support for Python 3.10 and SpinnakerSDK >= 3.0.0.68 (compatible with spinnaker-python for Py3.10) #7663
+- Updated Config workflow. #7426
+    - Added possibility to use more than one project when loading config.
+    - Added possibility to ignore 'needed' in tests to be executed.
+    - Added possibility to input a config as a dict when initializing Resources.
+    - Moved raw access to loaded config to a `raw_config` variable.
+    - Changed default access to loaded config via `config` variable to only the prescribed project.
+- Updated documentation. #3785, #5272
+    - Added and rephrased information.
+    - Removed versions older than 0.0.10 from documentation history.
+- Updated searching for resources. # 3966
+    - Should improve some of the "default" behaviors.
 
 ### Fixed
-- Bug in Config.merge_configs() - the program crashed when there was an empty project in a config file. #7426
+- Fixed a bug in Config.merge_configs() - the program crashed when there was an empty project in a config file. #7426
 
 ## [0.0.16.post0] - 2023-01-30
 ### Fixed
