@@ -58,7 +58,7 @@ __all__ = [
     'prepare_tests',
     'find_available_resource',
     'run',
-    ]
+]
 
 __version__ = '0.0.16'
 
@@ -100,16 +100,28 @@ def find_available_resource(projects, resource, user_config=Config.BREST_USER_CO
 
     if len(class_name_split) > 1:
         needed_class_name = class_name_split[1]
-        impl_dict = rp._get_implicit_definition(needed_class_name)
-        com = rp._get_communicable(impl_dict['type'])
-        intr = com.probe(resource_needed['interface'])
+        implicit_interface = rp._get_implicit_definition(needed_class_name)
+        implicit_communicable = rp._get_communicable(implicit_interface['type'])
+
+        interface_needed = implicit_interface
+        try:
+            interface_needed.update(resource_needed['interface'])
+        except:
+            pass
+        intr = implicit_communicable.probe(interface_needed)
         if intr:
-            resource_needed['interface'].update(intr[0])
+            # precaution against non-existent 'interface' key in 'resource_needed'
+            temp_dict = {}
+            temp_dict['interface'] = intr[0]
+            # update the interface
+            resource_needed.update(temp_dict)
             return resource_needed
     else:
         logger.warning(
-            "The device name in the created config file is not specific enough "
-            "to find descriptors of connected device."
+            f"The device class name {resource_needed['class_name']} in the created config file "
+            "is not specific enough to find descriptors of connected device. "
+            f"Consider extending `class_name` of the resource {resource} "
+            "(e.g. `Supplies.Tenma` instead of plain `Supplies`)."
         )
 
     return None

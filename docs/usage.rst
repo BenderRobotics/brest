@@ -311,7 +311,9 @@ Usage is as with other modules. Correct parameters of converter can be specified
 Basic use
 ^^^^^^^^^
 Interface is mainly done via :meth:`~brest.communication.modbus.ModbusInterface.get_frame` and :meth:`~brest.communication.modbus.ModbusInterface.transceive` method.
-Frame structure can be found in :ref:`modbus_api`.::
+Frame structure can be found in :ref:`modbus_api`.
+
+.. code-block::
 
     rs = brest.Resources('yourproject', project_config=os.path.abspath('pathtoyourprojectconfig'))
     gate_if = rs['gate_interface']

@@ -510,9 +510,9 @@ class ResourceProvider:
         class_ = getattr(module, params['class_name'].split('.')[1])
         # Possible log message
         if 'name' in params:
-            message = 'Error durning `{}` construction. '.format(params['name'])
+            message = 'Error during `{}` construction. '.format(params['name'])
         else:
-            message = 'Error durning `{}` construction. '.format(params['class_name'])
+            message = 'Error during `{}` construction. '.format(params['class_name'])
 
         del params['class_name']  # Avoid unnecessary warning about class_name not being a class attribute
 
@@ -520,8 +520,15 @@ class ResourceProvider:
             instance = class_(params)
             return instance
         except (NotImplementedError, ModuleNotFoundError, ValueError, CommunicableError, SerialException) as e:
-            self.logger.error(message + str(e), extra=self.log_args)
+            self.logger.error(message + str(e), extra=self.log_args, exc_info=True)
             return None
+        except Exception as ex:
+            self.logger.error(
+                f'Unexpected {message}: {ex}',
+                extra=self.log_args,
+                exc_info=True,
+            )
+            raise
 
     def _all_communicables(self, cls):
         """
