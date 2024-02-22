@@ -71,8 +71,8 @@ class MCULink(Flashers, FlasherCommunicable):
             list_regex: 'Index = \\s*\\d+\\s*Manufacturer = .*\\s*Description = .*\\s*Serial Number = (\\S+)'
             utility:    Windows
                             - probing - 'C:/NXP/MCUXpressoIDE_11.6.1_8255/ide/binaries/rltool.exe'
-                            - flashing - 'C:/NXP/MCUXpressoIDE_11.6.1_8255/ide/binaries/crt_emu_cm_redlink.exe'
-                            - reading / writing - 'C:/NXP/MCUXpressoIDE_11.6.1_8255/ide/binaries/redlinkserv.exe'
+                            - flashing / writing - 'C:/NXP/MCUXpressoIDE_11.6.1_8255/ide/binaries/crt_emu_cm_redlink.exe'
+                            - reading - 'C:/NXP/MCUXpressoIDE_11.6.1_8255/ide/binaries/redlinkserv.exe'
                         Linux (unknown)
     """
     Flashers.KNOWN['MCULink'] = {
@@ -218,11 +218,6 @@ class MCULink(Flashers, FlasherCommunicable):
         raise NotImplementedError
 
     def write(self, address, data, timeout=None):
-        if timeout is None:
-            timeout = self._timeout
-
-        address = self._unify_address(address)
-
         tmp_file = tempfile.NamedTemporaryFile(mode='wb', suffix=".bin", delete=False)
         tmp_file.write(bytes(data))
         tmp_file.flush()
@@ -230,6 +225,7 @@ class MCULink(Flashers, FlasherCommunicable):
         # file need to be closed so CLI can open it
         tmp_file.close()
 
+        # Perform flashing using crt_emu_cm_redlink, because redlinkserv could not be used #6672, #6816
         process = self.flash(file=tmp_file.name, address=address, timeout=timeout)
 
         os.remove(tmp_file.name)
