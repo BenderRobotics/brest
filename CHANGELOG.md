@@ -6,6 +6,8 @@
 - Added support for Python 3.10 and SpinnakerSDK >= 3.0.0.68. # 8166 (, #7663)
     - compatible with spinnaker-python for Py3.10
 - Added an optional dependency to allow JLink usage. #4054
+- Added general multimeter class. #7580
+- Added general Multicomp class with only MP730889 support so far. #7580
 
 ### Changed
 - Updated Config workflow. #7426

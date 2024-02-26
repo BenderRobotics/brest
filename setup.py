@@ -8,7 +8,6 @@
 
     :copyright: 2024 Bender Robotics
 """
-
 import setuptools
 
 with open('README.md', 'r') as fh:
@@ -44,6 +43,7 @@ setuptools.setup(
         'crcmod==1.7',
         'packaging==23.2',
     ],
+
     extras_require={
         'docs': [
             'sphinx',

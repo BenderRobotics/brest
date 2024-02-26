@@ -20,6 +20,7 @@ import brest.interfaces
 import brest.flashers
 import brest.io
 import brest.switches
+import brest.multimeters
 
 from .log import FilterAvailable
 from .config import Config

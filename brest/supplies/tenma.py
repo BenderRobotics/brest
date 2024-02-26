@@ -40,7 +40,7 @@ class Tenma(Supplies, SCPICommunicable):
             vid:     0x0416
             pid:     0x5011
 
-    This resource tries to disable itself upon destruction. To change this behavior, refert to
+    This resource tries to disable itself upon destruction. To change this behavior, refer to
     :attr:`~brest.Resource.disable_on_destruct`.
     """
 

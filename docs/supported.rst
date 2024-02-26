@@ -40,6 +40,10 @@ The second level of indention represent available resources.
     * :class:`~brest.supplies.Mansup`
     * :class:`~brest.supplies.Tenma`
 
+* :class:`~brest.multimeters.Multimeters`
+
+    * :class:`~brest.multimeters.Multicomp`
+
 * :class:`~brest.switches.Switches`
 
     * :class:`~brest.switches.Manswitch`

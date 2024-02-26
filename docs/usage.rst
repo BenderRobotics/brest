@@ -521,3 +521,44 @@ Using the psu::
     current = psu.current
     # Disabling the psu
     psu.disable()
+
+Multimeters
+^^^^^^^^^^^
+
+This class represents USB capable multimeters. Here is an example of using a Multicomp Pro multimeter.
+
+In the user or project config file, put::
+
+    my_project:
+        multicomp:
+            class_name: 'multimeters.Multicomp'
+            interface:
+                type: 'serial'
+                vid': 0x1A86
+                pid': 0x7523
+                timeout: 0.5
+                baudrate: 115200
+
+Initializing the multicomp::
+
+    resources = brest.Resources('my_project', user_config = brest.Config.BREST_USER_CONFIG, needed=['multicomp'])
+    self.multicomp = resources['multicomp']
+
+Using the multicomp::
+
+    from brest.multimeters import Multicomp
+
+    # Get information about the device (get_info() returns a dict containing device info, current mode, current range, and if Auto is on)
+    info = self.multicomp.get_info()
+
+    # Get current mode of the device
+    mode = self.multicomp.get_mode()
+    
+    # Get current range
+    range = self.multicomp.get_range()
+
+    # Set the multimeter measurement mode
+    self.multicomp.set_mode_voltage_dc(range=Multicomp.Ranges.DC_5V)
+    
+    # get the measurement
+    voltage = self.multicomp.measure_voltage_dc(unit=Multicomp.Units.UNIT_V)
