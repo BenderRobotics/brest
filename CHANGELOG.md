@@ -3,11 +3,13 @@
 ## [1.0.0] - NOT RELEASED
 ### Added
 - Added versioning and branching strategy in the README.md. #5272
-- Added support for Python 3.10 and SpinnakerSDK >= 3.0.0.68. # 8166 (, #7663)
-    - compatible with spinnaker-python for Py3.10
+- Added support for Python 3.10 and SpinnakerSDK >= 3.0.0.68. #8166 (, #7663)
+    - Compatible with spinnaker-python for Py3.10.
 - Added an optional dependency to allow JLink usage. #4054
-- Added general multimeter class. #7580
-- Added general Multicomp class with only MP730889 support so far. #7580
+- Added multimeters. #7580
+    - Added general multimeter class.
+    - Added general Multicomp class (only MP730889 support so far). #7580
+- Added icon to GUI. #8337
 
 ### Changed
 - Updated Config workflow. #7426
@@ -16,14 +18,18 @@
     - Added possibility to input a config as a dict when initializing Resources.
     - Moved raw access to loaded config to a `raw_config` variable.
     - Changed default access to loaded config via `config` variable to only the prescribed project.
-- Updated documentation. #3785, #5272
+- Updated documentation. #3785, #5272, #6816, #8337
     - Added and rephrased information.
     - Removed versions older than 0.0.13 from documentation history.
+    - Added logo and favicon.
 - Updated searching for resources. # 3966
     - Should improve some of the "default" behaviors.
+- Cleaned-up code style. #8354
+- Added option to bypass user input on manual power supply and manual switch.
 
 ### Fixed
 - Fixed a bug in Config.merge_configs() - the program crashed when there was an empty project in a config file. #7426
+- Fixed installation line in docs - replaced `--extra-index-url` with `--index-url` (this should prevent unwanted packages with the same name).
 
 ## [0.0.16.post0] - 2023-01-30
 ### Fixed
