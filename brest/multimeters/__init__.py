@@ -14,4 +14,4 @@ from .multicomp import Multicomp
 
 __all__ = ['Multimeters', 'Multicomp']
 
-__version__ = '0.0.18'
+__version__ = '1.0.0'

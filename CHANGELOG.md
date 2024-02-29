@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.0.0] - NOT RELEASED
+## [1.0.0] - 2024-02-29
 ### Added
 - Added versioning and branching strategy in the README.md. #5272
 - Added support for Python 3.10 and SpinnakerSDK >= 3.0.0.68. #8166 (, #7663)

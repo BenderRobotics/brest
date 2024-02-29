@@ -8,3 +8,5 @@
 
     :copyright: 2024 Bender Robotics
 """
+
+__version__ = '1.0.0'
