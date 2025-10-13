@@ -29,7 +29,10 @@ class CameraCommunicable(Communicable):
             logging.getLogger('brest').warning('Listing connected cameras is not supported besides windows. Any function including this operation will fail.', extra={'class_name': 'CameraCommunicable'})
             return []
         else:
-            import win32com.client
+            try:
+                import win32com.client
+            except:
+                return []
 
         cameras = []
         

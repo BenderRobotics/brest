@@ -10,6 +10,7 @@
 
 from .log import DEFAULT_LOGGING
 from .config import Config
+from .resources import Resources
 
 def overwrite_log_config(config_dict):
     """Method takes a logging configuration dictionary and merges it with the brest implicit configuration.
@@ -71,7 +72,7 @@ def prepare_tests(test_suite, project, config=Config.BREST_CONFIG):
                         needed.append(n)
 
     # construct them
-    resources = brest.Resources(project, config=config, needed=needed)
+    resources = Resources(project, config=config, needed=needed)
 
     # set constructed resources to every test
     for folder_suite in test_suite:

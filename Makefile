@@ -1,7 +1,7 @@
 
 .PHONY: all target clean install uninstall reinstall
 
-TARGET:=brest*.whl
+TARGET:=dist/brest*.whl
 
 all: $(TARGET)
 
@@ -12,7 +12,7 @@ clean:
 	rm -rf build
 	rm -rf dist
 	rm -rf *.egg-info
-	rm =rf docs/_build
+	rm -rf docs/_build
 
 install: $(TARGET)
 	pip install dist/*.whl

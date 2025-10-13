@@ -191,7 +191,10 @@ class ResourceProvider:
         def print_av_dict(available_dict):
             print(available_dict['class_name'])
             for name, value in available_dict['interface'].items():
-                print('\t{}: {}'.format(name, value))
+                if name in ['vid', 'pid']:
+                    print('\t{}: 0x{:04X}'.format(name, value))
+                else:
+                    print('\t{}: {}'.format(name, value))
 
         if group:
             av = self.available(group)
