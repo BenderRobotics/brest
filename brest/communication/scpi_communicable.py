@@ -3,7 +3,7 @@ from brest.communication.types import str_t
 
 class SCPICommunicable(SerialCommunicable):
     """Class that represent communication using SCPI commands.
-    
+
     Derived from: :class:`~brest.communication.SerialCommunicable`
     """
 
@@ -22,7 +22,7 @@ class SCPICommunicable(SerialCommunicable):
         """
 
         message.pack()
-        data = bytearray(message.raw_data) 
+        data = bytearray(message.raw_data)
         if self.message_suffix:
             data += self.message_suffix.encode(self.ENCODING)
         self.write_raw(data)
@@ -42,7 +42,7 @@ class SCPICommunicable(SerialCommunicable):
 
 class SCPICommand(CommunicationStructure):
     """Class that wraps plaintext commands
-    
+
     :param command: Plaintext command you want to send
     :type  command: str
     """
@@ -53,10 +53,10 @@ class SCPICommand(CommunicationStructure):
 
 class SCPIValueCommand(CommunicationStructure):
     """Class that wraps plaintext commands with additional value
-    
+
     :param command: Plaintext command you want to send
     :type  command: str
-    :param value: Value that is converted to string and appended 
+    :param value: Value that is converted to string and appended
                   with leading ':'
     :type  value: any
     """

@@ -34,7 +34,7 @@ to install dependencies for building the docs. Next step is to navigate to the `
 
     $ make html
 
-If the build was successful, the docs will be accessible in `brest/docs/_build/html` directory under `index.html`. 
+If the build was successful, the docs will be accessible in `brest/docs/_build/html` directory under `index.html`.
 If you don't have **make** installed yet, please refer to [Installing make](#installing-make)
 
 ## Installing make

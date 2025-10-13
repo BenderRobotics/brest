@@ -59,7 +59,7 @@ class InterfaceCommunicable(SerialCommunicable):
         '''
 
         raise NotImplementedError('{} must implement _read_raw_frame(self, frame) method'.format(self.__class__.__name__))
-        
+
     def get_frame(self, *args, **kwargs):
         '''
         Method which must be implemented. Shoud return new or deep copy of a frame used in the communication.

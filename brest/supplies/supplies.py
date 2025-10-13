@@ -27,7 +27,7 @@ class Supplies(Resource):
 
     class Model():
         """Model info.
-        
+
         :param idn: Identification string
         :type  idn: str
         :param channels: Number of channels
@@ -102,7 +102,7 @@ class Supplies(Resource):
 
     def enable_protection(self, protection_type, channel = 1):
         """Enables given protection.
-        
+
         :param protection_type: Protection type you want to enable
         :type  protection_type: :class:`~brest.supplies.Supplies.Protection`
         """
@@ -111,7 +111,7 @@ class Supplies(Resource):
 
     def disable_protection(self, protection_type, channel = 1):
         """Disables given protection.
-        
+
         :param protection_type: Protection type you want to disable
         :type  protection_type: :class:`~brest.supplies.Supplies.Protection`
         """
@@ -124,7 +124,7 @@ class Supplies(Resource):
         First it disables output, because some supplies need to set the values
         before saving them.
 
-        :param memory_index: Index of memory you want to save. Starts from 1 to 
+        :param memory_index: Index of memory you want to save. Starts from 1 to
                              :attr:`~brest.supplies.Supplies.MEMORIES`
         :type  memory_index: int
         :param voltage: Voltage level you want to save
@@ -138,7 +138,7 @@ class Supplies(Resource):
     def recall_memory(self, memory_index):
         """Recall voltage and current values from a memory.
 
-        :param memory_index: Index of memory you want to recall from. Starts from 1 to 
+        :param memory_index: Index of memory you want to recall from. Starts from 1 to
                              :attr:`~brest.supplies.Supplies.MEMORIES`
         :type  memory_index: int
         """
@@ -147,9 +147,9 @@ class Supplies(Resource):
 
     def get_info(self):
         """Returns info string."""
-        
+
         raise NotImplementedError('This supply has no means of status detection.')
-    
+
     def _detect(self, apply = True):
         """Returns model info. Implicitly tries to apply model's electrical limits."""
 
@@ -157,7 +157,7 @@ class Supplies(Resource):
 
     def _apply_model_specs(self, model):
         """Applies model info to the class.
-        
+
         :param model: Model's specification you want to apply
         :type  model: :class:`~brest.supplies.Supplies.Model`
         """

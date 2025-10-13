@@ -34,7 +34,7 @@ class CommunicationStructure(Packable):
         self.raw_data = bytearray()
         self.byteorder = byteorder
         self.packable = []
-        self.packable_full = []    
+        self.packable_full = []
         self.full = True
         self.value_ = self
         self.lengths_ = {}
@@ -61,7 +61,7 @@ class CommunicationStructure(Packable):
 
         internal_name = '_' + name
         value.byteorder = self.byteorder           # set message specific byteorder
-        setattr(self, internal_name, value)        # create attribute  
+        setattr(self, internal_name, value)        # create attribute
         setattr(self.__class__, name, property(
             lambda self: getattr(self, internal_name).value_,                           # create getter
             lambda self, value: setattr(getattr(self, internal_name), 'value_', value)) # create setter
@@ -90,7 +90,7 @@ class CommunicationStructure(Packable):
         return attrs
 
     def get_packable_attributes_with_names(self, full):
-        attrs = self.get_packable_attributes(full)        
+        attrs = self.get_packable_attributes(full)
         attrs_names = self.packable + self.packable_full if full else self.packable
         return zip(attrs_names, attrs)
 

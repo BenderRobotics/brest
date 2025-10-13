@@ -16,8 +16,8 @@ from yaml.parser import ParserError
 
 class Config():
     """Class that represent parsed configuration file
-    
-    Serves as an unified input for some methods. Also provides constants indicating 
+
+    Serves as an unified input for some methods. Also provides constants indicating
     standard configuration filename and location. After you have successfully created
     :class:`~brest.Config` object, you can check its validity using :attr:`~brest.Config.is_valid`
     or set needed resources using :attr:`~brest.Config.needed`.
@@ -45,7 +45,7 @@ class Config():
         self.project = project
         #: Indicates if parsed config file is valid for Brest
         self.is_valid = False
-        #: A list of needed resources aliases. 
+        #: A list of needed resources aliases.
         self.needed = []
 
         self._parse(config_path)
@@ -84,7 +84,7 @@ class Config():
             for name, params in resources.items():
                 if not params:
                     self.logger.error('Resource `{}` is missing any further definition'.format(name), extra=self.log_args)
-                    self.is_valid = False    
+                    self.is_valid = False
                 elif 'class_name' not in params and 'interface' not in params:
                     self.logger.error('Resource `{}` is missing class_name or interface definition'.format(name), extra=self.log_args)
                     self.is_valid = False

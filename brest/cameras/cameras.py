@@ -37,5 +37,5 @@ class Cameras(Resource):
         '''
         Returns info string.
         '''
-        
+
         raise NotImplementedError('This camera has no means of info detection.')

@@ -13,7 +13,7 @@ class CameraCommunicable(Communicable):
         '''
 
         if not cams:
-            cams = CameraCommunicable.list_cameras()        
+            cams = CameraCommunicable.list_cameras()
 
         index = 0
         for cam in cams:
@@ -23,7 +23,7 @@ class CameraCommunicable(Communicable):
 
     @staticmethod
     def list_cameras():
-        
+
         import platform
         if platform.system() != 'Windows':
             logging.getLogger('brest').warning('Listing connected cameras is not supported besides windows. Any function including this operation will fail.', extra={'class_name': 'CameraCommunicable'})
@@ -35,7 +35,7 @@ class CameraCommunicable(Communicable):
                 return []
 
         cameras = []
-        
+
         WMISerivce = win32com.client.Dispatch("WbemScripting.SWbemLocator")
         SWbemServices = WMISerivce.ConnectServer(".", "root\\cimv2")
         PnPItems = SWbemServices.ExecQuery("SELECT * FROM Win32_PnPEntity")
@@ -85,7 +85,7 @@ class CameraCommunicable(Communicable):
                     indexes.append(index)
 
             print(indexes)
-            
+
         def get_available(self, class_name, interface, connected):
             if interface['lib'] != 'cv2':
                 self.logger.warning('Listing only cv2 operable cameras is supported', extra=self.log_args)

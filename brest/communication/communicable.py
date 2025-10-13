@@ -1,7 +1,7 @@
 class CommunicableError(Exception):
     '''
     Exception representing an error during communication.
-    ''' 
+    '''
 
     pass
 

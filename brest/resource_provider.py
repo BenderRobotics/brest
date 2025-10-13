@@ -45,7 +45,7 @@ class ResourceProvider:
 
     def print_probe(self, resource):
         """Checks if resource is present in the system, and prints its interface.
-        
+
         :param resource: Class name of a resource you want to probe. To get available class names refer to the :ref:`supported`
         :type  resource: str
         """
@@ -82,13 +82,13 @@ class ResourceProvider:
                 handler = self.__get_interface_seeker(interface['type'])
                 resources = handler.get_available(class_name, interface, connected)
                 if resources:
-                    available.extend(resources)                
+                    available.extend(resources)
 
         return available
 
     def construct(self, kwargs):
         """Constructs a resource from given parameters.
-        
+
         Parameter can be obtained through :meth:`~brest.ResourceProvider.available` method
         or created by you in for if dict which must contains ``class_name`` and ``interface`` fields.
         For available class names refer to :ref:`supported` and interface definition to :ref:`definitions`.
@@ -107,7 +107,7 @@ class ResourceProvider:
 
     def construct_config(self, config):
         """Constructs all available resources described in config
-        
+
         :param config: Configuration object
         :type  config: :class:`~brest.Config`
         """
@@ -124,7 +124,7 @@ class ResourceProvider:
                 continue
 
             # get all resources known by Brest in config group
-            resources = self.knowns[group] 
+            resources = self.knowns[group]
 
             # iterate over resources in config group
             for alias, params in config_resources.items():
@@ -141,7 +141,7 @@ class ResourceProvider:
 
                 # check what is defined
                 if 'interface' in params:
-                    
+
                     # if interface and class_name are defined
                     # merge implicit interface definition with config definition
                     if 'class_name' in params:
@@ -155,13 +155,13 @@ class ResourceProvider:
                             params['interface'] = {**resources[class_name], **params['interface']}
                         else:
                             self.logger.error('Class for `{}`\'s interface not found'.format(alias), extra=self.log_args)
-                            raise SystemExit                      
+                            raise SystemExit
                 else:
-                    
+
                     # interface definition not present in config
                     # make copy of implicit interface argument for class
                     params['interface'] = dict(resources[params['class_name']])
-                
+
                 # check if interface has parameters necessary for creation
                 handler = self.__get_interface_seeker(params['interface']['type'])
                 try:
@@ -172,7 +172,7 @@ class ResourceProvider:
 
                 constructed.append(self.construct(params))
                 constructed_aliases.append(params['name'])
-                
+
         # check if needed resources were truly created
         if config.needed:
             for needed_resource in config.needed:
@@ -184,7 +184,7 @@ class ResourceProvider:
 
     def print_available(self, group = None):
         """Prints available resources
-        
+
         :param group: Specified group of resources to be printed. To get available groups refer to the :ref:`supported`
         :type group: str
         """
@@ -228,12 +228,12 @@ class ResourceProvider:
             for class_name, interface_ in resources.items():
 
                 if interface['type'] != interface_['type']:
-                    continue 
+                    continue
 
                 handler = self.__get_interface_seeker(interface_['type'])
                 if handler.match_interface(interface, interface_):
                     return class_name
-                    
+
         return None
 
     def __construct(self, module_name, kwargs):
@@ -251,6 +251,6 @@ class ResourceProvider:
             handler = self.__get_interface_seeker(kwargs['interface']['type'])
             handler.mark_taken(kwargs['interface'])
             return instance
-        except (NotImplementedError, ModuleNotFoundError, ValueError, CommunicableError, serial.SerialException) as e:            
+        except (NotImplementedError, ModuleNotFoundError, ValueError, CommunicableError, serial.SerialException) as e:
             self.logger.error(message + str(e), extra=self.log_args)
             return None

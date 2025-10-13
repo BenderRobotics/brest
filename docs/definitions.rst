@@ -28,7 +28,7 @@ Attribute name    Type Description
 **serial_number** str  Serial number
 ================= ==== ==================
 
-All following attributes corresponds with class :class:`serial.Serial` so 
+All following attributes corresponds with class :class:`serial.Serial` so
 for possible values please refer to the class's docs.
 
 ====================== ===== =======================================
@@ -44,11 +44,11 @@ Attribute name         Type  Description
 **rtscts**             bool  Enable hardware (RTS/CTS) flow control
 **dsrdtr**             bool  Enable hardware (DSR/DTR) flow control
 **write_timeout**      float Set a write timeout value
-**inter_byte_timeout** float Inter-character timeout, ``None`` to 
+**inter_byte_timeout** float Inter-character timeout, ``None`` to
                              disable (default)
-**exclusive**          bool  Set exclusive access mode (POSIX only). 
-                             A port cannot be opened in exclusive 
-                             access mode if it is already open in 
+**exclusive**          bool  Set exclusive access mode (POSIX only).
+                             A port cannot be opened in exclusive
+                             access mode if it is already open in
                              exclusive access mode
 ====================== ===== =======================================
 
@@ -89,10 +89,10 @@ Attribute or groups of attributes that need to be defined:
 Configuration file
 ------------------
 
-Standard location for your configuration file path is ``~/.brest/config.yaml``. 
-This path will be auto-expanded in the :attr:`~brest.Config.BREST_CONFIG` constant 
-after Brest import. If you want to have configuration file in another location, 
-methods which works with configuration file have ``config`` attribute where you can 
+Standard location for your configuration file path is ``~/.brest/config.yaml``.
+This path will be auto-expanded in the :attr:`~brest.Config.BREST_CONFIG` constant
+after Brest import. If you want to have configuration file in another location,
+methods which works with configuration file have ``config`` attribute where you can
 pass your new `absolute` path to the config file.
 
 The file itself is written in `YAML`_ and parsed by `PyYAML`_ so you can use some
@@ -120,7 +120,7 @@ So the example containing a single resource would look like::
     myProj:
         # Group of resources
         Supplies:
-            # Custom alias for a resource 
+            # Custom alias for a resource
             supply:
                 # Resource definitions
                 class_name: 'Tenma'
@@ -136,13 +136,13 @@ file more readable you can put empty lines between projects.
 What needs to be defined
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Every resource must have defined ``class_name`` or ``interface`` or both. You can also 
+Every resource must have defined ``class_name`` or ``interface`` or both. You can also
 define values for class's existing attributes on the same level of indentation.
 
 If you omit ``interface`` definition, Brest will use implicit interface definition.
 WARNING! Implicit definition may not always contain specifying information. For example
 the :class:`~brest.supplies.Tenma` class has ``vid`` and ``pid`` but not ``serial_number``.
-So if happen to be more than one Tenma supply connected to the system, you have no 
+So if happen to be more than one Tenma supply connected to the system, you have no
 guarantee on what ``port`` is your class created. For list of available classes and groups,
 please refer to the :ref:`supported`.
 
@@ -150,5 +150,5 @@ If you want to be more specific, or set project dependent values for interface a
 you can do it by defining the interface attribute. Every interface's attribute must have an
 extra level of indentation and be under the `interface:`. Everything you define is merged
 with implicit definition with configuration file definitions having higher priority.
-For list of available Interfaces and its attributes, please refer to the 
+For list of available Interfaces and its attributes, please refer to the
 :ref:`definitions.interfaces`.

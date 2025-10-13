@@ -10,11 +10,11 @@ class SerialCommunicable(Communicable):
     '''
 
     TAKEN = [] # Touples containing resource and its bound port
-    
+
     def __init__(self, kwargs):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
-        self.logger = logging.getLogger('brest')        
-        
+        self.logger = logging.getLogger('brest')
+
         serial_args = self.__filter_serial_args(kwargs)
         if 'port' in serial_args and serial_args['port'] != None:
             self.com = serial.Serial(**serial_args)

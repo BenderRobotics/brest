@@ -46,7 +46,7 @@ class Resources():
     def __str__(self):
         if not self._resources:
             return str(self.__class__)
-            
+
         just = max([len(k) for k in self._resources.keys()]) + 1
         s = '%s: {\n    ' % self.__class__.__name__
         s += '\n    '.join(['%s: %s' % (str(k).ljust(just), str(self._resources[k])) for k in sorted(self._resources)])
@@ -80,8 +80,8 @@ class Resources():
                 self._resources[r.name] = r
             else:
                 self.logger.error('Couldn\'t initialize all resources', extra=self.log_args)
-                raise SystemExit        
-        
+                raise SystemExit
+
         if self._resources:
             self.logger.info('All resources successfully initialized\n{}'.format(str(self)), extra=self.log_args)
         else:

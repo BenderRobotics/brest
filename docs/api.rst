@@ -21,7 +21,7 @@ Config
 
 .. autoclass:: Config
     :members:
-    
+
 Helper Methods
 --------------
 
@@ -36,7 +36,7 @@ Communication
 .. autoclass:: SerialCommunicable
     :members: connect, disconnect, write_raw, read_raw, probe
 
-.. autoclass:: SCPICommunicable 
+.. autoclass:: SCPICommunicable
     :members:
 
 .. autoclass:: SCPICommand

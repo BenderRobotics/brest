@@ -77,10 +77,10 @@ class Tenma(Supplies, SCPICommunicable):
     def __init__(self, kwargs):
         Supplies.__init__(self)
         SCPICommunicable.__init__(self, kwargs['interface'])
-        
+
         self.check_connection()
         self._detect()
-        self._parse_args(kwargs)        
+        self._parse_args(kwargs)
 
     def __del__(self):
         with suppress(Exception):
@@ -103,7 +103,7 @@ class Tenma(Supplies, SCPICommunicable):
         else:
             Tenma.Commands.SET_VOLTAGE.value = value
             self.transceive(Tenma.Commands.SET_VOLTAGE)
-            
+
     @property
     def current(self, channel = 1):
         return float(self.transceive(Tenma.Commands.GET_CURRENT))
@@ -115,7 +115,7 @@ class Tenma(Supplies, SCPICommunicable):
         else:
             Tenma.Commands.SET_CURRENT.value = value
             self.transceive(Tenma.Commands.SET_CURRENT)
-            
+
     def enable_protection(self, protection_type, channel = 1):
         if protection_type == Supplies.Protection.OVP:
             command = Tenma.Commands.EN_OVP
@@ -140,7 +140,7 @@ class Tenma(Supplies, SCPICommunicable):
             return
 
         self.disable()
-        
+
         # First recall the memory you want to save to
         cmd_name = 'RECALL' + str(memory_index)
         command = getattr(self.Commands, cmd_name)
@@ -162,7 +162,7 @@ class Tenma(Supplies, SCPICommunicable):
 
         cmd_name = 'RECALL' + str(memory_index)
         command = getattr(self.Commands, cmd_name)
-        self.transceive(command)        
+        self.transceive(command)
 
     def get_info(self):
         return self.transceive(Tenma.Commands.GET_INFO)

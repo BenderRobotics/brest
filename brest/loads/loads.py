@@ -1,7 +1,7 @@
 from brest import Resource
 
 class Loads(Resource):
-    
+
     KNOWN = {}
 
     def __init__(self):

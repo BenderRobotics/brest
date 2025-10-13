@@ -6,7 +6,7 @@ class uint8_t(Packable):
     '''
     Unsigned 8-bit integer.
     '''
-    
+
     def __init__(self, value = None):
         Packable.__init__(self)
         self.size = 8
@@ -151,7 +151,7 @@ class bit_t(Packable):
         b_offset = offset // 8
         data = data[b_offset]
         self.value_ = True if (data >> self.bit) & 0x01 > 0 else False
-        return offset + self.size 
+        return offset + self.size
 
 class nlist_t(Packable):
     '''
