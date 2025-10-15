@@ -6,7 +6,7 @@
 
     This module performs test print for user to verify it is colorful.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import os

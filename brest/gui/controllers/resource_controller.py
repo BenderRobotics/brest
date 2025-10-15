@@ -6,6 +6,7 @@ import queue
 import logging
 import threading
 
+
 class ResourceController:
 
     def __init__(self, master):
@@ -20,7 +21,7 @@ class ResourceController:
         self.refresh = True
 
         self.master = master
-        #self.resource_model = ResourceModel()
+        # self.resource_model = ResourceModel()
         self.resource_view = ResourceView(master)
 
         self._hashes = []

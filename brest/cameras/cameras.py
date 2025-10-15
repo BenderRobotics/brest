@@ -6,7 +6,7 @@
 
     This module implements base abstract class for cameras.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import time
@@ -74,7 +74,8 @@ class Cameras(Resource):
     @property
     def histogram_calibrated(self):
         """
-        Returns True when rectification calibration is done for this camera and camera can give histogram-adjusted image.
+        Returns True when rectification calibration is done for this camera
+        and camera can give histogram-adjusted image.
         """
 
         return (self.hist_calibration is not None)
@@ -485,7 +486,13 @@ class Cameras(Resource):
             value = tuple(value)
 
         if not isinstance(value, tuple) or len(value) != 3:
-            self.logger.error(f'Video text color value must be a tuple with 3 items, value `{value}` (type of {type(value)}) given', extra=self.log_args)
+            self.logger.error(
+                msg=(
+                    'Video text color value must be a tuple with 3 items, '
+                    f'value `{value}` (type of {type(value)}) given'
+                ),
+                extra=self.log_args
+            )
             return False
 
         self._default_video_text_color = value
@@ -546,9 +553,17 @@ class Cameras(Resource):
             text_color = text_color.strip('#')
 
             if len(text_color) == 3:
-                text_color = (int(text_color[2], 16), int(text_color[1], 16), int(text_color[0], 16))           # RGB to OpenCV BGR
+                text_color = (
+                    int(text_color[2], 16),
+                    int(text_color[1], 16),
+                    int(text_color[0], 16)
+                )  # RGB to OpenCV BGR
             elif len(text_color) == 6:
-                text_color = (int(text_color[4:6], 16), int(text_color[2:4], 16), int(text_color[0:2], 16))     # RGB to OpenCV BGR
+                text_color = (
+                    int(text_color[4:6], 16),
+                    int(text_color[2:4], 16),
+                    int(text_color[0:2], 16)
+                )  # RGB to OpenCV BGR
             else:
                 raise AssertionError(f'Unsupported text color format {text_color} for video text color')
 
@@ -562,13 +577,16 @@ class Cameras(Resource):
         assert isinstance(video_format, str), '`video_format` has to be a string.'
         assert isinstance(codec, str), '`codec` has to be a string.'
         assert isinstance(fps, int) and fps > 0, '`fps` has to be an integer greater than zero.'
-        assert (frame_width is None) or (isinstance(frame_width, int) and frame_width > 0), '`frame_width` has to be an integer greater than zero.'
+        assert (frame_width is None) or (isinstance(frame_width, int) and frame_width > 0),\
+            '`frame_width` has to be an integer greater than zero.'
         assert isinstance(text_color, tuple) and len(text_color) == 3, '`text_color` has to be a tuple with 3 items.'
         assert (text is None) or isinstance(text, str), '`text` has to be a string.'
 
         def _frame_grabber(frame_acquire_func: Callable, writer, period: float,
                            video_width: int, text: Optional[str], text_color, stop_event):
-            '''This function runs in dedicated threads, reads the images from the camera and writes them to the output record.
+            '''
+            This function runs in dedicated threads,
+            reads the images from the camera and writes them to the output record.
 
             :param frame_acquire_func: function to be used to acquire the frames from the camera
             :type frame_acquire_func: callable
@@ -588,7 +606,8 @@ class Cameras(Resource):
             try:
                 import cv2 as cv
                 t = 0
-                macro_block_size = 16   # codec usually uses block size of 16px, use the multiplication of 16 in resolution
+                # codec usually uses block size of 16px, use the multiplication of 16 in resolution
+                macro_block_size = 16
                 # take one frame to calculate output height
                 frame = frame_acquire_func()
                 (frame_width, frame_height) = (frame.shape[1], frame.shape[0])

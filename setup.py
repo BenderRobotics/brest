@@ -6,7 +6,7 @@
 
     Setup file for package building.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import setuptools
@@ -16,7 +16,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name='brest',
-    version='0.0.17.dev7426+6',
+    version='0.0.16',
     author='Bender Robotics',
     author_email='venglar@benderrobotics.com',
     description='Bender Robotics Embedded Systems Toolkit',
@@ -61,5 +61,8 @@ setuptools.setup(
             'imageio',
             'imageio-ffmpeg',
         ],
+        'jlink_win': [
+            'pywin32',
+        ]
     }
 )

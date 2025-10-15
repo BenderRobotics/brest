@@ -6,7 +6,7 @@
 
     This file signifies that 'models' is a module.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from .resource_model import ResourceModel

@@ -6,7 +6,7 @@
 
     This module performs version verification against tag.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import os

@@ -17,7 +17,7 @@ from brest import __version__ as version
 
 
 project = 'Brest'
-copyright = '2023, Bender Robotics'
+copyright = '2024, Bender Robotics'
 author = 'Bender Robotics'
 
 # -- General configuration ---------------------------------------------------
@@ -131,7 +131,8 @@ scv_whitelist_tags = (              # Tag filtering:
 )
 scv_blacklist_tags = (
     # Releases 0.0.2-0.0.12 are disabled (old versions of docs replace by *.doc releases)
-    re.compile(r'^0\.0\.[0-9]$'),
+    # Releases older than 0.0.10 are disabled altogether (not relevant anymore)
+    re.compile(r'^0\.0\.[0-9](\.doc)?$'),
     re.compile(r'^0\.0\.1[0-2]$'),
     re.compile(r'^0\.0\.14$'),
 )

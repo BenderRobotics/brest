@@ -6,7 +6,7 @@
 
     This module implements core functionality and provides means to resource probing and instantiation.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import logging
@@ -25,6 +25,7 @@ from .log import FilterAvailable
 from .config import Config
 from .resource import Resource
 from brest.communication import Communicable, CommunicableError
+
 
 class ResourceProvider:
     """
@@ -52,7 +53,8 @@ class ResourceProvider:
         """
         Checks if resource is present in the system, and prints its interface.
 
-        :param class_name: Class name of a resource you want to probe. To get available class names refer to the :ref:`supported`
+        :param class_name: Class name of a resource you want to probe.
+            To get available class names refer to the :ref:`supported`
         :type  class_name: str
         """
 
@@ -69,11 +71,12 @@ class ResourceProvider:
                 print('\t{}: {}'.format(attr[0], attr[1]))
             print()
 
-    def available(self, group = None, connections = None):
+    def available(self, group=None, connections=None):
         """
         Searches for available resources.
 
-        :param group: Specified group of resources to searched for. To get available groups refer to the :ref:`supported`
+        :param group: Specified group of resources to searched for.
+            To get available groups refer to the :ref:`supported`
         :type  group: str
         :param connections: Buffered connection to the system. Not intended to be used by user.
         :type  connections: dict
@@ -99,7 +102,7 @@ class ResourceProvider:
 
         return available
 
-    def print_available(self, group = None):
+    def print_available(self, group=None):
         """
         Prints available resources
 
@@ -112,7 +115,6 @@ class ResourceProvider:
             com = self._get_communicable(available_dict['interface']['type'])
             for attr in com.format_interface(available_dict['interface']):
                 print('\t{}: {}'.format(attr[0], attr[1]))
-
 
         if group:
             av = self.available(group)
@@ -166,7 +168,10 @@ class ResourceProvider:
                 if subcls_.__name__ == params['class_name'].split('.')[1]:
                     return self._construct(subcls_.__module__, params)
 
-        self.logger.warning('Can\'t construct class `{}`. Class is not subclass of any resource'.format(params['class_name']), extra=self.log_args)
+        self.logger.warning(
+            msg='Can\'t construct class `{}`. Class is not subclass of any resource'.format(params['class_name']),
+            extra=self.log_args
+        )
         return None
 
     def get_available_settings(self):
@@ -181,8 +186,14 @@ class ResourceProvider:
         for group in Resource.__subclasses__():
             for resource in group.__subclasses__():
                 name = '{}.{}'.format(group.__name__.lower(), resource.__name__)
-                default = inspect.getmembers(resource, lambda value: inspect.isfunction(value) and 'default' in value.__name__)
-                required = inspect.getmembers(resource, lambda value: inspect.isfunction(value) and 'required' in value.__name__)
+                default = inspect.getmembers(
+                    resource,
+                    lambda value: inspect.isfunction(value) and 'default' in value.__name__
+                )
+                required = inspect.getmembers(
+                    resource,
+                    lambda value: inspect.isfunction(value) and 'required' in value.__name__
+                )
                 available_settings[name] = {
                     'default': [m[0].split('_')[1] for m in default],
                     'required': [m[0].split('_')[1] for m in required],
@@ -190,8 +201,7 @@ class ResourceProvider:
                 }
         return available_settings
 
-
-    def construct_available(self, index, group = None):
+    def construct_available(self, index, group=None):
         """
         Construct resource from available resources.
 
@@ -267,8 +277,12 @@ class ResourceProvider:
         def __log_missing_needed(needed):
             if needed:
                 self.logger.error(
-                    'Couldn\'t create all needed resources. {} {} missing'.format(needed, 'are' if len(needed) > 1 else 'is'),
-                    extra=self.log_args)
+                    msg=(
+                        'Couldn\'t create all needed resources. {} {} missing'
+                        ''.format(needed, 'are' if len(needed) > 1 else 'is')
+                    ),
+                    extra=self.log_args
+                )
 
         connections = self._refresh_connections()
 
@@ -494,8 +508,13 @@ class ResourceProvider:
 
         module = importlib.import_module(module_name)
         class_ = getattr(module, params['class_name'].split('.')[1])
-        message = 'Error durning `{}` construction. '.format(params['name']) if 'name' in params else 'Error durning `{}` construction. '.format(params['class_name']) # Possible log message
-        del params['class_name']          # Avoid unnecessary warning about class_name not being a class attribute
+        # Possible log message
+        if 'name' in params:
+            message = 'Error durning `{}` construction. '.format(params['name'])
+        else:
+            message = 'Error durning `{}` construction. '.format(params['class_name'])
+
+        del params['class_name']  # Avoid unnecessary warning about class_name not being a class attribute
 
         try:
             instance = class_(params)

@@ -6,7 +6,7 @@
 
     This module implements PointGrey camera.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import logging
@@ -42,7 +42,9 @@ class PointGrey(Cameras, CameraCommunicable):
         try:
             import PySpin
         except ModuleNotFoundError:
-            raise ModuleNotFoundError('To use {} class you have to install `PySpin` module'.format(self.__class__.__name__))
+            raise ModuleNotFoundError(
+                'To use {} class you have to install `PySpin` module'.format(self.__class__.__name__)
+            )
 
         # Retrieve singleton reference to system object
         self.system = PySpin.System.GetInstance()
@@ -475,9 +477,12 @@ class PointGrey(Cameras, CameraCommunicable):
             # Set acquisition mode to continuous
             image_result = self.cam.GetNextImage()
 
-            #  Ensure image completion
+            # Ensure image completion
             if image_result.IsIncomplete():
-                self.logger.warning('Image incomplete with image status: {}'.format(image_result.GetImageStatus()), extra=self.log_args)
+                self.logger.warning(
+                    msg='Image incomplete with image status: {}'.format(image_result.GetImageStatus()),
+                    extra=self.log_args
+                )
             else:
                 # Convert the Image object to BGR array
                 # 3.0.0.68 Beta changes

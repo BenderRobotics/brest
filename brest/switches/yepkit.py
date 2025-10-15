@@ -5,7 +5,7 @@
 
     This module implements base abstract for switches.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from brest.switches.switches import Switches
@@ -19,10 +19,12 @@ class BaseFrame(CommunicationStructure):
         CommunicationStructure.__init__(self)
         self.add('status', uint8_t(0))
 
+
 class ResponseFrame(BaseFrame):
     def __init__(self):
         BaseFrame.__init__(self)
         self.add('data', nlist_t(None, 30, uint8_t))
+
 
 class ChannelCommand(BaseFrame):
     def __init__(self, command):
@@ -30,17 +32,20 @@ class ChannelCommand(BaseFrame):
         self.add('command', bit_uint_t(4, command >> 4, 4))
         self.add('channel', bit_uint_t(4, 0, 0))
 
+
 class ChannelResponse(BaseFrame):
     def __init__(self):
         BaseFrame.__init__(self)
         self.add('value', bit_uint_t(4, 0, 4))
         self.add('channel', bit_uint_t(4, 0, 0))
 
+
 class ReadIOCommand(BaseFrame):
     def __init__(self, command):
         BaseFrame.__init__(self)
         self.add('command', uint8_t(command))
         self.add('port', uint8_t())
+
 
 class WriteCommand(BaseFrame):
     def __init__(self, command):
@@ -49,10 +54,12 @@ class WriteCommand(BaseFrame):
         self.add('port', uint8_t())
         self.add('value', uint8_t())
 
+
 class Command(BaseFrame):
     def __init__(self, command):
         BaseFrame.__init__(self)
         self.add('command', uint8_t(command))
+
 
 class ControlCommand(BaseFrame):
     def __init__(self, command):
@@ -60,22 +67,26 @@ class ControlCommand(BaseFrame):
         self.add('command', uint8_t(command))
         self.add('value', uint8_t())
 
+
 class InfoCommand(BaseFrame):
     def __init__(self, command, subcommand):
         BaseFrame.__init__(self)
         self.add('command', uint8_t(command))
         self.add('subcommand', uint8_t(subcommand))
 
+
 class I2CControlCommand(InfoCommand):
     def __init__(self, command, subcommand):
         InfoCommand.__init__(self, command, subcommand)
         self.add('value', uint8_t())
+
 
 class I2CReadCommand(InfoCommand):
     def __init__(self, command, subcommand):
         InfoCommand.__init__(self, command, subcommand)
         self.add('address', uint8_t())
         self.add('size', uint8_t())
+
 
 class I2CWriteCommand(InfoCommand):
     def __init__(self, command, subcommand):
@@ -181,7 +192,7 @@ class YepkitSwitch(Switches, HIDCommunicable):
         response = self._send_receive(command.raw_data)
 
         if response.status == self.COMMAND_SUCCES:
-            ports =  response.data[:self.CHANNELS + 1]
+            ports = response.data[:self.CHANNELS + 1]
             return tuple(p > 0x10 for p in ports)
 
         return None

@@ -6,11 +6,12 @@
 
     This module implements manual io device.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from brest.io import IO
 from brest.communication import NoneCommunicable
+
 
 class Manio(IO, NoneCommunicable):
     """
@@ -52,7 +53,10 @@ class Manio(IO, NoneCommunicable):
             for name, channel in self._aliases.items():
                 if key == channel:
                     channel_name = name
-            input('{}: Please select state {} on channel {} ({}). Then hit enter'.format(self.name, value, key, channel_name))
+            input(
+                '{}: Please select state {} on channel {} ({}). Then hit enter'
+                ''.format(self.name, value, key, channel_name)
+            )
 
     def default_bypass_user(self, value):
         assert isinstance(value, bool), 'bypass_user parameter should be bool'

@@ -6,7 +6,7 @@
 
     This module implements logging facility for Brest.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import os
@@ -17,19 +17,20 @@ from colorama import Fore, Back, Style
 from colorama.initialise import wrap_stream
 from logging import StreamHandler, Filter
 
+
 class ColoredStreamHandler(StreamHandler):
     """
     Colored logger output.
     """
 
-    def __init__(self, stream = None):
+    def __init__(self, stream=None):
         StreamHandler.__init__(self, stream)
 
     COLORS = {
-        'DEBUG'  : Fore.CYAN,
-        'INFO'   : Fore.GREEN,
+        'DEBUG': Fore.CYAN,
+        'INFO': Fore.GREEN,
         'WARNING': Fore.YELLOW + Style.BRIGHT,
-        'ERROR'  : Fore.RED + Style.BRIGHT,
+        'ERROR': Fore.RED + Style.BRIGHT,
     }
 
     def emit(self, record):
@@ -114,6 +115,7 @@ def colored_handler_factory():
         log_stream = sys.stdout
 
     return ColoredStreamHandler(log_stream)
+
 
 #: Default logging settings for Brest
 DEFAULT_LOGGING = {

@@ -6,12 +6,14 @@
 
     This module implements base abstract class for loads.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from brest.loads import Loads
 from brest.communication import SCPICommunicable, SCPICommand, SCPIQueryCommand, SCPIValueCommand, CommunicableError
 from contextlib import suppress
+
+
 class Pli(Loads, SCPICommunicable):
     """
     Pli programmable electric supply.
@@ -25,8 +27,8 @@ class Pli(Loads, SCPICommunicable):
             timeout: 0.1
             baudrate: 115200
 
-    Because Pli electric load is connected using an converter, you
-    have to alway specify vid, pid or serial_number.
+    Because Pli electric load is connected using a converter, you
+    have to always specify vid, pid or serial_number.
 
     This resource tries to disable itself upon destruction. To change this behavior, refert to
     :attr:`~brest.Resource.disable_on_destruct`.
@@ -39,15 +41,15 @@ class Pli(Loads, SCPICommunicable):
     }
 
     class Commands():
-        GET_INFO    = SCPIQueryCommand("*IDN")
-        CLEAR       = SCPICommand("*CLS")
-        RESET       = SCPICommand("*RST")
-        SELF_TEST   = SCPIQueryCommand("*TST")
-        SET_CURR    = SCPIValueCommand("CURR")
-        GET_CURR    = SCPIQueryCommand("CURR")
-        EN_INPUT    = SCPICommand("INP ON")
-        DIS_INPUT   = SCPICommand("INP OFF")
-        GET_INPUT   = SCPIQueryCommand("INP")
+        GET_INFO = SCPIQueryCommand("*IDN")
+        CLEAR = SCPICommand("*CLS")
+        RESET = SCPICommand("*RST")
+        SELF_TEST = SCPIQueryCommand("*TST")
+        SET_CURR = SCPIValueCommand("CURR")
+        GET_CURR = SCPIQueryCommand("CURR")
+        EN_INPUT = SCPICommand("INP ON")
+        DIS_INPUT = SCPICommand("INP OFF")
+        GET_INPUT = SCPIQueryCommand("INP")
 
     def __init__(self, params):
         Loads.__init__(self)

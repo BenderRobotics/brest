@@ -10,17 +10,13 @@
     It aims at making embedded development and testing easier,
     mainly by reducing the time needed to set up the HW.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 # Verify Python version
 import sys
 supported_versions = (
-    '\r\n\t3.5' +
-    '\r\n\t3.6' +
-    '\r\n\t3.7' +
-    '\r\n\t3.8 (experimental)' +
-    '\r\n\t3.9 (experimental)'
+    '\r\n\t3.5+'
 )
 if sys.version_info.major != 3 or sys.version_info.minor < 5:
     print('\r\n============================================================')
@@ -28,11 +24,6 @@ if sys.version_info.major != 3 or sys.version_info.minor < 5:
     print('INFO  (brest): Supported Python versions:%s' % supported_versions)
     print('============================================================\r\n')
     sys.exit()
-if sys.version_info.major == 3 and sys.version_info.minor > 7:
-    print('\r\n'.ljust(82, '='))
-    print('WARNING (brest): Python version (%d.%d) compatibility assumed, not verified!' % (sys.version_info.major, sys.version_info.minor))
-    print('INFO    (brest): Supported Python versions:%s' % supported_versions)
-    print('\r\n'.rjust(82, '='))
 
 # Set up brest logging facility
 import logging
@@ -69,7 +60,8 @@ __all__ = [
     'run',
     ]
 
-__version__ = '0.0.17.dev7426+6'
+__version__ = '0.0.16'
+
 
 def find_available_resource(projects, resource, user_config=Config.BREST_USER_CONFIG, project_config=None):
     """
@@ -115,6 +107,9 @@ def find_available_resource(projects, resource, user_config=Config.BREST_USER_CO
             resource_needed['interface'].update(intr[0])
             return resource_needed
     else:
-        logger.warning("The device name in the created config file is not specific enough to find descriptors of connected device.")
+        logger.warning(
+            "The device name in the created config file is not specific enough "
+            "to find descriptors of connected device."
+        )
 
     return None

@@ -7,10 +7,11 @@
     This module implements a class for devices with no communication
     to fit Brest.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from brest.communication import Communicable
+
 
 class NoneCommunicable(Communicable):
     """
@@ -30,7 +31,7 @@ class NoneCommunicable(Communicable):
     def get_connections(self):
         return []
 
-    def probe(self, interface, connections = None):
+    def probe(self, interface, connections=None):
         return interface
 
     def mark_taken(self, interface):

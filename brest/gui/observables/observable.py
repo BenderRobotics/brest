@@ -40,5 +40,3 @@ class Observable:
         Get data
         """
         return self._data
-
-

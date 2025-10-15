@@ -6,13 +6,14 @@
 
     This module implements communication with Cleware devices, using HID.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import hid
 import time
 
 from brest.communication import HIDCommunicable
+
 
 class ClewareCommunicable(HIDCommunicable):
     """
@@ -28,8 +29,8 @@ class ClewareCommunicable(HIDCommunicable):
     TYPE = 'cleware'
     CLEWARE_VID = 0x0d50
     CLEWARE_SWITCH = 0x0008
-    SN_TIMEOUT = 2  # 2s (with 0.4 was hit often even for correct behavior)
-                    #   should not be hit in normal use with addition of parsing
+    # 2s (with 0.4 was hit often even for correct behavior) should not be hit in normal use with addition of parsing
+    SN_TIMEOUT = 2
 
     def __init__(self, params):
         HIDCommunicable.__init__(self, params)

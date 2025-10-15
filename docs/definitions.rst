@@ -11,7 +11,7 @@ Configuration file
 Standard location for your configuration file path is ``~/.brest/config.yaml``.
 This path will be auto-expanded in the :attr:`~brest.Config.BREST_USER_CONFIG` constant
 after Brest import. If you want to have configuration file in another location,
-methods which works with configuration file have ``user_config`` and ``project_config``
+methods which work with configuration file have ``user_config`` and ``project_config``
 attributes where you can pass your new `absolute` path to the user of project
 configuration file.
 
@@ -66,11 +66,11 @@ So the example containing a single resource would look like::
 What needs to be defined
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-First of all, you can have multiple projects in same configuration file. Just
+First of all, you can have multiple projects in the same configuration file. Just
 start again without indentation and follow the same structure. To make configuration
 file more readable you can put empty lines between projects.
 
-Every resource must have defined ``class_name`` the rest can be omitted. The value of
+Every resource must have defined ``class_name``, the rest can be omitted. The value of
 the parameter can be just group name or group name + class name connected using dot.
 If only group name is defined, Brest will instantiate first class which satisfies
 requirements defined in ``required:`` and can set defaults defined in ``default:``.
@@ -81,23 +81,54 @@ can have defined additional attributes so checkout also devices if you are aimin
 specific class.
 
 If you omit ``interface:`` definition, Brest will use implicit interface definition.
-WARNING! Implicit definition may not always contain specifying information. For example
-the :class:`~brest.supplies.Tenma` class has ``vid`` and ``pid`` but not ``serial_number``.
-So if happen to be more than one Tenma supply connected to the system, you have no
-guarantee on what ``port`` is your class created. For list of available classes and groups,
-please refer to the :ref:`supported`.
-Otherwise if you specify ``interface:`` the configuration file definition will be merged with
-implicit definition.
+
+.. warning::
+
+    Implicit definition may not always contain specifying information. For example
+    the :class:`~brest.supplies.Tenma` class has ``vid`` and ``pid`` but not ``serial_number``.
+    So if there happen to be more than one Tenma supply connected to the system, you have no
+    guarantee of what port is your class created on. For list of available classes and groups,
+    please refer to the :ref:`supported`.
+    Otherwise if you specify ``interface:`` the configuration file definition will be merged with
+    implicit definition.
 
 .. _definitions.resource_definitions:
 
 Available definitions for each resource
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------
 
-:class:`~brest.cameras.Cameras`
+.. note::
+
+    Some resources have also settings specific for the interface used. Check also the :ref:`Interfaces<definitions.interfaces>` section bellow.
+
+Cameras
+~~~~~~~
+
+:class:`~brest.cameras.Cameras`::
+
+    default:
+        video_filename: str                 # default: None
+        video_format: str                   # default: 'mp4'
+        video_codec: str                    # default: 'linx264'
+        video_fps: int                      # default: 20 (must be > 0)
+        video_width: int                    # default: camera resolution (must be > 0)
+        video_text_color: tuple[int] or str # default: (255, 255, 255) / "#FFFFFF" (RGB)
+        video_text: str                     # default: None
+
+:class:`~brest.cameras.Basler`::
+
+    # All attributes from Cameras group can be used
+    default:
+        trigger: str ('line0', 'line1', 'line2', 'line3', 'software')
+        exposure: float (milliseconds; 0 - continuous)
+        gain: float
+        gamma: float
+        framerate: float
+        white_auto_balance: str ('off', 'once', 'on')
 
 :class:`~brest.cameras.GenericCamera`::
 
+    # All attributes from Cameras group can be used
     interface:
         cv_api: str or int  # cv::VideoCapture API backends identifier *
 
@@ -108,9 +139,9 @@ Available definitions for each resource
     Selected API may influence camera initialization time and image acquisition time.
     `OpenCV API reference <https://docs.opencv.org/4.x/d4/d15/group__videoio__flags__base.html#ga023786be1ee68a9105bf2e48c700294d>`_
 
-
 :class:`~brest.cameras.PointGrey`::
 
+    # All attributes from Cameras group can be used
     default:
         trigger: str ('line0', 'line1', 'line2', 'line3', 'software')
         exposure: float (milliseconds; 0 - continuous)
@@ -119,15 +150,8 @@ Available definitions for each resource
         framerate: float
         white_auto_balance: str ('off', 'once', 'on')
 
-:class:`~brest.cameras.Basler`::
-
-    default:
-        trigger: str ('line0', 'line1', 'line2', 'line3', 'software')
-        exposure: float (milliseconds; 0 - continuous)
-        gain: float
-        gamma: float
-        framerate: float
-        white_auto_balance: str ('off', 'once', 'on')
+Flashers
+~~~~~~~~
 
 :class:`~brest.flashers.Flashers`::
 
@@ -155,9 +179,9 @@ Available definitions for each resource
         flashloader
         file
         address
-        # These attributes must be used for flashing and mass erase
-        script: str  # name of the connection script to be used (should and with '.scp')
-        package: str  # name of the XML file without the '.xml' (should come with the flashloader)
+        # These attributes must be used for flashing and mass erase to work
+        script: st      # name of the connection script to be used (should and with '.scp')
+        package: str    # name of the XML file without the '.xml' (should come with the flashloader)
 
 :class:`~brest.flashers.STLink`::
 
@@ -167,9 +191,8 @@ Available definitions for each resource
         mode: str ("under_reset", "hotplug", "normal")
         reset: str ("sw", "hw", "core")
 
-:class:`~brest.interfaces.Interfaces`:
-
-Follow the :ref:`definitions.interfaces` section down below.
+IO
+~~~
 
 :class:`~brest.io.IO`::
 
@@ -187,16 +210,30 @@ Follow the :ref:`definitions.interfaces` section down below.
 
     # All attributes from IO group can be used
     default:
-        bypass_user: True  # if True user will not be prompted when setting channels
+        bypass_user: bool   # default False; if True user will not be prompted when setting channels
+
+.. warning::
+    Use the `default.bypass_user` at your own risk.
+    Not being prompted to operate the IO may lead to invalid scenarios and unexpected results.
 
 :class:`~brest.io.USBRelay`::
 
     # All attributes from IO group can be used
 
+Loads
+~~~~~
+
 :class:`~brest.loads.Loads`::
 
     default:
         current: float
+
+:class:`~brest.loads.Pli`::
+
+    # All attributes from Loads group can be used
+
+Supplies
+~~~~~~~~
 
 :class:`~brest.supplies.Supplies`::
 
@@ -204,6 +241,7 @@ Follow the :ref:`definitions.interfaces` section down below.
         voltage: float
         current: float
         model: str
+        protection: str or list[str]    # has to contain options valid for the power supply to be used
     required:
         voltage_range: [float, float]
         current_range: [float, float]
@@ -215,11 +253,34 @@ Follow the :ref:`definitions.interfaces` section down below.
             voltage: float
             current: float
 
+:class:`~brest.supplies.Mansup`::
+
+    # Only the following attributes from Supplies group can be used
+    default:
+        voltage: float
+        current: float
+    # Additionally the following attribute can be used
+    default:
+        bypass_user: bool   # default: False; if True user will not be prompted to operate the power supply
+
+.. warning::
+    Use the `default.bypass_user` at your own risk.
+    Not being prompted to operate the power supply may lead to invalid scenarios and unexpected results.
+
+:class:`~brest.supplies.Tenma`::
+
+    # All attributes from Supplies group can be used
+    default:
+        protection: ('OVP', 'OCP') # OverVoltage, OverCurrent
+
 .. admonition:: Default values for multichannel supplies
 
     If you happen to have multichannel power supply, values under
     `default:` group will apply ONLY to FIRST channel. To set default values
     for other channels, use the same notation but in alias definition.
+
+Switches
+~~~~~~~~
 
 :class:`~brest.Switches`::
 
@@ -234,8 +295,23 @@ Follow the :ref:`definitions.interfaces` section down below.
 
 :class:`~brest.switches.ClewareSwitch`::
 
+    # All attributes from Switches group can be used
     interface:
-        sn_timeout: float
+        sn_timeout: float   # timeout on serial number readout
+
+:class:`~brest.switches.Manswitch`::
+
+    # All attributes from Switches group can be used
+    default:
+        bypass_user: bool   # default: False; if True user will not be prompted to operate the switch
+
+.. warning::
+    Use the `default.bypass_user` at your own risk.
+    Not being prompted to operate the switch may lead to invalid scenarios and unexpected results.
+
+:class:`~brest.switches.YepkitSwitch`::
+
+    # All attributes from Switches group can be used
 
 .. _definitions.interfaces:
 
@@ -244,7 +320,7 @@ Interfaces
 
 All supported interfaces are listed here with all available parameters. You don't have to
 specify every possible attribute. Every interface has a specific attribute or group of
-attributes that need to be defined in order to successfully create interface. Also devices
+attributes that need to be defined in order to successfully create the interface. Also devices
 already defined in Brest have implicit interface definitions. To find out what is already
 defined on device please refer to :ref:`supported`.
 
@@ -308,7 +384,7 @@ Attribute name    Type Description
 **path**          int  Path to the device in operating system
 ================= ==== =======================================
 
-* **vid** + **pid** - Brest will try to look up in connected devices matching ``vid`` and ``pid``
+* **vid** + **pid** - Brest will try to look up matching ``vid`` and ``pid`` in connected devices 
 * **vid** + **pid** + **serial_number** - Look up can be refined with ``serial_number``
 * **serial_number** - Brest will try to look up in connected devices matching only ``serial_number``
 

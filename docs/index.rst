@@ -10,6 +10,7 @@ Welcome to Brest's documentation!
    :includehidden:
    :maxdepth: 3
 
+   intro
    installation
    usage
    supported

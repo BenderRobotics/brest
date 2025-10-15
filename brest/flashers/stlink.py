@@ -6,7 +6,7 @@
 
     This module implements ST-LinkV2/V3 programmers.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import os
@@ -39,7 +39,7 @@ class STLink(Flashers, FlasherCommunicable):
             type:       'flashers'
             list_type:  'cli',
             list_cmd:   ['--list']
-            list_regex: r'st-link\s*probe\s*\d+\s*:\s*.*\s*st-link sn\s*:\s*(\w+)\s*.*\s*st-link fw\s*:\s*(\w+)'
+            list_regex: 'st-link\\s*probe\\s*\\d+\\s*:\\s*.*\\s*st-link sn\\s*:\\s*(\\w+)\\s*.*\\s*st-link fw\\s*:\\s*(\\w+)'
             utility:    Windows - C:/ProgramFiles(x86)/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin/STM32_Programmer_CLI.exe
                         Linux   - STM32_Programmer_CLI
     """
@@ -104,7 +104,10 @@ class STLink(Flashers, FlasherCommunicable):
         process = run(self.__parse_connect() + command, stdout=PIPE, stderr=STDOUT,
                       log=self._log, timeout=timeout)
         if process.returncode != 0:
-            self.logger.error('Unable to flash MCU memory{0}{1}'.format(os.linesep, process.stdout.read().decode()), extra=self.log_args)
+            self.logger.error(
+                msg='Unable to flash MCU memory{0}{1}'.format(os.linesep, process.stdout.read().decode()),
+                extra=self.log_args
+            )
             raise ConnectionError()
 
         return process
@@ -132,7 +135,10 @@ class STLink(Flashers, FlasherCommunicable):
         os.remove(tmp_file.name)
 
         if process.returncode != 0:
-            self.logger.error('Unable to write to MCU memory{0}{1}'.format(os.linesep, process.stdout.read().decode()), extra=self.log_args)
+            self.logger.error(
+                'Unable to write to MCU memory{0}{1}'.format(os.linesep, process.stdout.read().decode()),
+                extra=self.log_args
+            )
             raise ConnectionError()
         return process
 
@@ -144,7 +150,10 @@ class STLink(Flashers, FlasherCommunicable):
         process = run(self.__parse_connect() + ['-e', 'all'], stdout=PIPE, stderr=STDOUT,
                       log=self._log, timeout=timeout)
         if process.returncode != 0:
-            self.logger.error('Unable to perform mass erase{0}{1}'.format(os.linesep, process.stdout.read().decode()), extra=self.log_args)
+            self.logger.error(
+                msg='Unable to perform mass erase{0}{1}'.format(os.linesep, process.stdout.read().decode()),
+                extra=self.log_args
+            )
             raise ConnectionError()
         return process
 
@@ -180,7 +189,10 @@ class STLink(Flashers, FlasherCommunicable):
             process = run(self.__parse_connect() + ['-e', sector], stdout=PIPE, stderr=STDOUT,
                           log=self._log, timeout=timeout)
         if process.returncode != 0:
-            self.logger.error('Unable to erase sector{0}{1}'.format(os.linesep, process.stdout.read().decode()), extra=self.log_args)
+            self.logger.error(
+                msg='Unable to erase sector{0}{1}'.format(os.linesep, process.stdout.read().decode()),
+                extra=self.log_args
+            )
             raise ConnectionError()
         return process
 
@@ -193,7 +205,10 @@ class STLink(Flashers, FlasherCommunicable):
         process = run(self.__parse_connect() + ['-r8', address, hex(size)], stdout=PIPE, stderr=STDOUT,
                       log=self._log, timeout=timeout)
         if process.returncode != 0:
-            self.logger.error('Unable to perform read from MCU memory{0}{1}'.format(os.linesep, process.stdout.read().decode()), extra=self.log_args)
+            self.logger.error(
+                msg='Unable to perform read from MCU memory{0}{1}'.format(os.linesep, process.stdout.read().decode()),
+                extra=self.log_args
+            )
             raise ConnectionError()
 
         data = process.stdout.read().decode()
@@ -218,7 +233,8 @@ class STLink(Flashers, FlasherCommunicable):
         _, file_extension = os.path.splitext(file)
         if file_extension not in ['.bin', '.hex', '.srec']:
             self.logger.error(
-                'Invalid file extension. Only bin, hex and srec are supported.', extra=self.log_args)
+                'Invalid file extension. Only bin, hex and srec are supported.', extra=self.log_args
+            )
             return
 
         if not os.path.isfile(file):
@@ -233,7 +249,10 @@ class STLink(Flashers, FlasherCommunicable):
         process = run(self.__parse_connect() + ['-r', address, str(hex(size)), file], stdout=PIPE, stderr=STDOUT,
                       log=self._log, timeout=timeout)
         if process.returncode != 0:
-            self.logger.error('Unable to read to file{0}{1}'.format(os.linesep, process.stdout.read().decode()), extra=self.log_args)
+            self.logger.error(
+                msg='Unable to read to file{0}{1}'.format(os.linesep, process.stdout.read().decode()),
+                extra=self.log_args
+            )
             raise ConnectionError()
         return process
 
@@ -245,7 +264,10 @@ class STLink(Flashers, FlasherCommunicable):
         process = run(self.__parse_connect() + ['-rst'], stdout=PIPE, stderr=STDOUT,
                       log=self._log, timeout=timeout)
         if process.returncode != 0:
-            self.logger.error('Unable to perform soft reset{0}{1}'.format(os.linesep, process.stdout.read().decode()), extra=self.log_args)
+            self.logger.error(
+                msg='Unable to perform soft reset{0}{1}'.format(os.linesep, process.stdout.read().decode()),
+                extra=self.log_args
+            )
             raise ConnectionError()
         return process
 
@@ -257,7 +279,10 @@ class STLink(Flashers, FlasherCommunicable):
         process = run(self.__parse_connect() + ['-hardRst'], stdout=PIPE, stderr=STDOUT,
                       log=self._log, timeout=timeout)
         if process.returncode != 0:
-            self.logger.error('Unable to perform hard reset{0}{1}'.format(os.linesep, process.stdout.read().decode()), extra=self.log_args)
+            self.logger.error(
+                msg='Unable to perform hard reset{0}{1}'.format(os.linesep, process.stdout.read().decode()),
+                extra=self.log_args
+            )
             raise ConnectionError()
         return process
 
@@ -296,7 +321,10 @@ class STLink(Flashers, FlasherCommunicable):
         process = run(self.__parse_connect(), stdout=PIPE,
                       stderr=STDOUT, timeout=timeout)
         if process.returncode != 0:
-            self.logger.error('Unable to connect{0}{1}'.format(os.linesep, process.stdout.read().decode()), extra=self.log_args)
+            self.logger.error(
+                msg='Unable to connect{0}{1}'.format(os.linesep, process.stdout.read().decode()),
+                extra=self.log_args
+            )
             raise ConnectionError()
 
         decode = process.stdout.read().decode()
@@ -307,7 +335,10 @@ class STLink(Flashers, FlasherCommunicable):
             if name in self._device.lower() or "" == self._device:
                 return
 
-        self.logger.error('Unexpected device detected (Excpected: {0}, Detected: {1})'.format(self._device, name), extra=self.log_args)
+        self.logger.error(
+            msg='Unexpected device detected (Excpected: {0}, Detected: {1})'.format(self._device, name),
+            extra=self.log_args
+        )
         raise ConnectionError
 
     def default_mode(self, value):

@@ -6,11 +6,12 @@
 
     This module implements fixed power supply.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from brest.supplies import Supplies
 from brest.communication import NoneCommunicable
+
 
 class Mansup(Supplies, NoneCommunicable):
     """
@@ -32,7 +33,7 @@ class Mansup(Supplies, NoneCommunicable):
         'type': 'none'
     }
 
-    def __init__(self, params = None):
+    def __init__(self, params=None):
         Supplies.__init__(self, params)
         NoneCommunicable.__init__(self, params['interface'])
 
@@ -40,19 +41,28 @@ class Mansup(Supplies, NoneCommunicable):
         self._voltage = 0
         self._current = 0
 
+        self._BYPASS_USER = False
+
     def enable(self):
         """
         Prompts you to set the power supply according to internal values and enable it.
         """
-
-        input('{}: Supply DUT with {} volts and {} amps and press enter to continue'.format(self.name, self._voltage, self._current))
+        if not self._BYPASS_USER:
+            input(
+                '{}: Supply DUT with {} volts and {} amps and press enter to continue'
+                ''.format(self.name, self._voltage, self._current)
+            )
+        else:
+            self.logger.warning('{}: Bypassing user input as given by config.'.format(self.name), extra=self.log_args)
 
     def disable(self):
         """
         Prompts you to disable the power supply.
         """
-
-        input('{}: Disconnect DUT from the power supply and press enter to continue'.format(self.name))
+        if not self._BYPASS_USER:
+            input('{}: Disconnect DUT from the power supply and press enter to continue'.format(self.name))
+        else:
+            self.logger.warning('{}: Bypassing user input as given by config.'.format(self.name), extra=self.log_args)
 
     @property
     def voltage(self):
@@ -87,4 +97,9 @@ class Mansup(Supplies, NoneCommunicable):
 
     def default_current(self, value):
         self.current = value
+        return True
+
+    def default_bypass_user(self, value):
+        assert isinstance(value, bool), 'bypass_user parameter should be bool'
+        self._BYPASS_USER = value
         return True

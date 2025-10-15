@@ -6,7 +6,7 @@
 
     This module implements communication using serial line.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import serial
@@ -20,6 +20,7 @@ from brest.communication import Communicable
 # from serial.tools.list_ports import comports
 from brest.pyserial_tools.list_ports import comports
 
+
 class SerialCommunicable(Communicable):
     """
     Represent communication using serial line.
@@ -32,9 +33,10 @@ class SerialCommunicable(Communicable):
     TYPE = 'serial'
     #: Tuples containing resource and its bound port
     TAKEN = []
-    SETTINGS = ['vid', 'pid', 'serial_number', 'port', 'baudrate', 'bytesize', 
-                'parity', 'stopbits', 'timeout', 'xonxoff', 'rtscts', 'dsrdtr', 
-                'write_timeout', 'inter_byte_timeout', 'exclusive'
+    SETTINGS = [
+        'vid', 'pid', 'serial_number', 'port', 'baudrate', 'bytesize',
+        'parity', 'stopbits', 'timeout', 'xonxoff', 'rtscts', 'dsrdtr',
+        'write_timeout', 'inter_byte_timeout', 'exclusive'
     ]
 
     def __init__(self, params):
@@ -43,7 +45,7 @@ class SerialCommunicable(Communicable):
 
         if params:
             serial_args = self.__filter_serial_args(params)
-            if 'port' in serial_args and serial_args['port'] != None:
+            if 'port' in serial_args and serial_args['port'] is not None:
                 self.com = serial.Serial(**serial_args)
                 self.mark_taken(self)
             else:
@@ -64,7 +66,7 @@ class SerialCommunicable(Communicable):
     def write_raw(self, data):
         self.com.write(data)
 
-    def read_raw(self, expected='', size = None):
+    def read_raw(self, expected='', size=None):
         if size:
             received = self.com.read(size)
         else:
@@ -74,7 +76,7 @@ class SerialCommunicable(Communicable):
     def get_connections(self):
         return comports()
 
-    def probe(self, interface, connections = None):
+    def probe(self, interface, connections=None):
 
         def __device_to_interface(interface, com):
             new_interface = dict(interface)
@@ -105,9 +107,9 @@ class SerialCommunicable(Communicable):
                     else:
                         __add_to_probed(probed, __device_to_interface(interface, com))
         elif 'serial_number' in interface:
-                for com in connections:
-                    if com.serial_number == interface['serial_number']:
-                        __add_to_probed(probed, __device_to_interface(interface, com))
+            for com in connections:
+                if com.serial_number == interface['serial_number']:
+                    __add_to_probed(probed, __device_to_interface(interface, com))
         # Handle standalone USB <-> Serial converters
         elif 1 == len(interface):
             for com in connections:

@@ -7,7 +7,7 @@
     This module implements packable types that are
     used to define a message.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import struct
@@ -16,12 +16,13 @@ from math import ceil, log2
 
 from brest.communication import Packable
 
+
 class uint8_t(Packable):
     """
     Unsigned 8-bit integer.
     """
 
-    def __init__(self, value = None):
+    def __init__(self, value=None):
         Packable.__init__(self)
         self.size = 8
         self.value_ = value if value else 0
@@ -36,12 +37,13 @@ class uint8_t(Packable):
         self.value_ = struct.unpack_from('B', data, b_offset)[0]
         return offset + self.size
 
+
 class uint16_t(Packable):
     """
     Unsigned 16-bit integer.
     """
 
-    def __init__(self, value = None):
+    def __init__(self, value=None):
         Packable.__init__(self)
         self.size = 16
         self.value_ = value if value else 0
@@ -56,12 +58,13 @@ class uint16_t(Packable):
         self.value_ = struct.unpack_from(self.byteorder + 'H', data, b_offset)[0]
         return offset + self.size
 
+
 class sint16_t(Packable):
     """
     Signed 16-bit integer.
     """
 
-    def __init__(self, value = None):
+    def __init__(self, value=None):
         Packable.__init__(self)
         self.size = 16
         self.value_ = value if value else 0
@@ -76,12 +79,13 @@ class sint16_t(Packable):
         self.value_ = struct.unpack_from(self.byteorder + 'h', data, b_offset)[0]
         return offset + self.size
 
+
 class uint32_t(Packable):
     """
     Unsigned 32-bit integer.
     """
 
-    def __init__(self, value = None):
+    def __init__(self, value=None):
         Packable.__init__(self)
         self.size = 32
         self.value_ = value if value else 0
@@ -95,6 +99,7 @@ class uint32_t(Packable):
         b_offset = offset // 8
         self.value_ = struct.unpack_from(self.byteorder + 'I', data, b_offset)[0]
         return offset + self.size
+
 
 class str_t(Packable):
     """
@@ -121,12 +126,13 @@ class str_t(Packable):
         data += struct.pack(self.byteorder + str(len(self.value_)) + 's', self.value_.encode('utf-8'))
         return offset + self.size
 
+
 class bool_t(Packable):
     """
     Boolean packed as a whole byte
     """
 
-    def __init__(self, value = None):
+    def __init__(self, value=None):
         Packable.__init__(self)
         self.size = 8
         self.value_ = value if value else False
@@ -141,12 +147,13 @@ class bool_t(Packable):
         self.value_ = True if struct.unpack_from('B', data, b_offset)[0] else False
         return offset + self.size
 
+
 class bit_t(Packable):
     """
     Boolean packed on `bit` position in a byte.
     """
 
-    def __init__(self, value = None, bit = 0):
+    def __init__(self, value=None, bit=0):
         Packable.__init__(self)
         self.size = 1
         self.value_ = value if value else False
@@ -166,6 +173,7 @@ class bit_t(Packable):
         data = data[b_offset]
         self.value_ = True if (data >> self.bit) & 0x01 > 0 else False
         return offset + self.size
+
 
 class nlist_t(Packable):
     """
@@ -201,6 +209,7 @@ class nlist_t(Packable):
             offset = self.type_t.unpack(data, offset)
             self.value_.append(self.type_t.value_)
         return offset
+
 
 class vlist_t(Packable):
     """
@@ -244,6 +253,7 @@ class vlist_t(Packable):
         self.value_ = values
         return offset
 
+
 class bit_nlist_t(Packable):
     """
     Fixel length list of bit_t.
@@ -283,6 +293,7 @@ class bit_nlist_t(Packable):
             if bit > 7:
                 bit = 0
         return offset
+
 
 class bit_uint_t(Packable):
     """
@@ -328,7 +339,7 @@ class enum_t(Packable):
         self.value_ = value
         self.size = calc_size = ceil(log2(len(list(enum))))
         if size and size > calc_size:
-                self.size = size
+            self.size = size
 
     def pack(self, data, offset):
         as_int = self.value_.value if self.value_ else 0
@@ -348,6 +359,7 @@ class enum_t(Packable):
                 value |= 2 ** i
         self.value_ = self.enum(value)
         return offset
+
 
 class checksum_t(Packable):
     """
@@ -391,6 +403,7 @@ class checksum_t(Packable):
         offset = self.type_t.unpack(data, offset)
         return offset
 
+
 class fill_t(Packable):
     """
     Fills N bytes with a uint8 value
@@ -409,6 +422,7 @@ class fill_t(Packable):
 
     def unpack(self, data, offset):
         return offset + self.size + self.pad_size(offset)
+
 
 class pad_t(Packable):
     """

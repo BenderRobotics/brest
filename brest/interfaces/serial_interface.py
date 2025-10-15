@@ -6,12 +6,13 @@
 
     This module implements represeting com port as a resource.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from .interfaces import Interfaces
 
 from brest.communication import SerialCommunicable
+
 
 class SerialInterface(Interfaces, SerialCommunicable):
     """

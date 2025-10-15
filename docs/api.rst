@@ -250,12 +250,12 @@ Cameras base class:
 
 Available cameras:
 
+.. autoclass:: Basler
+    :members: acquire_image, get_info, configure_trigger, reset_trigger
+
 .. autoclass:: GenericCamera
 
 .. autoclass:: PointGrey
-    :members: acquire_image, get_info, configure_trigger, reset_trigger
-
-.. autoclass:: Basler
     :members: acquire_image, get_info, configure_trigger, reset_trigger
 
 Loads
@@ -285,8 +285,8 @@ Switches base class:
 
 Available switches:
 
-.. autoclass:: Manswitch
-
 .. autoclass:: ClewareSwitch
+
+.. autoclass:: Manswitch
 
 .. autoclass:: YepkitSwitch

@@ -96,7 +96,11 @@ class TextSyntaxHighlight:
                 mateches = re.finditer(rule['regex'], line)
 
                 for match in mateches:
-                    self.area.tag_add(rule['tag'], f"{line_num}.{match.start(rule['group'])}", f"{line_num}.{match.end(rule['group'])}")
+                    self.area.tag_add(
+                        rule['tag'],
+                        f"{line_num}.{match.start(rule['group'])}",
+                        f"{line_num}.{match.end(rule['group'])}"
+                    )
             line_num += 1
 
     def update_line(self, event):

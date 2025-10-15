@@ -19,11 +19,24 @@ Brest should be installed now. You can now head to the :ref:`usage` or install O
 Python version
 --------------
 
-Brest supports Python versions from 3.5 to 3.7 on Windows and Linux.
+Brest supports Python versions 3.x >= 3.5 on Windows and Linux.
 
 .. warning::
 
-    Usage on Python 3.8 and 3.9 may be possible, but support is still in experimental phase.
+    Usage on Python >= 3.8 may be possible, but is not fully verified yet.
+
+.. note::
+
+    * Main supported Python versions:
+        * 3.7 - tested by time (end-of-life in June 2023)
+        * 3.10 - current aim (should be stable enough and last long enough)
+
+    .. image:: images/python_schedule_20240130.png
+      :alt: Python version schedule
+      :align: center
+      :target: https://devguide.python.org/versions/
+
+    * *(updated in January 2024)*
 
 .. admonition:: pip on Linux
 
@@ -38,15 +51,22 @@ Python dependencies
 Core
 ~~~~
 
-These dependencies will be installed automatically when installing Brest:
-
-* `colorama`_ (>=0.4.1) - Colored terminal output
-* `pyserial`_ (>=3.4) - Serial communication
-* `PyYAML`_ (>=5.1.2) - YAML files parsing
+* These dependencies will be installed automatically when installing Brest:
+    * `colorama`_ (==0.4.6) - Colored terminal output
+    * `pyserial`_ (==3.5) - Serial communication
+    * `PyYAML`_ (==6.0.1) - YAML files parsing
+    * `Cython`_ (==0.29.36) - C extensions in Python
+    * `hidapi`_ (==0.14.0) - Cython hidapi interface
+    * `crcmod`_ (==1.7) - CRC generator
 
 .. _colorama: https://pypi.org/project/colorama/
 .. _pyserial: https://pypi.org/project/pyserial/
-.. _PyYAML:   https://pypi.org/project/PyYAML/
+.. _PyYAML: https://pypi.org/project/PyYAML/
+.. _Cython: https://pypi.org/project/Cython/
+.. _hidapi: https://pypi.org/project/hidapi/
+.. _crcmod: https://pypi.org/project/crcmod/
+
+.. _installation.python-resource-specific:
 
 Resource specific
 ~~~~~~~~~~~~~~~~~
@@ -64,14 +84,16 @@ use them if you install them using following command:
 * :code:`cameras_unix`
     * Run on Unix machine.
     * Installs libraries for Brest to be able to use `OpenCV`_ operable cameras.
-    * **NOTE:** Brest cannot list cameras on Unix machines.
+    * .. note:: Brest cannot **list** cameras on Unix machines.
 * :code:`docs`
     * Enables user to build Brest documentation using `Sphinx`_.
+* :code:`jlink_win`
+    * Enables Brest to discover JLink devices.
 
 .. _OpenCV: https://pypi.org/project/opencv-python/
 .. _Sphinx: http://www.sphinx-doc.org/en/master/
 
-.. warning:: This method will only work if you already have Brest installed.
+.. note:: This method will only work if you already have Brest installed.
 
 .. _installation.external-dependencies:
 
@@ -85,15 +107,16 @@ These dependencies will not be installed automatically. Brest will try to detect
 use them if you install them.
 
 * `JLink`_
-    * Install this program so Brest will be able to list and use J-Link programmers
-    * It is recommended to install program in path used by :class:`~brest.flashers.JLink`
+    * Install this program so Brest will be able to list and use J-Link programmers.
+    * It is recommended to install the program in the path used by :class:`~brest.flashers.JLink`.
+    * .. note:: Make sure to have the required resource specific Python dependencies installed (see :ref:`above<installation.python-resource-specific>`).
 * `MCUXpressoIDE`_
-    * Install this program so Brest will be able to list and use the NXP MCU-Link programmers
-    * It is recommended to install program in path similar to the path used by :class:`~brest.flashers.MCULink`
-        * The path is specific for each release of the IDE, hence the specific path mentioned might not be the correct one.
+    * Install this program so Brest will be able to list and use the NXP MCU-Link programmers.
+    * It is recommended to install the program in a path similar to the path used by :class:`~brest.flashers.MCULink`.
+    * .. note:: The path is specific for each release of the IDE, hence the specific path mentioned might not be the correct one.
 * `STM32_Programmer_CLI`_
     * Install this program so Brest will be able to list and use ST-Link programmers
-    * It is recommended to install program in path used by :class:`~brest.flashers.STLink`
+    * It is recommended to install the program in the path used by :class:`~brest.flashers.STLink`
 
 .. _JLink: https://www.segger.com/downloads/jlink/
 .. _MCUXpressoIDE: https://www.nxp.com/design/software/development-software/mcuxpresso-software-and-tools-/mcuxpresso-integrated-development-environment-ide:MCUXpresso-IDE

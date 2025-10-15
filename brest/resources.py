@@ -6,13 +6,14 @@
 
     This module implements a wrapper class for instantied configuration file.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import logging
 
 from .config import Config
 from .resource_provider import ResourceProvider
+
 
 class Resources():
     """Top level class for resource managing
@@ -33,13 +34,14 @@ class Resources():
     :type  user_config: str
     :param project_config: An absolute path to project configuration file or a dict in the Config format
     :type  project_config: str or dict
-    :param needed: List of resource names that should be instantiated. If nothing is provided, Brest will try to instantiate every resource in selected project
+    :param needed: List of resource names that should be instantiated.
+        If nothing is provided, Brest will try to instantiate every resource in selected project
     :type  needed: list
 
     .. versionadded:: 0.0.1
     """
 
-    def __init__(self, projects, user_config = Config.BREST_USER_CONFIG, project_config = None, needed = None):
+    def __init__(self, projects, user_config=Config.BREST_USER_CONFIG, project_config=None, needed=None):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 

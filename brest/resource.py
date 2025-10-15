@@ -6,10 +6,11 @@
 
     This module implements base attributes and method for resource.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import logging
+
 
 class Resource():
     """
@@ -50,7 +51,10 @@ class Resource():
             name = 'required_' + name
             req_func = getattr(self, name, None)
             if not req_func:
-                self.logger.error('`{}` is missing requirement check function `{}`'.format(self.name, name), extra=self.log_args)
+                self.logger.error(
+                    msg='`{}` is missing requirement check function `{}`'.format(self.name, name),
+                    extra=self.log_args
+                )
                 return False
             if not req_func(value):
                 return False
@@ -71,7 +75,10 @@ class Resource():
             name = 'default_' + name
             def_func = getattr(self, name, None)
             if not def_func:
-                self.logger.error('`{}` is missing function `{}` to set default value'.format(self.name, name), extra=self.log_args)
+                self.logger.error(
+                    msg='`{}` is missing function `{}` to set default value'.format(self.name, name),
+                    extra=self.log_args
+                )
                 return False
             if not def_func(value):
                 return False
@@ -92,7 +99,10 @@ class Resource():
         if not aliases:
             return True
         if not ali_func:
-            self.logger.error('`{}` is missing `aliases` function to set aliases'.format(self.name), extra=self.log_args)
+            self.logger.error(
+                msg='`{}` is missing `aliases` function to set aliases'.format(self.name),
+                extra=self.log_args
+            )
             return False
         if not ali_func(aliases):
             return False

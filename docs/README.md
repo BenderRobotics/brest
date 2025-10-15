@@ -65,7 +65,7 @@ For information on the package refer to the corresponding README file located in
 
 ## Changelog
 
-### [UNRELEASED] - XXXX-YY-ZZ
+### [0.0.13] - 2021-11-18
 - Switched theme from `alabaster` to `sphinx_rtd_theme`.
 - Added versioning capabilities.
 - Updated old docs to the new theme.

@@ -1,5 +1,6 @@
 from brest.gui.observables import ObservableDict
 
+
 class ProjectModel:
     """
     Introduce buffer for changes, triggers file write on save

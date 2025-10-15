@@ -6,10 +6,11 @@
 
     This module implements base abstract class for loads.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from brest import Resource
+
 
 class Loads(Resource):
     """
@@ -18,7 +19,7 @@ class Loads(Resource):
 
     KNOWN = {}
 
-    def __init__(self, params = None):
+    def __init__(self, params=None):
         Resource.__init__(self, params)
 
         #: Maximum possible current
@@ -78,7 +79,7 @@ class Loads(Resource):
 
         raise NotImplementedError('This load does not support self testing.')
 
-    def detect_model(self, apply = True):
+    def detect_model(self, apply=True):
         """
         Implicitly tries to apply model's electrical limits.
         """

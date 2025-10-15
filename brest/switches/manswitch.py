@@ -6,7 +6,7 @@
 
     This module implements manually controlled switch.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from brest.switches import Switches
@@ -40,6 +40,8 @@ class Manswitch(Switches, NoneCommunicable):
         self.CHANNELS = 999
         self.STATES = 999
 
+        self._USER_BYPASS = False
+
         self._states = {}
 
     def __setitem__(self, key, value):
@@ -59,7 +61,15 @@ class Manswitch(Switches, NoneCommunicable):
 
         self._states.update({channel: state})
 
-        input('{}: Please select state {} on channel {}. Then hit enter'.format(self.name, value, key))
+        if not self._USER_BYPASS:
+            input('{}: Please select state {} on channel {}. Then hit enter'.format(self.name, value, key))
+        else:
+            self.logger.warning(
+                msg=(
+                    '{}: Bypassing user input (channel{} to state {}) as given by config.'
+                ).format(self.name, value, key),
+                extra=self.log_args
+            )
 
     def __getitem__(self, key):
         """
@@ -75,4 +85,9 @@ class Manswitch(Switches, NoneCommunicable):
         pass
 
     def required_channels(self, value):
+        return True
+
+    def default_bypass_user(self, value):
+        assert isinstance(value, bool), 'bypass_user parameter should be bool'
+        self.BYPASS_USER = value
         return True

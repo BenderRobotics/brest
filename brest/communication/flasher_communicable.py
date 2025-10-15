@@ -6,7 +6,7 @@
 
     This module implements communication with flashers using cmd utility.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import weakref
@@ -72,7 +72,11 @@ class FlasherCommunicable(Communicable):
                     interface['utility'] = utility
 
             if utility_missing:
-                self.logger.warning("Unable to look for devices, since %s is not in path, check your utility parameter.", utilities[0], extra=self.log_args)
+                self.logger.warning(
+                    "Unable to look for devices, since %s is not in path, check your utility parameter.",
+                    utilities[0],
+                    extra=self.log_args
+                )
                 self.listed = False
                 continue
 

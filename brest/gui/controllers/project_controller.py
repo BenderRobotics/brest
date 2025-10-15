@@ -17,8 +17,8 @@ class ProjectController:
         self.resources = []
 
         self.model.content.add_callback("on_create", self._on_new_resource)
-        #self.model.content.add_callback("on_change", self.view.update_resource)
-        #self.model.content.add_callback("on_delete", self.view.del_resource)
+        # self.model.content.add_callback("on_change", self.view.update_resource)
+        # self.model.content.add_callback("on_delete", self.view.del_resource)
 
         self.model.content.trigger_on_all("on_create")
 
@@ -29,7 +29,6 @@ class ProjectController:
 
         # * Crete record in model and get name
         self.model.add_resource()
-
 
     def _on_new_resource(self, item, event):
         """

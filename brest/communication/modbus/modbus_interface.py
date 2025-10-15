@@ -6,7 +6,7 @@
 
     This module implements unified interface for MODBUS communication.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import threading
@@ -17,6 +17,7 @@ from brest.communication import FrameCommunicationInterface
 from brest.communication.types import uint8_t, uint16_t, checksum_t
 from .definitions import ModbusFrame, ModbusPDUMappings
 from .messages import MODBUS_MAPPINGS, ExceptionResponse
+
 
 class ModbusInterface(FrameCommunicationInterface):
     """
@@ -58,7 +59,6 @@ class ModbusInterface(FrameCommunicationInterface):
         self.write_raw(frame.raw_data)
         self.port_lock.release()
 
-
     def _read_raw_frame(self, frame):
         """
         Method which muset be implemented. Should read correct number of bytes into frame.raw_data.
@@ -66,7 +66,9 @@ class ModbusInterface(FrameCommunicationInterface):
         Frame parameter is optional, new frame generation can be handled inside the function.
         """
 
-        raise NotImplementedError('{} must implement _read_raw_frame(self, frame) method'.format(self.__class__.__name__))
+        raise NotImplementedError(
+            '{} must implement _read_raw_frame(self, frame) method'.format(self.__class__.__name__)
+        )
 
     def set_custom_pdu_mappings(self, mappings):
         """
@@ -85,8 +87,10 @@ class ModbusInterface(FrameCommunicationInterface):
             if self.custom_pdu_mappings.get_mapping(functioncode) is not None:
                 return self.custom_pdu_mappings.get_mapping(functioncode)
 
-        if (self.default_pdu_mappings.get_mapping(functioncode) is not None
-            and self.use_default_mappings):
+        if (
+            self.default_pdu_mappings.get_mapping(functioncode) is not None
+            and self.use_default_mappings
+        ):
 
             return self.default_pdu_mappings.get_mapping(functioncode)
         return None
@@ -94,10 +98,17 @@ class ModbusInterface(FrameCommunicationInterface):
     def get_frame(self, mba=None, functioncode=None, data=None, pdu_mapping=None):
         """
         Method for getting new frame.
+
         Use 1: No parameters are specified, returns empty ModbusFrame.
-        Use 2: mba, functioncode and data are specified, returns ModbusFrame request filled according to available mappings.
-        Use 3: mba, pdu_mapping and data are specified, returns ModbusFrame request filled according to provided mapping.
+
+        Use 2: mba, functioncode and data are specified,
+        returns ModbusFrame request filled according to available mappings.
+
+        Use 3: mba, pdu_mapping and data are specified,
+        returns ModbusFrame request filled according to provided mapping.
+
         Use 4: Only functioncode is specified, returns ModbusFrame response according to available mappings.
+
         Use 3: pdu_mapping is specified, returns ModbusFrame response according to provided mapping.
         """
 
@@ -126,8 +137,10 @@ class ModbusInterface(FrameCommunicationInterface):
                 pdu = mapping['request']()
                 pdu.function_code = mapping['function_code']
             else:
-                self.logger.warning('Functioncode does not have mapping. fc:{}'.format(functioncode),
-                                  extra=self.log_args)
+                self.logger.warning(
+                    msg='Functioncode does not have mapping. fc:{}'.format(functioncode),
+                    extra=self.log_args
+                )
 
         # Try to recover functioncode from data
         if mapping is None and data is not None:
@@ -137,8 +150,10 @@ class ModbusInterface(FrameCommunicationInterface):
                 pdu = mapping['request']()
                 pdu.function_code = fc
             else:
-                self.logger.warning('Functioncode from data does not have mapping. fc:{}'.format(functioncode),
-                                  extra=self.log_args)
+                self.logger.warning(
+                    msg='Functioncode from data does not have mapping. fc:{}'.format(functioncode),
+                    extra=self.log_args
+                )
 
         if mapping is None:
             raise ValueError('Could not determine frame format. No mapping matches inputs.')
@@ -292,9 +307,13 @@ class ModbusInterface(FrameCommunicationInterface):
                                 response_frame.unpack()
                                 response_frame.valid = True
 
-                                if (request_frame.mba == response_frame.mba
-                                    and (request_frame.pdu.function_code == response_frame.pdu.function_code
-                                         or response_frame.pdu.function_code == request_frame.pdu.function_code|0x80)):
+                                if (
+                                    request_frame.mba == response_frame.mba
+                                    and (
+                                        request_frame.pdu.function_code == response_frame.pdu.function_code
+                                        or response_frame.pdu.function_code == request_frame.pdu.function_code|0x80
+                                    )
+                                ):
 
                                     response_frame.direct_response = True
 
@@ -304,7 +323,10 @@ class ModbusInterface(FrameCommunicationInterface):
                             self.logger.warning('Could not determine response pdu format.', extra=self.log_args)
 
                     else:
-                        self.logger.warning('CRC mismatch! Received: {}, Computed: {}'.format(msg_received_crc, msg_computed_crc), extra=self.log_args)
+                        self.logger.warning(
+                            msg='CRC mismatch! Received: {}, Computed: {}'.format(msg_received_crc, msg_computed_crc),
+                            extra=self.log_args
+                        )
                 else:
                     self.logger.debug('Received no data.', extra=self.log_args)
 

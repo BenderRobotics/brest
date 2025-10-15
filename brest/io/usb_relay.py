@@ -6,7 +6,7 @@
 
     This module implements USB-RLYxx relay array.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from brest.io import IO
@@ -14,17 +14,20 @@ from brest.communication import SerialCommunicable
 from brest.communication import CommunicationStructure
 from brest.communication.types import uint8_t
 
+
 class USBRelayCommand(CommunicationStructure):
 
     def __init__(self, command):
         CommunicationStructure.__init__(self)
         self.add('command', uint8_t(command))
 
+
 class USBRelayValueCommand(USBRelayCommand):
 
     def __init__(self, command):
         USBRelayCommand.__init__(self, command)
         self.add('value', uint8_t())
+
 
 class USBRelay(IO, SerialCommunicable):
     """
@@ -62,9 +65,9 @@ class USBRelay(IO, SerialCommunicable):
 
     Models = [
         IO.Model(idn='USBRelay Fallback', channels=8, max_current=16.0, is_latching=True),  # Fallback model
-        IO.Model(idn=10,                  channels=2, max_current=16.0, is_latching=False), # USB-RLY02;
-        IO.Model(idn=8,                   channels=8, max_current=2.0,  is_latching=False), # USB-RLY08; USB-RLY08B; relay: http://www.farnell.com/datasheets/2302215.pdf
-        IO.Model(idn=15,                  channels=8, max_current=16.0, is_latching=True),  # USB-RLY16L
+        IO.Model(idn=10, channels=2, max_current=16.0, is_latching=False),  # USB-RLY02;
+        IO.Model(idn=8, channels=8, max_current=2.0,  is_latching=False),  # USB-RLY08; USB-RLY08B; relay: http://www.farnell.com/datasheets/2302215.pdf
+        IO.Model(idn=15, channels=8, max_current=16.0, is_latching=True),  # USB-RLY16L
     ]
 
     class Commands:
@@ -72,7 +75,7 @@ class USBRelay(IO, SerialCommunicable):
         Available commands.
         """
 
-        GET_INFO   = USBRelayCommand(0x5A)
+        GET_INFO = USBRelayCommand(0x5A)
         GET_STATES = USBRelayCommand(0x5B)
         SET_STATES = USBRelayValueCommand(0x5C)
 
@@ -104,7 +107,10 @@ class USBRelay(IO, SerialCommunicable):
                 idn_to_apply = model.idn
                 break
         if idn_to_apply == fallback_model.idn:
-            self.logger.warning('Unable to detect model, fallback to `{}` model.'.format(fallback_model.idn), extra=self.log_args)
+            self.logger.warning(
+                msg='Unable to detect model, fallback to `{}` model.'.format(fallback_model.idn),
+                extra=self.log_args
+            )
             self.logger.warning('\nModels limitations:\n{}'.format(fallback_model), extra=self.log_args)
         self._apply_model(idn_to_apply)
 

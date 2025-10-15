@@ -24,7 +24,7 @@ from serial.win32 import ULONG_PTR
 from serial.tools import list_ports_common
 
 
-def ValidHandle(value, func, arguments):
+def valid_handle(value, func, arguments):
     if value == 0:
         raise ctypes.WinError()
     return value
@@ -36,7 +36,7 @@ LPCTSTR = ctypes.c_wchar_p
 PCTSTR = ctypes.c_wchar_p
 PTSTR = ctypes.c_wchar_p
 LPDWORD = PDWORD = ctypes.POINTER(DWORD)
-#~ LPBYTE = PBYTE = ctypes.POINTER(BYTE)
+# LPBYTE = PBYTE = ctypes.POINTER(BYTE)
 LPBYTE = PBYTE = ctypes.c_void_p        # XXX avoids error about types
 
 ACCESS_MASK = DWORD
@@ -93,7 +93,7 @@ SetupDiEnumDeviceInfo.restype = BOOL
 SetupDiGetClassDevs = setupapi.SetupDiGetClassDevsW
 SetupDiGetClassDevs.argtypes = [ctypes.POINTER(GUID), PCTSTR, HWND, DWORD]
 SetupDiGetClassDevs.restype = HDEVINFO
-SetupDiGetClassDevs.errcheck = ValidHandle
+SetupDiGetClassDevs.errcheck = valid_handle
 
 SetupDiGetDeviceRegistryProperty = setupapi.SetupDiGetDeviceRegistryPropertyW
 SetupDiGetDeviceRegistryProperty.argtypes = [HDEVINFO, PSP_DEVINFO_DATA, DWORD, PDWORD, PBYTE, DWORD, PDWORD]
@@ -113,7 +113,7 @@ RegCloseKey.argtypes = [HKEY]
 RegCloseKey.restype = LONG
 
 RegQueryValueEx = advapi32.RegQueryValueExW
-RegQueryValueEx.argtypes = [HKEY, LPCTSTR , LPDWORD, LPDWORD, LPBYTE, LPDWORD]
+RegQueryValueEx.argtypes = [HKEY, LPCTSTR, LPDWORD, LPDWORD, LPBYTE, LPDWORD]
 RegQueryValueEx.restype = LONG
 
 
@@ -187,7 +187,7 @@ def iterate_comports():
             if not SetupDiGetDeviceInstanceId(
                     g_hdi,
                     ctypes.byref(devinfo),
-                    #~ ctypes.byref(szHardwareID),
+                    # ~ ctypes.byref(szHardwareID),
                     szHardwareID,
                     ctypes.sizeof(szHardwareID) - 1,
                     None):
@@ -266,17 +266,17 @@ def iterate_comports():
                     g_hdi,
                     ctypes.byref(devinfo),
                     SPDRP_FRIENDLYNAME,
-                    #~ SPDRP_DEVICEDESC,
+                    # ~ SPDRP_DEVICEDESC,
                     None,
                     ctypes.byref(szFriendlyName),
                     ctypes.sizeof(szFriendlyName) - 1,
                     None):
                 info.description = szFriendlyName.value
-            #~ else:
-                # Ignore ERROR_INSUFFICIENT_BUFFER
-                #~ if ctypes.GetLastError() != ERROR_INSUFFICIENT_BUFFER:
-                    #~ raise IOError("failed to get details for %s (%s)" % (devinfo, szHardwareID.value))
-                # ignore errors and still include the port in the list, friendly name will be same as port name
+            # else:
+            #     # Ignore ERROR_INSUFFICIENT_BUFFER
+            #     if ctypes.GetLastError() != ERROR_INSUFFICIENT_BUFFER:
+            #         raise IOError("failed to get details for %s (%s)" % (devinfo, szHardwareID.value))
+            #     # ignore errors and still include the port in the list, friendly name will be same as port name
 
             # manufacturer
             szManufacturer = ctypes.create_unicode_buffer(250)
@@ -284,7 +284,7 @@ def iterate_comports():
                     g_hdi,
                     ctypes.byref(devinfo),
                     SPDRP_MFG,
-                    #~ SPDRP_DEVICEDESC,
+                    # SPDRP_DEVICEDESC,
                     None,
                     ctypes.byref(szManufacturer),
                     ctypes.sizeof(szManufacturer) - 1,
@@ -297,6 +297,7 @@ def iterate_comports():
 def comports(include_links=False):
     """Return a list of info objects about serial ports"""
     return list(iterate_comports())
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # test

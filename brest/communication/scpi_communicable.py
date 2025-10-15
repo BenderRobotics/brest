@@ -6,11 +6,12 @@
 
     This module implements communication using serial line and SCPI commands.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from brest.communication import SerialCommunicable, CommunicationStructure
 from brest.communication.types import str_t
+
 
 class SCPICommunicable(SerialCommunicable):
     """
@@ -29,7 +30,7 @@ class SCPICommunicable(SerialCommunicable):
     def __init__(self, params):
         SerialCommunicable.__init__(self, params)
 
-        self.message_suffix = self.SUFFIXES[0] #TODO: Don't forget to mention in the documentation
+        self.message_suffix = self.SUFFIXES[0]  # TODO: Don't forget to mention in the documentation
 
     def determine_suffix(self, command):
         """
@@ -83,6 +84,7 @@ class SCPICommunicable(SerialCommunicable):
         else:
             return received
 
+
 class SCPICommand(CommunicationStructure):
     """
     Class that wraps plaintext commands
@@ -93,10 +95,11 @@ class SCPICommand(CommunicationStructure):
     :type  channel: int
     """
 
-    def __init__(self, command, channel = ''):
+    def __init__(self, command, channel=''):
         CommunicationStructure.__init__(self)
         self.add('cmd', str_t(command))
         self.add('channel', str_t(channel))
+
 
 class SCPIQueryCommand(SCPICommand):
     """
@@ -113,9 +116,10 @@ class SCPIQueryCommand(SCPICommand):
     :type  query_char: str
     """
 
-    def __init__(self, command, channel = '', query_char = '?'):
+    def __init__(self, command, channel='', query_char='?'):
         SCPICommand.__init__(self, command, channel)
         self.add('query_char', str_t(query_char))
+
 
 class SCPIValueCommand(SCPICommand):
     """
@@ -135,7 +139,7 @@ class SCPIValueCommand(SCPICommand):
     :type  delimiter: str
     """
 
-    def __init__(self, command, channel = '', value = '', delimiter = ':'):
+    def __init__(self, command, channel='', value='', delimiter=':'):
         SCPICommand.__init__(self, command, channel)
         self.add('delimiter', str_t(delimiter))
         self.add('value', str_t(value))

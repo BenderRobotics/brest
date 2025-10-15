@@ -41,7 +41,6 @@ class ConfigController:
             )
             self.model.open_file(file_path)
 
-
         # * Create tab for every project
         [self.add_tab(file_path, project) for project in self.model.get_projects(file_path)]
 

@@ -7,10 +7,11 @@
     This module implements common methods and attributes for
     IO devices.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from brest import Resource
+
 
 class IO(Resource):
     """
@@ -56,7 +57,7 @@ class IO(Resource):
             s += '{}: {}\n'.format('is_latching', self.is_latching)
             return s
 
-    def __init__(self, params = None):
+    def __init__(self, params=None):
         Resource.__init__(self, params)
         #: Represents channels state in a single number
         self._states = 0
@@ -139,8 +140,8 @@ class IO(Resource):
 
     def __parse_slice(self, slice_):
         start = slice_.start if slice_.start else 0
-        stop  = slice_.stop + 1  if slice_.stop  else self.CHANNELS
-        step  = slice_.step  if slice_.step  else 1
+        stop = slice_.stop + 1 if slice_.stop else self.CHANNELS
+        step = slice_.step if slice_.step else 1
         return range(start, stop, step)
 
     def aliases(self, value):
@@ -166,7 +167,9 @@ class IO(Resource):
         """
 
         if len(value) > self.CHANNELS:
-            raise ValueError('Can\'t satisfy channels requirement. Requested {} available {}'.format(len(value), self.CHANNELS))
+            raise ValueError(
+                'Can\'t satisfy channels requirement. Requested {} available {}'.format(len(value), self.CHANNELS)
+            )
 
         if self.IS_LATCHING:
             self._read_states()
@@ -180,9 +183,12 @@ class IO(Resource):
                 self._aliases[alias['name']] = alias['channel']
                 self[alias['channel']] = alias['default_value']
             else:
-                self.logger.warning('Alias {} is already defined. Overwriting mapping'.format(alias['name']), extra=self.log_args)
+                self.logger.warning(
+                    msg='Alias {} is already defined. Overwriting mapping'.format(alias['name']),
+                    extra=self.log_args
+                )
 
-            if 'propagate' in alias and alias['propagate'] == True:
+            if 'propagate' in alias and alias['propagate'] is True:
                 self._propagate.append(alias['name'])
 
         return True
@@ -209,9 +215,10 @@ class IO(Resource):
 
     def required_is_latching(self, value):
         if value != self.IS_LATCHING:
-            self.logger.error('Can\'t satisfy `is_latching` requirement. ' +
-            'Requested {} available {}'.format(value, self.IS_LATCHING),
-            extra=self.log_args
-        )
+            self.logger.error(
+                'Can\'t satisfy `is_latching` requirement. ' +
+                'Requested {} available {}'.format(value, self.IS_LATCHING),
+                extra=self.log_args
+            )
             return False
         return True

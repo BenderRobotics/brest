@@ -6,7 +6,7 @@
 
     This module implements unified interface for MODBUS communication.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from enum import Enum
@@ -15,6 +15,7 @@ from brest.communication import CommunicationStructure, CommunicationFrame
 from brest.communication.types import uint8_t, uint16_t, uint32_t, vlist_t, checksum_t
 
 from crcmod.predefined import mkCrcFun
+
 
 class ModbusFrame(CommunicationFrame):
     """
@@ -85,14 +86,21 @@ class ModbusFrame(CommunicationFrame):
 
         # Response with the same code
         if sent_frame.pdu.function_code == rec_frame.pdu.function_code:
-            #self.logger.debug('Frame valid - regular response', extra=self.log_args)
+            # self.logger.debug('Frame valid - regular response', extra=self.log_args)
             return True
         if ((sent_frame.pdu.function_code | 0x80) == rec_frame.pdu.function_code):
-            #self.logger.debug('Frame valid - exception response', extra=self.log_args)
+            # self.logger.debug('Frame valid - exception response', extra=self.log_args)
             return True
         else:
-            self.logger.warning('Frame invalid - sent: {}, rec: {}'.format(sent_frame.pdu.function_code, rec_frame.pdu.function_code), extra=self.log_args)
+            self.logger.warning(
+                msg=(
+                    'Frame invalid - sent: {}, rec: {}'
+                    ''.format(sent_frame.pdu.function_code, rec_frame.pdu.function_code)
+                ),
+                extra=self.log_args
+            )
             return False
+
 
 class ModbusGenericPDU(CommunicationStructure):
     """
@@ -101,6 +109,7 @@ class ModbusGenericPDU(CommunicationStructure):
 
     def __init__(self):
         CommunicationStructure.__init__(self, byteorder=Endianness.BIG)
+
 
 class ModbusPDUMapping():
     """
@@ -116,6 +125,7 @@ class ModbusPDUMapping():
         self.function_code = functioncode
         self.request = request
         self.response = response
+
 
 class ModbusPDUMappings():
     """
@@ -158,43 +168,45 @@ class ModbusPDUMappings():
             for item in mapping:
                 print(item + ':', mapping[item])
 
+
 class ModbusFunctionCodes:
     """
     List of public Modbus Function Codes
     """
 
-    READ_COILS =                    0x01
-    READ_DISCRETE_INPUTS =          0x02
-    READ_HOLDING_REGISTERS =        0x03
-    READ_INPUT_REGISTERS =          0x04
-    WRITE_SINGLE_COIL =             0x05
-    WRITE_SINGLE_REGISTER =         0x06
-    READ_EXCEPTION_STATUS =         0x07
-    DIAGNOSTICS =                   0x08
-    GET_COM_EVENT_COUNTER =         0x0B
-    GET_COM_EVENT_LOG =             0x0C
-    WRITE_MULTIPLE_COILS =          0x0F
-    WRITE_MULTIPLE_REGISTERS =      0x10
-    REPORT_SERVER_ID =              0x11
-    READ_FILE_RECORD =              0x14
-    WRITE_FILE_RECORD =             0x15
-    MASK_WRITE_REGISTER =           0x16
+    READ_COILS = 0x01
+    READ_DISCRETE_INPUTS = 0x02
+    READ_HOLDING_REGISTERS = 0x03
+    READ_INPUT_REGISTERS = 0x04
+    WRITE_SINGLE_COIL = 0x05
+    WRITE_SINGLE_REGISTER = 0x06
+    READ_EXCEPTION_STATUS = 0x07
+    DIAGNOSTICS = 0x08
+    GET_COM_EVENT_COUNTER = 0x0B
+    GET_COM_EVENT_LOG = 0x0C
+    WRITE_MULTIPLE_COILS = 0x0F
+    WRITE_MULTIPLE_REGISTERS =  0x10
+    REPORT_SERVER_ID = 0x11
+    READ_FILE_RECORD = 0x14
+    WRITE_FILE_RECORD = 0x15
+    MASK_WRITE_REGISTER = 0x16
     READ_WRITE_MULTIPLE_REGISTERS = 0x17
-    READ_FIFO_QUEUE =               0x18
-    READ_DEVICE_IDENTIFICATION =    0x43
+    READ_FIFO_QUEUE = 0x18
+    READ_DEVICE_IDENTIFICATION = 0x43
+
 
 class ModbusExceptionCodes(Enum):
     """
     List of Modbus Exceptions
     """
 
-    ILLEGAL_FUNCTION =     0x01
+    ILLEGAL_FUNCTION = 0x01
     ILLEGAL_DATA_ADDRESS = 0x02
-    ILLEGAL_DATA_VALUE =   0x03
+    ILLEGAL_DATA_VALUE = 0x03
     SLAVE_DEVICE_FAILURE = 0x04
-    ACKNOWLEDGE =          0x05
-    SLAVE_DEVICE_BUSY =    0x06
+    ACKNOWLEDGE = 0x05
+    SLAVE_DEVICE_BUSY = 0x06
     NEGATIVE_ACKNOWLEDGE = 0x07
-    MEMORY_PARITY_ERROR =  0x08
+    MEMORY_PARITY_ERROR = 0x08
     GATEWAY_PATH_UNAVAILABLE = 0x0A
     GATEWAY_TARGET_DEVICE_FAILED_TO_RESPOND = 0x0B

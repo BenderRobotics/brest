@@ -6,7 +6,7 @@
 
     This module implements configuration file parsing and validation.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import os
@@ -123,10 +123,9 @@ class Config():
 
         :param config_path: Absolute path
         :type  config_path: str
-        :param project_name: Custom name of the project.
-                    If not provided:
-                        - if there is exactly one project already loaded, takes the project name
-                        - else defaults to 'project'
+        :param project_name: | Custom name of the project. If not provided:
+            | - if there is exactly one project already loaded, takes the project name
+            | - else defaults to 'project'
         :type  project_name: str, optional
         """
         if not project_name:
@@ -218,7 +217,7 @@ class Config():
                 name = f'custom{nr}'
                 iters += 1
             self.logger.warning(
-                msg = (
+                msg=(
                     "Current or new config has been tampered with! "
                     "'{name}' has been added to project list with highest priority."
                 ),

@@ -8,18 +8,18 @@ Brest installed. If you do not, head over to the :ref:`installation` section.
 
 Interactive mode
 ----------------
-A minimal thing you have to do, is to import Brest.
+First, you need to import Brest.
 
 .. code-block:: sh
 
     >>> import brest
 
-Now you can instantiate :class:`~brest.ResourceProvider` to get a interface to resource managing::
+Now you can instantiate :class:`~brest.ResourceProvider` to get an interface to resource managing::
 
     >>> rp = brest.ResourceProvider()
 
-Using :meth:`~brest.ResourceProvider.print_available` method will print connected resources known
-by Brest. You can use ``group`` argument to list only required group of resources. To get a list
+:meth:`~brest.ResourceProvider.print_available` method will print connected resources known
+to Brest. You can use ``group`` argument to list only required group of resources. To get a list
 of available groups, please refer to the :ref:`supported`. If nothing is provided, all available
 resources will be listed::
 
@@ -32,24 +32,24 @@ resources will be listed::
         serial_number: A02014090305
         port: COM9
 
-The number in square bracket indicate resource index in resource list obtained from
+The number in square brackets indicates the resource index in the resource list obtained from
 :meth:`~brest.ResourceProvider.available`. Following string represents a name of the class,
-that can be constructed using interface parameters listed on the next lines. To get more information
+that can be constructed using interface parameters listed on the following lines. To get more information
 about interface parameters please refer to the :ref:`definitions.interfaces`.
 
 The next step is to instantiate a selected resource. You can do that using
-:meth:`~brest.ResourceProvider.construct_available` method. For example, if I want to instantiate the
-Tenma supply from previous example::
+:meth:`~brest.ResourceProvider.construct_available` method. For example, if you want to instantiate the
+Tenma supply from the previous example::
 
     >>> psu = rp.construct_available(0)
 
-Only thing you have to do is to pass the desired resource's index and resource provider will construct the
+All you have to do is to pass the desired resource's index and the resource provider will construct the
 object for you.
 If you have printed resources using ``group`` parameter, you also need to specify the same group to
 :meth:`~brest.ResourceProvider.available` method for corresponding indexes.
 
 Now, you have the bench power supply ready to operate through the `psu` variable which contains
-:class:`~brest.Tenma` class as an unified interface::
+:class:`~brest.Tenma` class as a unified interface::
 
     >>> psu.voltage = 40
     >>> psu.enable()
@@ -62,7 +62,7 @@ Configuration file
 ------------------
 
 If you have resources set up on your desk that won't change anytime soon, you can describe it
-using a configuration file. To get the glimpse of how to write a configuration file, please refer
+using a configuration file. To get a glimpse of how to write a configuration file, please refer
 to :ref:`definitions.configuration-file`.
 
 Brest supports two configuration files. The first configuration file is user specific and is
@@ -71,10 +71,11 @@ location, you can specify absolute path using ``user_config=`` keyword argument.
 
 The second configuration file is project specific. This configuration file is not mandatory
 and its location can be specified using absolute path passed to ``project_config=`` keyword argument.
-This config will be merged with user specific config. User config overrides and adds items to
+This config will be merged with user specific config. User config overwrites and adds items to
 project specific config.
 
-The first parameter ``project`` indicate what project you want to use from configuration file.
+The first parameter ``project=`` indicates what project you want to use from configuration file.
+[changed in version 0.0.17: ``projects=`` now accepts a list of projects, which allows you to initialize multiple projects at once]
 
 After you have created your configuration file, you can use it in Brest by instancing the
 :class:`~brest.Resources` class::
@@ -120,7 +121,7 @@ Current features
 
 * List of the available devices auto-updates with 1 second interval.
 * Devices are added to the tree-view, details of each device can be expanded or collapsed.
-* Expanded view for each device shows intenral parameters.
+* Expanded view for each device shows internal parameters.
 * Every parameter can be copied to clipboard by double-clicking.
 * Supported USB <-> serial converters also show their type (e.g. CP210x, FTDI).
 
@@ -137,7 +138,20 @@ System tests
 ------------
 
 Brest also can be used to help you with system tests. First, you need to create a configuration file,
-if you don't know how, please refer to the :ref:`definitions.configuration-file`.
+if you don't know how, please refer to the :ref:`definitions.configuration-file`. You also need to stick to the tests folder
+hierarchy as shown here::
+
+    tests
+    |- __init__.py
+    |- run_all.py
+    |- 10_general
+    |  |- __init__.py
+    |  |- test_MB_GEN_002.py
+    |  |- test_MB_GEN_004.py
+    |- 21_interface
+    |  |- __init__.py
+    |  |- test_MB_002.py
+    |  |- test_MB_003.py
 
 Next thing is to define `needed` resources in every test::
 
@@ -146,7 +160,7 @@ Next thing is to define `needed` resources in every test::
     class TestSupply(unittest.TestCase):
 
         # Resource aliases from the config file
-        needed = ['supply', 'dut']
+        needed = ['supply', 'camera']
         # This attribute will be populated
         # with Resources object afters Brest
         # finishes test preparation
@@ -156,12 +170,12 @@ Next thing is to define `needed` resources in every test::
             # you can assign resources to attributes for
             # easier access
             self.psu = self.resources['supply']
-            self.dut = self.resources['dut']
+            self.camera = self.resources['camera']
 
         def test_case(self):
             # Direct use of classes
             self.psu.enable()
-            self.dut.send_message(...)
+            self.camera.capture()
             ...
 
         ...
@@ -185,14 +199,14 @@ method on discovered tests::
     resources = brest.prepare_tests(main_suite, 'myProj')
     result = unittest.TextTestRunner(stream=sys.stdout).run(main_suite)
 
-Brest will browse through all discovered tests and collect needed resource for every
+Brest will browse through all discovered tests and collect needed resources for every
 test, construct :class:`~brest.Resources` with ``needed`` parameter set to collected needed resources and
 set it to every ``resource`` class attribute. Such code should be located in run_all_test like file.
 
 .. admonition:: Running a single test
 
     If you want to run a single test, you have to instantiate configuration file. If you use ``needed`` class
-    attribute as a parameter for :class:`~brest.Resources` and then created object set as ``resources``
+    attribute as a parameter for :class:`~brest.Resources` and then create an object set as ``resources``
     class attribute, the test will behave as excepted.
 
 Examples
@@ -226,27 +240,8 @@ in case of device being connected returns a dict containing ``class_name`` and `
     port.baudrate = com['interface']['baudrate']
     ci = CommInterface(port)
 
-Getting native Serial object
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-If you want to get native ``serial.Serial`` object to your existing codebase instead of Brest's internal object, but also use features like config definition, consider following example::
-
-    # Resource description in e.g. project config
-    myProj:
-        cp:
-            class_name: interfaces.SerialInterface
-            interface:
-                vid: 0x10C4
-                pid: 0xEA60
-                baudrate: 115200
-
-You can use Brest to create the resource using classic usage approach as creating :class:`~brest.Resources` class. Upon creating the object, you will get information about instantiation::
-
-    Resources: {
-        cp : <brest.interfaces.serial_interface.SerialInterface object at 0x03ABA050>
-    }
-
 Instantiated :class:`~brest.interfaces.SerialInterface` object have ``com`` attribute, which holds the desired ``serial.Serial`` object that has all attributes set according to your
-configuration file definition. This can be used in your further in your existing code to create needed objects like::
+configuration file definition. This can be used further in your existing code to create needed objects like::
 
     res = brest.Resources('myProj', project_config='../config.yaml')
     port = res['cp'].com
@@ -407,3 +402,120 @@ To use mappings in code, you can do::
     request.pdu.control_byte = 0x01
 
     response = gate_if.transceive(request)
+
+Suppported devices examples
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This section shows some examples of actually using the api to connect to devices and to use them.
+
+Getting native Serial object (Serial Interface)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you want to get a native ``serial.Serial`` object to your existing codebase instead of Brest's internal object, but also use features like config definition, consider following example::
+
+    # Resource description in e.g. project config
+    your_project:
+        cp:
+            class_name: interfaces.SerialInterface
+            interface:
+                vid: 0x10C4
+                pid: 0xEA60
+                baudrate: 115200
+
+You can use Brest to create the resource using classic usage approach as creating :class:`~brest.Resources` class::
+
+    import brest
+    resources = brest.Resources('your_project', needed=['cp'])
+    serial_interface = resources['cp']
+
+Upon creating the object, you will get information about instantiation::
+
+    Resources: {
+        ser_int : <brest.interfaces.serial_interface.SerialInterface object at 0x03ABA050>
+    }
+
+.. Using the interface::
+
+    # Setting desired attributes using `com`
+    ser_int.com.baudrate = 9600
+    ser_int.com.timeout = 0.5
+
+    # Opening port
+    ser_int.connect()
+
+    # Sending data
+    message = 'Hello'
+    ser_int.write_raw(message.encode())
+
+    # Reading data
+    received_message = ser_int.read_raw().decode()
+
+    # Closing port
+    ser_int.disconnect()
+
+Switches
+^^^^^^^^
+
+This class represents several USB switches. Here is an example of using a Cleware Switch. USB cleware switch has one input USB port, which can be left disconnected, or can get connected to one of two other ports.
+
+In the user or project config file, put::
+
+    cleware_switch:
+        class_name: 'switches.ClewareSwitch'
+        aliases:
+            - channel: 0
+            name: 'cleware'
+            states: ['OFF', 'ON1', 'ON2']
+            default:
+                state: 'ON1'    # The input USB port is connected to output port 1
+
+Initializing the switch::
+
+    import brest
+    resources = brest.Resources('your_project', needed=['cleware_switch'])
+    switch = resources['cleware_switch']
+
+Using the switch::
+
+    # Switches with only one input are always called by the index [0]
+    # Set switch into position where input is connected to your device.
+    switch[0] = 'ON1'
+    doSomethingWithTheDevice()
+    # Set switch into position where input is disconnected from your device
+    switch[0] = 'OFF'
+
+Supplies
+^^^^^^^^
+
+This class represents programmable power supply units. Here is an example of using a Tenma programmable power supply.
+
+In the user or project config file, put::
+
+    psu:
+        class_name: 'supplies.Tenma'
+        default:
+            voltage: 20
+            current: 0.2
+            protection: 'OCP'   # Over Current Protection
+        required:
+            voltage_range: [0, 30]
+        interface: 
+            serial_number: 'A02014090305'   # optional
+
+Initializing the psu::
+
+    import brest
+    resources = brest.Resources('your_project', needed=['psu'])
+    switch = resources['psu']
+
+Using the psu::
+
+    # Setting the desired voltage output
+    psu.voltage = 15
+    # Enabling the psu
+    psu.enable()
+    # Reading output values
+    voltage = psu.voltage
+    current = psu.current
+    # Disabling the psu
+    psu.disable()

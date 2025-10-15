@@ -7,14 +7,16 @@
     This module implements base functionality for message
     creating using packable types.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import logging
 
+
 class Endianness():
     BIG = '>'
     LITTLE = '<'
+
 
 class Packable():
     """
@@ -83,6 +85,7 @@ class Packable():
         pad = 8 - (offset % 8)
         return pad if pad != 8 else 0
 
+
 class CommunicationStructure(Packable):
     """
     Base class for message creation.
@@ -96,7 +99,7 @@ class CommunicationStructure(Packable):
     :type  byteorder: str
     """
 
-    def __init__(self, byteorder = Endianness.LITTLE):
+    def __init__(self, byteorder=Endianness.LITTLE):
         Packable.__init__(self)
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
@@ -129,9 +132,9 @@ class CommunicationStructure(Packable):
 
     def __setstate__(self, state):
         self.__dict__.update(state)
-        self.logger = self.logger = logging.getLogger('brest')
+        self.logger = logging.getLogger('brest')
 
-    def add(self, name, value, byteorder = None, full_only = False, len_attr = None):
+    def add(self, name, value, byteorder=None, full_only=False, len_attr=None):
         """
         Adds packable type as an attribute.
 
@@ -141,7 +144,7 @@ class CommunicationStructure(Packable):
         :param name: Name of a attribute
         :type  name: str
         :param value: Value to be saved into the parameter
-        :type  value: :class:`~brest.communication.Packabl e`
+        :type  value: :class:`~brest.communication.Packable`
         :param full_only: Specifies if this parameter should be packet only if
                           full packing is requested.
         :type  full_only: bool
@@ -150,7 +153,10 @@ class CommunicationStructure(Packable):
         """
 
         if name in ['value_']:
-            self.logger.error('Name can\'t be `{}` which is reserved for internal values'.format(name), extra=self.log_args)
+            self.logger.error(
+                msg='Name can\'t be `{}` which is reserved for internal values'.format(name),
+                extra=self.log_args
+            )
             raise SystemExit(1)
 
         if not issubclass(value.__class__, Packable):
@@ -158,13 +164,13 @@ class CommunicationStructure(Packable):
             raise SystemExit(1)
 
         internal_name = '_' + name
-        value.byteorder = self.byteorder           # set message specific byteorder
+        value.byteorder = self.byteorder   # set message specific byteorder
         if byteorder:
             value.byteorder = byteorder
-        setattr(self, internal_name, value)        # create attribute
+        setattr(self, internal_name, value)  # create attribute
         setattr(self.__class__, name, property(
-            lambda self: getattr(self, internal_name).value_,                           # create getter
-            lambda self, value: setattr(getattr(self, internal_name), 'value_', value)) # create setter
+            lambda self: getattr(self, internal_name).value_,   # create getter
+            lambda self, value: setattr(getattr(self, internal_name), 'value_', value))  # create setter
         )
         self.packable_full.append(name) if full_only else self.packable.append(name)
 
@@ -227,8 +233,8 @@ class CommunicationStructure(Packable):
         attrs_names = self.packable + self.packable_full if full else self.packable
         return zip(attrs_names, attrs)
 
-    def pack(self, data = None, offset = 0):
-        if data == None:
+    def pack(self, data=None, offset=0):
+        if data is None:
             self.raw_data = bytearray()
             data = self.raw_data
 
@@ -237,14 +243,15 @@ class CommunicationStructure(Packable):
 
         return offset
 
-    def unpack(self, data = None, offset = 0):
-        if data == None:
+    def unpack(self, data=None, offset=0):
+        if data is None:
             data = self.raw_data
 
         for attr in self.get_packable_attributes(True):
             offset = attr.unpack(data, offset)
 
         return offset
+
 
 class CommunicationFrame(CommunicationStructure):
     """

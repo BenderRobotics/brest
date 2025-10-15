@@ -6,7 +6,7 @@
 
     This module implements base functionality for communicating with a cli utility.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import sys
@@ -17,6 +17,7 @@ import subprocess
 from brest.communication import Communicable
 from brest.communication import CommunicationStructure
 from brest.communication.types import str_t
+
 
 class CLICommunicable(Communicable):
     """
@@ -94,7 +95,11 @@ class CLICommunicable(Communicable):
 
         if not isinstance(cli_args, list):
             raise ValueError('cli_args must be a list')
-        self._cli_subprocess = subprocess.Popen([self.cli_path] + cli_args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        self._cli_subprocess = subprocess.Popen(
+            [self.cli_path] + cli_args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
 
     def read_raw(self):
         """

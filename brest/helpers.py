@@ -6,13 +6,14 @@
 
     This module implements various helper methods for quality of life improvements.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from .log import DEFAULT_LOGGING
 from .config import Config
 
 import logging
+
 
 def overwrite_log_config(config_dict):
     """
@@ -27,6 +28,7 @@ def overwrite_log_config(config_dict):
         __apply_overwrite(custom_config, ov_key, ov_value)
     logging.config.dictConfig(custom_config)
 
+
 def __apply_overwrite(node, key, value):
     if isinstance(value, dict):
         for item in value:
@@ -36,6 +38,7 @@ def __apply_overwrite(node, key, value):
                 node[key] = value
     else:
         node[key] = value
+
 
 def prepare_tests(test_suite, projects, user_config=Config.BREST_USER_CONFIG,
                   project_config=None, needed=[], collect_test_resources=True):
@@ -137,6 +140,7 @@ def prepare_tests(test_suite, projects, user_config=Config.BREST_USER_CONFIG,
 
     return resources
 
+
 class HexInt(int):
     """
     Helper class for representing hexadecimal integer while dumping YAML.
@@ -148,6 +152,7 @@ class HexInt(int):
 
     def __str__(self):
         return '0x{:04X}'.format(self._value)
+
 
 def hex_representer(dumper, data):
     """

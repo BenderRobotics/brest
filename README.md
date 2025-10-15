@@ -25,7 +25,7 @@ Navigate to top-level directory of the cloned repository and you will be able to
     $ make all        # Just builds the wheel
     $ make clean      # Cleans the build directories and files
 
-Builded wheel is located in `brest/dist/`.
+The built wheel is located in `./brest/dist/`.
 
 ## Building the offline documentation
 To build the docs for offline usage, you need to install the dependencies first. Assuming that you have already Brest installed, you
@@ -33,18 +33,18 @@ can use:
 
     $ pip install brest[docs]
 
-to install dependencies for building the docs. Next step is to navigate to the `brest/docs` folder and execute the following command:
+to install dependencies for building the docs. Next step is to navigate to the `./docs/` folder and execute the following command:
 
     $ make html
 
-If the build was successful, the docs will be accessible in `brest/docs/_build/html` directory under `index.html`.
+If the build was successful, the docs will be accessible in `./docs/_build/html/` directory under `index.html`.
 If you don't have **make** installed yet, please refer to [Installing make](#installing-make)
 
-There is an option to build versioned documentation. In order to be able to do that a versioning support has to be added. Navigate to `brest\cm\sphinx-versions` and install the package inside:
+There is an option to build versioned documentation. In order to be able to do that a versioning support has to be added. Navigate to `./cm/sphinx-versions/` and install the package inside:
 
-    $ pip install --no-cache-dir sphinx-versions-1.1.3.post1.BR.tar.gz
+    $ pip install --no-cache-dir sphinx-versions-1.1.3.post4.tar.gz
 
-After that the versioned documentation can be built by going to `brest/docs` and using:
+After that the versioned documentation can be built by going to `./docs/` and using:
 
     $ make html-versioned
 
@@ -62,11 +62,11 @@ On Ubuntu like machines execute the following command:
 
 If you are on windows machine, you can install a [MinGW](http://www.mingw.org/). In the MinGW installer choose `mingw32-base-bin` and
 `msys-base-bin` packages, then click on *Installation* and *Apply changes*.
-Don't forget to add the **make** binary to the system `PATH`. Default install location should be `C:\MinGW\msys\1.0\bin\`.
+Don't forget to add the **make** binary to the system `PATH`. Default install location should be `C:/MinGW/msys/1.0/bin/`.
 
 ## Branching strategy
-Beacause Brest is a relatively small project, it uses a very basic branching strategy.
-All feature branches keep their history and merge into the 'devel' branch the as merge-commits.
+Because Brest is a relatively small project, it uses a very basic branching strategy.
+All feature branches keep their history and merge into the 'devel' branch as merge-commits.
 If there has been a commit in the 'devel' branch while the feature branch was under development, 
 the procedure is to merge 'devel' into the feature branch (as a merge-commit) to update changes and when the feature 
 branch development is over, it can be merged with 'devel'.

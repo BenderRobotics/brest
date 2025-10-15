@@ -7,7 +7,7 @@
     This module implements communication using serial line and
     described frames.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import logging
@@ -17,7 +17,8 @@ import struct
 from brest.communication import SerialCommunicable
 
 # --------- future implementation ------------
-#import queue
+# import queue
+
 
 class InterfaceCommunicable(SerialCommunicable):
     """
@@ -35,12 +36,12 @@ class InterfaceCommunicable(SerialCommunicable):
         self.port_lock = threading.Lock()
 
         # --------- future implementation ------------
-        #self.write_thread = threading.Thread(target=self.write_loop)
-        #self.read_thread  = threading.Thread(target=self.read_loop)
-        #self.transceive_event = threading.Event()
-        #self.write_queue  = queue.SimpleQueue()
-        #self.frame_queue  = queue.SimpleQueue()
-        #self.WRITE_TIMEOUT = 0.025
+        # self.write_thread = threading.Thread(target=self.write_loop)
+        # self.read_thread  = threading.Thread(target=self.read_loop)
+        # self.transceive_event = threading.Event()
+        # self.write_queue  = queue.SimpleQueue()
+        # self.frame_queue  = queue.SimpleQueue()
+        # self.WRITE_TIMEOUT = 0.025
 
     def write(self, frame):
         frame.pack()
@@ -73,14 +74,18 @@ class InterfaceCommunicable(SerialCommunicable):
         Method which muset be implemented. Should read correct number of bytes into frame.raw_data.
         """
 
-        raise NotImplementedError('{} must implement _read_raw_frame(self, frame) method'.format(self.__class__.__name__))
+        raise NotImplementedError(
+            '{} must implement _read_raw_frame(self, frame) method'.format(self.__class__.__name__)
+        )
 
     def get_frame(self, *args, **kwargs):
         """
         Method which must be implemented. Shoud return new or deep copy of a frame used in the communication.
         """
 
-        raise NotImplementedError('{} must implement get_frame(self, frame) method'.format(self.__class__.__name__))
+        raise NotImplementedError(
+            '{} must implement get_frame(self, frame) method'.format(self.__class__.__name__)
+        )
 
     # --------- future implementation ------------
 

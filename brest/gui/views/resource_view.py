@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import Frame, Label
 from tkinter.ttk import Treeview, Scrollbar
 
+
 class ResourceView:
     def __init__(self, master):
         self.frame = Frame(master)

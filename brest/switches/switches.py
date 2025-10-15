@@ -6,7 +6,7 @@
 
     This module implements base abstract for switches.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from brest import Resource
@@ -115,7 +115,9 @@ class Switches(Resource):
         """
 
         if len(value) > self.CHANNELS:
-            raise ValueError('Can\'t satisfy channels requirement. Requested {} available {}'.format(len(value), self.CHANNELS))
+            raise ValueError(
+                'Can\'t satisfy channels requirement. Requested {} available {}'.format(len(value), self.CHANNELS)
+            )
 
         for alias in value:
             if alias['channel'] < 0 or alias['channel'] > self.CHANNELS:
@@ -133,7 +135,9 @@ class Switches(Resource):
             if alias['name'] not in self._aliases:
                 self._aliases[alias['name']] = alias['channel']
             else:
-                self.logger.warning('Alias {} is already defined. Overwriting mapping'.format(alias['name']), extra=self.log_args)
+                self.logger.warning(
+                    'Alias {} is already defined. Overwriting mapping'.format(alias['name']), extra=self.log_args
+                )
 
             if 'default' in alias:
                 if 'state' in alias['default']:

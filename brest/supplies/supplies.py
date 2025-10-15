@@ -6,13 +6,14 @@
 
     This module implements base abstract for supplies.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import time
 
 from brest import Resource
 from enum import Enum
+
 
 class Supplies(Resource):
     """
@@ -27,16 +28,16 @@ class Supplies(Resource):
         """
 
         #: Overcurrent protection
-        OCP  = 1
+        OCP = 1
 
         #: Overvoltage protection
-        OVP  = 2
+        OVP = 2
 
         #: Undervoltage protection
         UVLO = 4
 
         #: Overtemperature protection
-        OTP  = 8
+        OTP = 8
 
     class Kind(Enum):
         """
@@ -44,7 +45,7 @@ class Supplies(Resource):
         """
 
         #: Fixed power supply
-        FIXED        = 1
+        FIXED = 1
 
         #: Programmable power supply
         PROGRAMMABLE = 2
@@ -87,7 +88,7 @@ class Supplies(Resource):
             s += '{}: {}\n'.format('kind', self.kind.name)
             return s
 
-    def __init__(self, params = None):
+    def __init__(self, params=None):
         Resource.__init__(self, params)
         #: Model number
         self.IDN = None
@@ -236,7 +237,7 @@ class Supplies(Resource):
 
         raise NotImplementedError('This supply does not support status detection')
 
-    def detect_model(self, apply = True):
+    def detect_model(self, apply=True):
         """
         Returns model info. Implicitly tries to apply model's electrical limits.
         """
@@ -297,7 +298,10 @@ class Supplies(Resource):
             if alias['name'] not in self._aliases:
                 self._aliases[alias['name']] = alias['channel']
             else:
-                self.logger.warning('Alias {} is already defined. Overwriting mapping'.format(alias['name']), extra=self.log_args)
+                self.logger.warning(
+                    msg='Alias {} is already defined. Overwriting mapping'.format(alias['name']),
+                    extra=self.log_args
+                )
 
             if 'default' in alias:
                 channel_defaults = alias['default']
@@ -326,7 +330,7 @@ class Supplies(Resource):
                     else:
                         self[alias['name']].current = dc
 
-            if 'propagate' in alias and alias['propagate'] == True:
+            if 'propagate' in alias and alias['propagate'] is True:
                 self._propagate.append(alias['name'])
 
         return True

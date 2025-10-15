@@ -6,10 +6,11 @@
 
     This module implements base abstract class for interface.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 from brest import Resource
+
 
 class Interfaces(Resource):
     """
@@ -21,5 +22,5 @@ class Interfaces(Resource):
 
     KNOWN = {}
 
-    def __init__(self, params = None):
+    def __init__(self, params=None):
         Resource.__init__(self, params)

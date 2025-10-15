@@ -6,7 +6,7 @@
 
     This module implements controling camera using OpenCV.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import logging
@@ -37,7 +37,9 @@ class GenericCamera(Cameras, CameraCommunicable):
         try:
             import cv2
         except ModuleNotFoundError:
-            raise ModuleNotFoundError('To use {} class you have to install `opencv-python` module'.format(self.__class__.__name__))
+            raise ModuleNotFoundError(
+                'To use {} class you have to install `opencv-python` module'.format(self.__class__.__name__)
+            )
 
         cv_api = cv2.CAP_ANY
         if 'cv_api' in params['interface']:
@@ -69,7 +71,9 @@ class GenericCamera(Cameras, CameraCommunicable):
         try:
             import cv2
         except ModuleNotFoundError:
-            raise ModuleNotFoundError('To use {} class you have to install `opencv-python` module'.format(self.__class__.__name__))
+            raise ModuleNotFoundError(
+                'To use {} class you have to install `opencv-python` module'.format(self.__class__.__name__)
+            )
 
         cv_api = cv2.CAP_ANY  # Default value
         if isinstance(api_param, int):

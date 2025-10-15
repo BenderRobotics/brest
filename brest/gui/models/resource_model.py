@@ -1,6 +1,8 @@
 from brest import ResourceProvider
 
 import logging
+
+
 class ResourceModel:
 
     # List of converter's attributes
@@ -55,9 +57,11 @@ class ResourceModel:
 
                 # Handle name translation for known USB <-> serial converters
                 if 'serial' == resource['interface']['type']:
-                    known_converter = [d for d in self.conv if (d['vid'], d['pid']) == (resource['interface']['vid'], resource['interface']['pid'])]
+                    resource_vid = resource['interface']['vid']
+                    resource_pid = resource['interface']['pid']
+                    known_converter = [d for d in self.conv if (d['vid'], d['pid']) == (resource_vid, resource_pid)]
                     if known_converter:
-                        resource['interface'].update({'name':known_converter[0]['name']})
+                        resource['interface'].update({'name': known_converter[0]['name']})
 
                 self.resources.append(resource)
 

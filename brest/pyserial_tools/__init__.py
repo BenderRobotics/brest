@@ -6,7 +6,7 @@
 
     This file signifies that 'pyserial_tools' is a module.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 __all__ = [

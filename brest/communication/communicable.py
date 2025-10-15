@@ -6,8 +6,9 @@
 
     This module implements base abstract for communication.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
+
 
 class CommunicableError(Exception):
     """
@@ -15,6 +16,7 @@ class CommunicableError(Exception):
     """
 
     pass
+
 
 class Communicable():
     """
@@ -56,7 +58,7 @@ class Communicable():
 
         raise NotImplementedError('This interface doesn\'t implement raw data writing')
 
-    def read_raw(self, expected='', size = None):
+    def read_raw(self, expected='', size=None):
         """
         Reads directly from the connection and returs bytes like object.
         """
@@ -65,28 +67,35 @@ class Communicable():
 
     def write(self, message):
         """
-        Accepts CommunicalbeStructure as a message. Sends message in a blocking mode. Should use write_raw to send the message.
+        Accepts CommunicalbeStructure as a message.
+        Sends message in a blocking mode.
+        Should use write_raw to send the message.
         """
 
         raise NotImplementedError('This interface doesn\'t implement message write')
 
     def transceive(self, message):
         """
-        Accepts CommunicalbeStructure as a message. Sends and receives message in a blocking mode.  Should use write_raw, read_raw to send and receive the message.
+        Accepts CommunicalbeStructure as a message. Sends and receives message in a blocking mode.
+        Should use write_raw, read_raw to send and receive the message.
         """
 
         raise NotImplementedError('This interface doesn\'t implement transceive communication')
 
     def write_async(self, message):
         """
-        Accepts CommunicalbeStructure as a message. Sends message in a non-blocking mode. Should use write_raw to send the message.
+        Accepts CommunicalbeStructure as a message.
+        Sends message in a non-blocking mode.
+        Should use write_raw to send the message.
         """
 
         raise NotImplementedError('This interface doesn\'t implement message write')
 
     def transceive_async(self, message):
         """
-        Accepts CommunicalbeStructure as a message. Sends and receives message in a non-blocking mode.  Should use write_raw, read_raw to send and receive the message.
+        Accepts CommunicalbeStructure as a message.
+        Sends and receives message in a non-blocking mode.
+        Should use write_raw, read_raw to send and receive the message.
         """
 
         raise NotImplementedError('This interface doesn\'t implement transceive communication')
@@ -98,7 +107,7 @@ class Communicable():
 
         raise NotImplementedError('This interface doesn\'t implement getting physical connections')
 
-    def probe(self, interface, connections = None):
+    def probe(self, interface, connections=None):
         """
         Returns connection(s) matching given interface.
         """

@@ -6,7 +6,7 @@
 
     This module implements NXP MCU-Link programmers.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import os
@@ -26,7 +26,7 @@ CLI_UTIL_PROBING_PATH = 'rltool.exe'
 CLI_UTIL_SERVER_PATH = 'redlinkserv.exe'
 SCRIPT_PATH = 'Scripts'
 
-pattern = re.compile('^MCUXpressoIDE\S*')
+pattern = re.compile(r'^MCUXpressoIDE\S*')
 dir_path = os.path.join('C:/', 'NXP')
 try:
     contents = os.listdir(dir_path)
@@ -42,9 +42,7 @@ try:
 except Exception as ex:
     logger = logging.getLogger('brest-MCULink')
     logger.warning(
-        msg=(
-            f'Could not find an instance of MCUXpresso. Looked in {dir_path}.'
-        ),
+        msg=f'Could not find an instance of MCUXpresso. Looked in {dir_path}.',
         exc_info=True
     )
 
@@ -70,7 +68,7 @@ class MCULink(Flashers, FlasherCommunicable):
             type:       'flashers'
             list_type:  'cli',
             list_cmd:   ['-c', 'PROBELIST']
-            list_regex: r'Index = \s*\d+\s*Manufacturer = .*\s*Description = .*\s*Serial Number = (\S+)'
+            list_regex: 'Index = \\s*\\d+\\s*Manufacturer = .*\\s*Description = .*\\s*Serial Number = (\\S+)'
             utility:    Windows
                             - probing - 'C:/NXP/MCUXpressoIDE_11.6.1_8255/ide/binaries/rltool.exe'
                             - flashing - 'C:/NXP/MCUXpressoIDE_11.6.1_8255/ide/binaries/crt_emu_cm_redlink.exe'
@@ -114,15 +112,23 @@ class MCULink(Flashers, FlasherCommunicable):
         output = True
 
         if self._package is None:
-            msg = "In order to use the 'flash' or 'mass_erase' functionality, package has to be defined. Define 'package' in config."
-            self.logger.error(msg, extra=self.log_args)
+            self.logger.error(
+                msg=(
+                    "In order to use the 'flash' or 'mass_erase' functionality, package has to be defined. "
+                    "Define 'package' in config."
+                ),
+                extra=self.log_args
+            )
             output = False
         elif self._script is None:
-            msg = (
-                "In order to use the 'flash' or 'mass_erase' functionality, script has to be defined. Define 'script' in config. "
-                "Usual location: '<MCUXpresso_installation_path>/ide/binaries/Scripts/'."
+            self.logger.error(
+                msg=(
+                    "In order to use the 'flash' or 'mass_erase' functionality, script has to be defined. "
+                    "Define 'script' in config. "
+                    "Usual location: '<MCUXpresso_installation_path>/ide/binaries/Scripts/'."
+                ),
+                extra=self.log_args
             )
-            self.logger.error(msg, extra=self.log_args)
             output = False
 
         return output
@@ -186,7 +192,7 @@ class MCULink(Flashers, FlasherCommunicable):
 
         flashloader = self._flashloader
 
-        command = ['--flash-mass-erase',]
+        command = ['--flash-mass-erase', ]
         command += ['-g', '--vc', '-CoreIndex=0']
         command += ['--vendor', 'NXP', '-p', self._package]
         command += ['--ConnectScript', self._script]

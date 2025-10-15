@@ -6,17 +6,20 @@
 
     This module implements Tenma 72-25xx programmable power supply.
 
-    :copyright: 2023 Bender Robotics
+    :copyright: 2024 Bender Robotics
 """
 
 import time
 
 from brest.supplies import Supplies
-from brest.communication import SCPICommunicable, SCPICommand, SCPIQueryCommand, SCPIValueCommand, CommunicableError, CommunicationStructure
+from brest.communication import (
+    SCPICommunicable, SCPICommand, SCPIQueryCommand, SCPIValueCommand, CommunicableError, CommunicationStructure
+)
 from brest.communication.types import bit_t
 
 from copy import deepcopy
 from contextlib import suppress
+
 
 class Tenma(Supplies, SCPICommunicable):
     """
@@ -54,18 +57,18 @@ class Tenma(Supplies, SCPICommunicable):
         Available commands
         """
 
-        GET_INFO    = SCPIQueryCommand('*IDN')
-        GET_STATUS  = SCPIQueryCommand('STATUS')
+        GET_INFO = SCPIQueryCommand('*IDN')
+        GET_STATUS = SCPIQueryCommand('STATUS')
         SET_VOLTAGE = SCPIValueCommand('VSET', channel=1)
         GET_VOLTAGE = SCPIQueryCommand('VOUT', channel=1)
         SET_CURRENT = SCPIValueCommand('ISET', channel=1)
         GET_CURRENT = SCPIQueryCommand('IOUT', channel=1)
-        EN_OUTPUT   = SCPIValueCommand('OUT', delimiter='', value=1)
-        DIS_OUTPUT  = SCPIValueCommand('OUT', delimiter='', value=0)
-        EN_OVP      = SCPIValueCommand('OVP1', delimiter='')
-        DIS_OVP     = SCPIValueCommand('OVP0', delimiter='')
-        EN_OCP      = SCPIValueCommand('OCP1', delimiter='')
-        DIS_OCP     = SCPIValueCommand('OCP0', delimiter='')
+        EN_OUTPUT = SCPIValueCommand('OUT', delimiter='', value=1)
+        DIS_OUTPUT = SCPIValueCommand('OUT', delimiter='', value=0)
+        EN_OVP = SCPIValueCommand('OVP1', delimiter='')
+        DIS_OVP = SCPIValueCommand('OVP0', delimiter='')
+        EN_OCP = SCPIValueCommand('OCP1', delimiter='')
+        DIS_OCP = SCPIValueCommand('OCP0', delimiter='')
 
         def RECALL(index):
             return SCPICommand('RCL' + str(index))
@@ -92,15 +95,34 @@ class Tenma(Supplies, SCPICommunicable):
         def cc(self):
             return not self.cvcc
 
-
     Models = [
-        Supplies.Model('TENMA Fallback',  1, 5, 60.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
-        Supplies.Model('TENMA 72-2535',  1, 5, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
-        Supplies.Model('TENMA 72-2540',  1, 5, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
-        Supplies.Model('TENMA 72-2545',  1, 5, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
-        Supplies.Model('TENMA 72-2550',  1, 5, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP], Supplies.Kind.PROGRAMMABLE),
-        Supplies.Model('TENMA 72-13330', 2, 9, 30.0, 5.0,                                                 [], Supplies.Kind.PROGRAMMABLE),
-        Supplies.Model('TENMA 72-2705',  1, 0, 30.0, 3.0,                          [Supplies.Protection.OCP], Supplies.Kind.PROGRAMMABLE),
+        Supplies.Model(
+            'TENMA Fallback', 1, 5, 60.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
+            Supplies.Kind.PROGRAMMABLE
+        ),
+        Supplies.Model(
+            'TENMA 72-2535', 1, 5, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
+            Supplies.Kind.PROGRAMMABLE
+        ),
+        Supplies.Model(
+            'TENMA 72-2540', 1, 5, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
+            Supplies.Kind.PROGRAMMABLE
+        ),
+        Supplies.Model(
+            'TENMA 72-2545', 1, 5, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
+            Supplies.Kind.PROGRAMMABLE
+        ),
+        Supplies.Model(
+            'TENMA 72-2550', 1, 5, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
+            Supplies.Kind.PROGRAMMABLE
+        ),
+        Supplies.Model(
+            'TENMA 72-13330', 2, 9, 30.0, 5.0, [], Supplies.Kind.PROGRAMMABLE
+        ),
+        Supplies.Model(
+            'TENMA 72-2705', 1, 0, 30.0, 3.0, [Supplies.Protection.OCP],
+            Supplies.Kind.PROGRAMMABLE
+        ),
     ]
 
     def __init__(self, params):
@@ -207,7 +229,10 @@ class Tenma(Supplies, SCPICommunicable):
 
     def save_memory(self, memory_index):
         if memory_index < 1 or memory_index > self.MEMORIES:
-            self.logger.warning('Invalid memory index. Available range is from 1 to {}'.format(memory_index, self.MEMORIES), extra=self.log_args)
+            self.logger.warning(
+                msg='Invalid memory index. Available range is from 1 to {}'.format(memory_index, self.MEMORIES),
+                extra=self.log_args
+            )
             return
 
         self.disable()
@@ -218,7 +243,10 @@ class Tenma(Supplies, SCPICommunicable):
 
     def recall_memory(self, memory_index):
         if memory_index < 1 or memory_index > self.MEMORIES:
-            self.logger.warning('Invalid memory index {}. Available range is from 1 to {}'.format(memory_index, self.MEMORIES), extra=self.log_args)
+            self.logger.warning(
+                msg='Invalid memory index {}. Available range is from 1 to {}'.format(memory_index, self.MEMORIES),
+                extra=self.log_args
+            )
             return
 
         command = self.Commands.RECALL(memory_index)
@@ -248,7 +276,9 @@ class Tenma(Supplies, SCPICommunicable):
         # Tenmas with added support for programing won't return anything
         # on *IDN? instruction
         if not response:
-            self.logger.warning('No IDN returned, fallback to model: {}'.format(self.Models[0].idn), extra=self.log_args)
+            self.logger.warning(
+                'No IDN returned, fallback to model: {}'.format(self.Models[0].idn), extra=self.log_args
+            )
             self._apply_model(self.Models[0])
             return
         # Old Tenmas returns INFO as comma seperated string
@@ -258,7 +288,10 @@ class Tenma(Supplies, SCPICommunicable):
             # New Tenmas returns INFO as space separated string
             splitted = psu_idn.split(' ')
             if len(splitted) == 1:
-                self.logger.warning('`{}` IDN is in incorrect format, fallback to model: {}'.format(splitted, self.Models[0].idn), extra=self.log_args)
+                self.logger.warning(
+                    msg='`{}` IDN is in incorrect format, fallback to model: {}'.format(splitted, self.Models[0].idn),
+                    extra=self.log_args
+                )
                 self._apply_model(self.Models[0])
                 return
             psu_idn = splitted[0] + ' ' + splitted[1]
@@ -266,15 +299,19 @@ class Tenma(Supplies, SCPICommunicable):
         for model in self.Models:
             if (model.idn in psu_idn):
                 self._apply_model(model)
-        if (None == self.IDN):
+        if (self.IDN is None):
             fallback_model = self.Models[0]
-            self.logger.warning('Unable to detect model, fallback to `{}` model.'.format(fallback_model.idn), extra=self.log_args)
+            self.logger.warning(
+                msg='Unable to detect model, fallback to `{}` model.'.format(fallback_model.idn),
+                extra=self.log_args
+            )
             self.logger.warning('\nModels limitations:\n{}'.format(fallback_model), extra=self.log_args)
             self._apply_model(fallback_model)
 
         if self.CHANNELS >= 2:
             for i in range(0, self.CHANNELS):
                 self._channels.append(TenmaChannel(self, i + 1))
+
 
 class TenmaChannel():
     """
