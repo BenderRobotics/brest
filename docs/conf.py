@@ -8,6 +8,10 @@
 
 import os
 import sys
+
+
+DIR_PATH = os.path.dirname(__file__)
+
 sys.path.insert(0, os.path.abspath('..'))
 
 
@@ -15,8 +19,12 @@ sys.path.insert(0, os.path.abspath('..'))
 # Variable "version" is automatically used as version identifier. (#PY-001)
 from brest import __version__ as version
 
+# HTML Title
+html_title = 'BREST'
+html_short_title = html_title
 
-project = 'Brest'
+# project = 'Brest'
+project = ''
 copyright = '2024, Bender Robotics'
 author = 'Bender Robotics'
 
@@ -61,7 +69,7 @@ html_theme = "sphinx_rtd_theme"
 
 # Template configuration (#PY-004)
 html_theme_options = {
-    'style_nav_header_background': '#d01242',
+    'style_nav_header_background': '#dcdcde',
     'prev_next_buttons_location': None,
     # TOC
     'collapse_navigation': False,
@@ -71,8 +79,13 @@ html_theme_options = {
     'titles_only': False
 }
 
-# Path to logo picture to be used #PY-005
-# html_logo = r'.\_static\logo.png'
+# Path to logo picture to be used (#PY-005)
+# html_logo = r'.\_static\logo.svg'
+html_logo = os.path.join(DIR_PATH, '_static', 'logo.svg')
+
+# Path to favicon (#PY-006)
+# html_favicon = r'.\_static\icon.png'
+html_favicon = os.path.join(DIR_PATH, '_static', 'icon.png')
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -109,31 +122,35 @@ include_branch = os.getenv('INCLUDE_CURRENT_BRANCH', '1')
 
 if not is_tag and include_branch != '0':
     current_branch = branch
+    scv_banner_main_ref = current_branch
 else:
-    current_branch = 'none'
+    current_branch = 'devel'
+    scv_greatest_tag = True
+    scv_banner_greatest_tag = True
 
 # current_branch = 'none'             # By default and upon tagging there should always be 'none'
                                     # For doc update testing, enter name of the branch
                                     # (e.g. r'feature/3465-doc-design-and-version')
                                     #   - for viewing switch doc version to the branch once it is generated
 
-scv_root_ref = 'devel'              # Make devel the root reference
-scv_greatest_tag = True             # The greatest tag is the landing page
+scv_root_ref = current_branch              # Make devel the root reference
+# scv_greatest_tag = True             # The greatest tag is the landing page
 scv_show_banner = True              # Show warning banner when viewing older docs version
-scv_banner_greatest_tag = True      # Make the greatest tag the "up-to-date" version
+# scv_banner_greatest_tag = True      # Make the greatest tag the "up-to-date" version
 scv_sort = ('semver',)              # Sort version by semantic versioning
 scv_whitelist_branches = (current_branch, )
 scv_whitelist_tags = (              # Tag filtering:
     # Main releases are enabled
     re.compile(r'^[0-9]+\.[0-9]+\.[0-9]+$'),
     # Tags for doc update are enabled
-    re.compile(r'^([0-9]+\.[0-9]+\.[0-9]+)\.doc$'),
+    # re.compile(r'^([0-9]+\.[0-9]+\.[0-9]+)\.doc$'),
+    re.compile(r'^([0-9]+\.[0-9]+\.[0-9]+)\.doc_1.0.0$'),
 )
 scv_blacklist_tags = (
     # Releases 0.0.2-0.0.12 are disabled (old versions of docs replace by *.doc releases)
     # Releases older than 0.0.10 are disabled altogether (not relevant anymore)
     re.compile(r'^0\.0\.[0-9](\.doc)?$'),
-    re.compile(r'^0\.0\.1[0-2]$'),
-    re.compile(r'^0\.0\.14$'),
+    re.compile(r'^0\.0\.1[0-6]$'),
+    re.compile(r'^0\.0\.14(\.doc)?$'),
 )
 scv_delete_static = True            # Delete `_static`, `.doctree` from each version (except root)

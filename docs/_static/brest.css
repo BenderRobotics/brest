@@ -43,7 +43,8 @@ sphinx_rtd_theme specific overrides START
 /* #CSS-005 */
 /* Visibility of "verison" identifier (default: hsla(0,0%,100%,.3))*/
 .wy-side-nav-search div.version {
-    color: hsla(0,0%,100%,75%);
+    color: #d01242ff;
+    font-weight: bold;
 }
 
 /* #CSS-006 */
@@ -81,6 +82,28 @@ sphinx_rtd_theme specific overrides START
 
 span.default_value {
     font-style: normal;
+}
+
+/* #CSS-009 */
+/* Adjustments for narrow window (discovered accidentally */
+.wy-nav-top {
+    background-color: #d01242;
+}
+
+.wy-side-scroll {
+    max-width: 320px;
+}
+
+.wy-nav-side.shift {
+    max-width: 320px;
+}
+
+.wy-nav-side.shift {
+    max-width: 320px;
+}
+
+.rst-versions.shift {
+    left: 320px;
 }
 
 /* ==============================================================================

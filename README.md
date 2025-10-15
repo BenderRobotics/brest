@@ -1,8 +1,13 @@
+<div align="center">
+<img alt="pdoc" src="./docs/_static/logo.svg" width="320" />
+</div>
+</br>
+
 # Bender Robotics Embedded Systems Toolkit
 Goal of the Brest project is to provide a python based resource manager and common libraries for embedded system testing.
 
-Brest is currently in **Alpha** stage!
-If you are looking for the **documentation**, please refer [here](https://docs.benderrobotics.com/brest/)
+Brest is currently in **Beta** stage!
+If you are looking for the **documentation**, please refer [here](https://docs.benderrobotics.com/brest/).
 
 ## Building Brest from the source
 If you want to build Brest from the source, you need to clone the repository first.

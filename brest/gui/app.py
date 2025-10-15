@@ -1,7 +1,17 @@
 from brest.gui.controllers import ResourceController, ConfigController
 
+import os
+import sys
+import ctypes
+
 import tkinter as tk
 from tkinter import Menu
+
+
+# A hack to switch the Windows taskbar icon
+if sys.platform == 'win32':
+    appid = 'brest.gui'
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(appid)
 
 
 def dummy_command():
@@ -13,6 +23,7 @@ def main():
     root = tk.Tk()
     root.title("Brest")
     root.geometry("400x400")
+    root.iconbitmap(os.path.join(os.path.dirname(__file__), "icon", "brest.ico"))
 
     # * Create menu
     menubar = Menu(root)

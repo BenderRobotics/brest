@@ -34,6 +34,10 @@ setuptools.setup(
               'brest.gui = brest.gui.app:main'
           ]
     },
+    package_data={
+        'brest.gui.icon': ['*', ],
+    },
+    include_package_data=True,
     install_requires=[
         'colorama==0.4.6',
         'pyserial==3.5',

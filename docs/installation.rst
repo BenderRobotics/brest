@@ -10,7 +10,7 @@ Download and install latest release
 
 .. code-block:: sh
 
-    $ pip install brest
+    $ pip install --index-url https://pypi.benderrobotics.com brest
 
 Brest should be installed now. You can now head to the :ref:`usage` or install Optional dependencies.
 

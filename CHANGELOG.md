@@ -18,7 +18,7 @@
     - Changed default access to loaded config via `config` variable to only the prescribed project.
 - Updated documentation. #3785, #5272
     - Added and rephrased information.
-    - Removed versions older than 0.0.10 from documentation history.
+    - Removed versions older than 0.0.13 from documentation history.
 - Updated searching for resources. # 3966
     - Should improve some of the "default" behaviors.
 
