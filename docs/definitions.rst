@@ -94,15 +94,7 @@ implicit definition.
 Available definitions for each resource
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:class:`~brest.cameras.Cameras`::
-
-    default:
-        video_filename: str             # supported exptensions are .mov, .avi, .mpg, .mpeg, .mp4, .mkv, .wmv
-        video_format: str               # default 'mp4'
-        video_fps: int                  # default 20
-        video_width: int                # default is the camera resolution
-        video_text_color: tuple or str  # (R, G, B), default '#ffffff'
-        video_text: str                 # default None
+:class:`~brest.cameras.Cameras`
 
 :class:`~brest.cameras.PointGrey`::
 

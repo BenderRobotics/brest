@@ -6,9 +6,8 @@
 Welcome to Brest's documentation!
 =================================
 
-Brest is currently in version ``0.0.12``
-
 .. toctree::
+   :includehidden:
    :maxdepth: 3
 
    installation
@@ -16,3 +15,8 @@ Brest is currently in version ``0.0.12``
    supported
    definitions
    api
+
+.. toctree::
+   :hidden:
+
+   changelog

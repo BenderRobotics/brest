@@ -12,3 +12,77 @@ Brest overrides for html documentation
 body {
     font-family: 'Noto Serif', serif;
 }
+
+/* ==============================================================================
+sphinx_rtd_theme specific overrides START
+================================================================================= */
+/* #CSS-001 */
+/* Font size for the package name "Brest" displayed above the menu on the left */
+.wy-side-nav-search a.icon {
+    font-size: 30px;
+}
+
+/* #CSS-002 */
+/* Disable the "house" icon next to the package name */
+.wy-side-nav-search a.icon-home::before {
+    content: none;
+}
+
+/* #CSS-003 */
+/* Adjust space between logo and title (default margin-top: .85em) */
+.wy-side-nav-search a.icon img.logo {
+    margin-top: .3em;
+}
+
+/* #CSS-004 */
+/* Adjust space between logo and version identifier (default margin-bottom: .809em) */
+.wy-side-nav-search a.icon {
+    margin-bottom: .3em;
+}
+
+/* #CSS-005 */
+/* Visibility of "verison" identifier (default: hsla(0,0%,100%,.3))*/
+.wy-side-nav-search div.version {
+    color: hsla(0,0%,100%,75%);
+}
+
+/* #CSS-006 */
+/* Background of menu item (1st level) when clicked (default: blueish #2980b9) */
+.wy-menu li.toctree-l1 a.reference:active {
+    background-color: #d01242;
+}
+
+/* #CSS-007 */
+/* The "home" icon size in the breadcrumbs section */
+.wy-breadcrumbs a.icon-home::before {
+    font-size: 18px;
+}
+
+/* #CSS-008 */
+/* Disable the "View page source" link button */
+.wy-breadcrumbs-aside a {
+    cursor: default;
+    pointer-events: none;
+    text-decoration: none;
+    font-size: 0px;
+}
+
+.wy-nav-side {
+    background-color: #282a3b;
+}
+
+.wy-nav-content-wrap {
+    background-color: #dbdbdc;
+}
+
+.wy-menu-vertical li.toctree-l1 span.toctree-expand {
+    color: #6d6f7d;
+}
+
+span.default_value {
+    font-style: normal;
+}
+
+/* ==============================================================================
+sphinx_rtd_theme specific overrides END
+================================================================================= */

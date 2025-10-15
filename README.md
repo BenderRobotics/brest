@@ -2,7 +2,7 @@
 Goal of the Brest project is to provide a python based resource manager and common libraries for embedded system testing.
 
 Brest is currently in **Alpha** stage!
-If you are looking for the **documentation**, please refer [here](https://docs.benderrobotics.com/)
+If you are looking for the **documentation**, please refer [here](https://docs.benderrobotics.com/brest/)
 
 ## Building Brest from the source
 If you want to build Brest from the source, you need to clone the repository first.
@@ -39,6 +39,21 @@ to install dependencies for building the docs. Next step is to navigate to the `
 
 If the build was successful, the docs will be accessible in `brest/docs/_build/html` directory under `index.html`.
 If you don't have **make** installed yet, please refer to [Installing make](#installing-make)
+
+There is an option to build versioned documentation. In order to be able to do that a versioning support has to be added. Navigate to `brest\cm\sphinx-versions` and install the package inside:
+
+    $ pip install --no-cache-dir sphinx-versions-1.1.3.post1.BR.tar.gz
+
+After that the versioned documentation can be built by going to `brest/docs` and using:
+
+    $ make html-versioned
+
+If the command fails with sth like `fatal: could not read Username for 'https://github.com'` one might have to adjust settings in repository `.git-config`:
+
+    [credential]
+        helper = manager
+
+This was observed and fixed on Windows10 machine.
 
 ## Installing make
 On Ubuntu like machines execute the following command:

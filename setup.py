@@ -40,6 +40,8 @@ setuptools.setup(
     extras_require={
         'docs': [
             'sphinx',
+            'sphinx_rtd_theme',
+            'm2r2',
         ],
         'cameras_win': [
             'pywin32',

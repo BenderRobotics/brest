@@ -37,7 +37,7 @@
 - Added fallback device for `brest.io.USBRelay` in case of unrecognized model. #3707
 - Updated and added headers to files.
 - From now on the module version will change only when there is a change in the module.
-   In such case the version should match the corresponding Brest release version.
+  In such case the version should match the corresponding Brest release version.
 
 ## [0.0.9] - 2020-05-26
 
@@ -75,8 +75,8 @@
 - `enum_t` to pack enums into messages #3041
 
 ### Changed
-- `InterfaceCommunicable` to `FrameCommunicationInterface`. `InterfaceCommunicable` is marked
-   as deprecated and will be removed in the future
+- `InterfaceCommunicable` to `FrameCommunicationInterface`.
+  `InterfaceCommunicable` is marked as deprecated and will be removed in the future.
 
 ## [0.0.6] - 2020-01-27
 
