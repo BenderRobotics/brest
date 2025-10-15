@@ -84,8 +84,8 @@ def find_available_resource(project, resource, user_config = Config.BREST_USER_C
 
     rp = ResourceProvider()
 
-    config_file = Config(project, user_config)
-    config_file.merge_configs(Config(project, project_config))
+    config_file = Config(project, project_config)
+    config_file.merge_configs(Config(project, user_config))
     resource_needed = config_file.config[project][resource]
 
     class_name_split = resource_needed['class_name'].split('.')
