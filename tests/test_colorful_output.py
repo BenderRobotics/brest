@@ -9,16 +9,17 @@
     :copyright: 2024 Bender Robotics
 """
 
-import os
-import sys
 import logging
-
-sys.path.insert(0, os.path.abspath('..'))
 import brest
 
-l = logging.getLogger('brest')
-la = {'class_name': __name__}
-l.error('Log message', extra=la)
-l.warning('Log message', extra=la)
-l.info('Log message', extra=la)
-l.debug('Log message', extra=la)
+def test_display_colorful_logs():
+    l = logging.getLogger('brest')
+    # Use a dict for extra to avoid manual attribute errors if formatting fails
+    la = {'class_name': 'ColorTest'} 
+    
+    print("\n--- VISUAL CHECK: COLORS SHOULD APPEAR BELOW ---")
+    l.error('This should be RED/BOLD', extra=la)
+    l.warning('This should be YELLOW', extra=la)
+    l.info('This should be WHITE/CYAN', extra=la)
+    l.debug('This should be DIM/GREY', extra=la)
+    print("--- END VISUAL CHECK ---\n")

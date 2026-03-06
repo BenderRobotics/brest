@@ -24,3 +24,6 @@ test.py
 venv
 venv_39
 log
+
+# python virtual environment
+.venv

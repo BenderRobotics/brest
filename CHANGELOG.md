@@ -1,8 +1,9 @@
 # Changelog
 
-## [1.1.0] - 2024-05-16
+## [1.1.0]
 ### Added
 - Added Display Sniffer into cameras.
+- Added support for several Multicomp power supplies. #13082
 
 ## [1.0.0] - 2024-02-29
 ### Added

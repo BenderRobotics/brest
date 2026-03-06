@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 from generate_job_content import JobContent
 
@@ -12,24 +12,24 @@ def child_pipeline_generator():
     image = 'python:3.8'
     tags = ['docker']
     needs = [{'pipeline': '$PARENT_PIPELINE_ID', 'job': 'build-wheel'}]
-    before_script = ['pip install Cython', 'pip install -i https://pypi.benderrobotics.com dist/brest-*.whl']
+    before_script = ['pip install Cython pytest', 'pip install -i https://pypi.benderrobotics.com dist/brest-*.whl']
     except_ = ['branches']
     artifacts = {'when': 'always', 'paths': ['log'], 'expire_in': '2 weeks'}
 
     with open('child-pipeline.yml', 'w+') as f:
-        for file in os.listdir(f"tests/"):
-            if file.startswith('test') and file.endswith(".py"):
-                script = [f'python tests/{file}']
+        for test_file in Path("tests").rglob("test*.py"):
+            if 'system' not in test_file.parts:
+                script = [f'pytest -v {test_file.as_posix()}']
 
-                if 'test_version' in file:
+                if 'test_version' in test_file.name:
                     content = JobContent(stage=stage, image=image, tags=tags, needs=needs, before_script=before_script,
-                                         script=script, except_=except_, artifacts=artifacts)
+                                        script=script, except_=except_, artifacts=artifacts)
                 else:
                     content = JobContent(stage=stage, image=image, tags=tags, needs=needs, before_script=before_script,
-                                         script=script, artifacts=artifacts)
+                                        script=script, artifacts=artifacts)
 
                 # generated content of child pipeline to *.yml file
-                job_name = os.path.splitext(file)[0]
+                job_name = test_file.stem
                 content.generate_job(job_name, f)
 
 

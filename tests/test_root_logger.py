@@ -26,28 +26,29 @@ sys.path.insert(0, os.path.abspath('..'))
 
 import brest
 
-msg = (
-    '\r\n   There are no try/except attempts in this test' +
-    '\r\n       On different Python versions different levels of failures were observed.' +
-    '\r\n   There is no logging used for the purpose of log creation.' +
-    '\r\n       The logging module is the module under test.' +
-    '\r\n   This test either passes or throws an exception.' +
-    '\r\n   The script tests 2 loggers: root logger and logger called "root".' +
-    '\r\n   (Inspired by bug report #3802)'
-)
+def test_root_logger_initialization():
+    msg = (
+        '\r\n   There are no try/except attempts in this test' +
+        '\r\n       On different Python versions different levels of failures were observed.' +
+        '\r\n   There is no logging used for the purpose of log creation.' +
+        '\r\n       The logging module is the module under test.' +
+        '\r\n   This test either passes or throws an exception.' +
+        '\r\n   The script tests 2 loggers: root logger and logger called "root".' +
+        '\r\n   (Inspired by bug report #3802)'
+    )
 
-print('\r\n'.ljust(82, '='))
-print('TEST ROOT LOGGER%s' % msg)
-print('\r\n'.rjust(82, '='))
+    print('\r\n'.ljust(82, '='))
+    print('TEST ROOT LOGGER%s' % msg)
+    print('\r\n'.rjust(82, '='))
 
-logger = logging.getLogger()
-logger.info('ping')
-print('INFO: Root logger OK.')
+    logger = logging.getLogger()
+    logger.info('ping')
+    print('INFO: Root logger OK.')
 
-logger = logging.getLogger('root')
-logger.info('ping')
-print('INFO: Logger called "root" OK.')
+    logger = logging.getLogger('root')
+    logger.info('ping')
+    print('INFO: Logger called "root" OK.')
 
-print('\r\n'.ljust(82, '='))
-print('TEST ROOT LOGGER - OK')
-print('\r\n'.rjust(82, '='))
+    print('\r\n'.ljust(82, '='))
+    print('TEST ROOT LOGGER - OK')
+    print('\r\n'.rjust(82, '='))

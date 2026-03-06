@@ -87,6 +87,17 @@ class Supplies(Resource):
             s += '{}: {}\n'.format('protection', self.protection)
             s += '{}: {}\n'.format('kind', self.kind.name)
             return s
+        
+        def detect(self, response: str) -> bool:
+            """
+            Detects if the model matches the response.
+
+            :param response: Response from the device
+            :type  response: str
+            :return: True if the model matches the response, False otherwise
+            :rtype: bool
+            """
+            raise NotImplementedError('This model is unable to detect itself.')
 
     def __init__(self, params=None):
         Resource.__init__(self, params)

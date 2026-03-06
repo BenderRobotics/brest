@@ -24,6 +24,7 @@ import brest.multimeters
 
 from .log import FilterAvailable
 from .config import Config
+from .helpers import all_subclasses
 from .resource import Resource
 from brest.communication import Communicable, CommunicableError
 
@@ -166,10 +167,11 @@ class ResourceProvider:
         :type  params: dict
         """
 
-        for cls_ in Resource.__subclasses__():
-            for subcls_ in cls_.__subclasses__():
-                if subcls_.__name__ == params['class_name'].split('.')[1]:
-                    return self._construct(subcls_.__module__, params)
+        for subcls_ in all_subclasses(Resource):
+            # Avoid conflicts between classes with the same name in different groups
+            clean_module_name = '.'.join(subcls_.__module__.split('.')[1:])
+            if params['class_name'].lower() == clean_module_name:
+                return self._construct(subcls_.__module__, params)
 
         self.logger.warning(
             msg='Can\'t construct class `{}`. Class is not subclass of any resource'.format(params['class_name']),
@@ -536,7 +538,4 @@ class ResourceProvider:
         """
         Returns list with all communicable classes containing TYPE attribute
         """
-        def all_subclasses(cls):
-            return set(cls.__subclasses__()).union([s for c in cls.__subclasses__() for s in all_subclasses(c)])
-
         return list(filter(lambda x: hasattr(x, 'TYPE'), all_subclasses(cls).difference(all_subclasses(Resource))))

@@ -4,7 +4,7 @@
 
     :copyright: 2024 Bender Robotics
 """
-import __init__
+import conftest
 
 import logging
 import unittest

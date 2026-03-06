@@ -13,12 +13,14 @@ import time
 
 from brest.supplies import Supplies
 from brest.communication import (
-    SCPICommunicable, SCPICommand, SCPIQueryCommand, SCPIValueCommand, CommunicableError, CommunicationStructure
+    SCPICommunicable, SCPICommand, SCPIQueryCommand, SCPIValueCommand, CommunicationStructure
 )
 from brest.communication.types import bit_t
 
 from copy import deepcopy
 from contextlib import suppress
+
+from .models import TenmaModel, MulticompModel
 
 
 class Tenma(Supplies, SCPICommunicable):
@@ -30,10 +32,11 @@ class Tenma(Supplies, SCPICommunicable):
     :param params: Construction parameters
     :type  params: dict
 
-    Supported models: TENMA 72-2535, TENMA 72-2540, TENMA 72-2545, TENMA 72-2550, TENMA 72-13330
-
+    Supported models: TENMA 72-2535, TENMA 72-2540, TENMA 72-2545, TENMA 72-2550, TENMA 72-13330,
+                      TENMA 72-2705, Multicomp Pro 72-2535, Multicomp Pro 72-2540, Multicomp Pro 72-2545, 
+                      Multicomp Pro 72-2550, Multicomp Pro 72-13330, Multicomp Pro 72-2705
+        
     Implicit interface definition::
-
         interface:
             type:    'serial'
             timeout: 0.1
@@ -50,7 +53,7 @@ class Tenma(Supplies, SCPICommunicable):
         'timeout': 0.1,
         'vid': 0x0416,
         'pid': 0x5011,
-        }
+    }
 
     class Commands():
         """
@@ -78,7 +81,7 @@ class Tenma(Supplies, SCPICommunicable):
 
     class StatusMessage(CommunicationStructure):
         '''
-        Status message for Tenma supplies.
+        Status message structure for SCPI-based programmable power supplies.
         '''
 
         def __init__(self):
@@ -94,37 +97,56 @@ class Tenma(Supplies, SCPICommunicable):
         @property
         def cc(self):
             return not self.cvcc
-
+    
     Models = [
-        Supplies.Model(
-            'TENMA Fallback', 1, 5, 60.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
-            Supplies.Kind.PROGRAMMABLE
-        ),
-        Supplies.Model(
+        TenmaModel(
             'TENMA 72-2535', 1, 5, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
             Supplies.Kind.PROGRAMMABLE
         ),
-        Supplies.Model(
+        TenmaModel(
             'TENMA 72-2540', 1, 5, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
             Supplies.Kind.PROGRAMMABLE
         ),
-        Supplies.Model(
+        TenmaModel(
             'TENMA 72-2545', 1, 5, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
             Supplies.Kind.PROGRAMMABLE
         ),
-        Supplies.Model(
-            'TENMA 72-2550', 1, 5, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
-            Supplies.Kind.PROGRAMMABLE
+        TenmaModel(
+            'TENMA 2550', 1, 5, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
+            Supplies.Kind.PROGRAMMABLE  
         ),
-        Supplies.Model(
+        TenmaModel(
             'TENMA 72-13330', 2, 9, 30.0, 5.0, [], Supplies.Kind.PROGRAMMABLE
         ),
-        Supplies.Model(
+        TenmaModel(
             'TENMA 72-2705', 1, 0, 30.0, 3.0, [Supplies.Protection.OCP],
             Supplies.Kind.PROGRAMMABLE
         ),
+        MulticompModel(
+            'Multicomp Pro 72-2535', 1, 5, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
+            Supplies.Kind.PROGRAMMABLE
+        ),
+        MulticompModel(
+            'Multicomp Pro 72-2540', 1, 5, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
+            Supplies.Kind.PROGRAMMABLE
+        ),
+        MulticompModel(
+            'Multicomp Pro 72-2545', 1, 5, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
+            Supplies.Kind.PROGRAMMABLE
+        ),
+        MulticompModel(
+            'Multicomp Pro 72-2550', 1, 5, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
+            Supplies.Kind.PROGRAMMABLE
+        ),
+        MulticompModel(
+            'Multicomp Pro 72-13330', 2, 9, 30.0, 5.0, [], Supplies.Kind.PROGRAMMABLE
+        ),
+        MulticompModel(
+            'Multicomp Pro 72-2705', 1, 0, 30.0, 3.0, [Supplies.Protection.OCP],
+            Supplies.Kind.PROGRAMMABLE
+        ),
     ]
-
+    
     def __init__(self, params):
         Supplies.__init__(self, params)
         SCPICommunicable.__init__(self, params['interface'])
@@ -272,50 +294,50 @@ class Tenma(Supplies, SCPICommunicable):
         return stat_message
 
     def detect_model(self):
-        response = self.transceive(self.Commands.GET_INFO)
         # Tenmas with added support for programing won't return anything
         # on *IDN? instruction
-        if not response:
-            self.logger.warning(
-                'No IDN returned, fallback to model: {}'.format(self.Models[0].idn), extra=self.log_args
-            )
-            self._apply_model(self.Models[0])
-            return
-        # Old Tenmas returns INFO as comma seperated string
-        splitted = response.split(',')
-        psu_idn = splitted[0]
-        if len(splitted) == 1:
-            # New Tenmas returns INFO as space separated string
-            splitted = psu_idn.split(' ')
-            if len(splitted) == 1:
-                self.logger.warning(
-                    msg='`{}` IDN is in incorrect format, fallback to model: {}'.format(splitted, self.Models[0].idn),
-                    extra=self.log_args
-                )
-                self._apply_model(self.Models[0])
-                return
-            psu_idn = splitted[0] + ' ' + splitted[1]
+        response = self.transceive(self.Commands.GET_INFO)
 
         for model in self.Models:
-            if (model.idn in psu_idn):
+            if model.detect(response):
                 self._apply_model(model)
-        if (self.IDN is None):
-            fallback_model = self.Models[0]
+
+                if 'TENMA' not in model.idn:
+                    self.logger.info(
+                        msg='Using the model: `{}` which is compatible with the `{}` class.'.format(
+                            model.idn,
+                            self.__class__.__name__
+                        ),
+                        extra=self.log_args
+                    )
+                
+                break
+
+        if not self.IDN:
             self.logger.warning(
-                msg='Unable to detect model, fallback to `{}` model.'.format(fallback_model.idn),
+                msg='Unable to detect model, using Tenma fallback model.',
                 extra=self.log_args
             )
-            self.logger.warning('\nModels limitations:\n{}'.format(fallback_model), extra=self.log_args)
-            self._apply_model(fallback_model)
+            self._apply_model(Supplies.Model(
+                'TENMA Fallback', 1, 5, 60.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
+                Supplies.Kind.PROGRAMMABLE
+            ))
 
         if self.CHANNELS >= 2:
             for i in range(0, self.CHANNELS):
                 self._channels.append(TenmaChannel(self, i + 1))
 
-
 class TenmaChannel():
     """
-    Helper class for representing a channel.
+    Helper class for managing individual channels on multi-channel SCPI-based programmable power supplies.
+
+    Provides convenient access to channel-specific voltage, current, protection, and memory operations
+    while maintaining a reference to the parent supply device.
+
+    :param supply: Reference to the parent power supply instance
+    :type  supply: :class:`~brest.supplies.Tenma`
+    :param channel: Channel number (1-indexed)
+    :type  channel: int
     """
 
     def __init__(self, supply, channel):

@@ -162,3 +162,6 @@ def hex_representer(dumper, data):
     from yaml import ScalarNode
 
     return ScalarNode('tag:yaml.org,2002:int', '0x{:04X}'.format(data))
+
+def all_subclasses(cls):
+    return set(cls.__subclasses__()).union([s for c in cls.__subclasses__() for s in all_subclasses(c)])
