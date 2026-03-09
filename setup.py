@@ -15,7 +15,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name='brest',
-    version='1.0.0',
+    version='1.0.1.dev8653+2',
     author='Bender Robotics',
     author_email='venglar@benderrobotics.com',
     description='Bender Robotics Embedded Systems Toolkit',
@@ -28,7 +28,7 @@ setuptools.setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
-    python_requires='>=3.5, <4',
+    python_requires='>=3.8, <4',
     entry_points={
           'console_scripts': [
               'brest.gui = brest.gui.app:main'
@@ -59,11 +59,13 @@ setuptools.setup(
             'opencv-python',
             'imageio',
             'imageio-ffmpeg',
+            'display_sniffer>=1.2.0',
         ],
         'cameras_unix': [
             'opencv-python',
             'imageio',
             'imageio-ffmpeg',
+            'display_sniffer>=1.2.0',
         ],
         'jlink_win': [
             'pywin32',

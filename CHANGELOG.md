@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.1.0] - 2024-05-16
+### Added
+- Added Display Sniffer into cameras.
+
 ## [1.0.0] - 2024-02-29
 ### Added
 - Added versioning and branching strategy in the README.md. #5272

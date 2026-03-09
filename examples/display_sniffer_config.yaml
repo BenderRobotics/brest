@@ -1,0 +1,16 @@
+project1:
+    cam:
+        class_name: 'display_sniffer.DisplaySniffer'
+        interface:
+          address: 11
+        default:
+          # change the porch values (in pixels)
+          left_porch: 0
+          top_porch: 0
+          right_porch: 0
+          bottom_porch: 0
+          # rotate the image - supported values are increments of 90° (0, 90, 180, 270)
+          rotation: 270
+          allow_delta_frames: False
+          # set the timeout for grab frame function, default is 0.0
+          timeout: 2

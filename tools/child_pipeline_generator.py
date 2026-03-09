@@ -9,10 +9,10 @@ def child_pipeline_generator():
     """
     # job content
     stage = 'test'
-    image = 'python:3.7'
+    image = 'python:3.8'
     tags = ['docker']
     needs = [{'pipeline': '$PARENT_PIPELINE_ID', 'job': 'build-wheel'}]
-    before_script = ['pip install Cython', 'pip install dist/brest-*.whl']
+    before_script = ['pip install Cython', 'pip install -i https://pypi.benderrobotics.com dist/brest-*.whl']
     except_ = ['branches']
     artifacts = {'when': 'always', 'paths': ['log'], 'expire_in': '2 weeks'}
 

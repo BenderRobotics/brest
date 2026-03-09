@@ -97,7 +97,9 @@ class ResourceProvider:
             for class_name, interface in resources.items():
                 com = self._get_communicable(interface['type'])
                 class_name = '{}.{}'.format(group_.lower(), class_name)
+
                 resources = com.get_available(class_name, interface, connections[interface['type']])
+
                 if resources:
                     available.extend(resources)
 
@@ -477,7 +479,6 @@ class ResourceProvider:
         :param type_: Type of the communicable
         :type  type_: str
         """
-
         if type_ in self._communicables:
             return self._communicables[type_]
         else:

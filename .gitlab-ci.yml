@@ -1,4 +1,6 @@
-image: ${CI_REGISTRY_IMAGE}/toolchain
+image:
+  name: ${CI_REGISTRY_IMAGE}/toolchain
+  pull_policy: always
 
 stages:
   - toolchain
@@ -26,7 +28,7 @@ before_script:
   - pip install --upgrade pip
   - pip install --upgrade setuptools
   - pip install Cython==0.29.33
-  - pip install dist/brest-*.whl
+  - pip install -i https://pypi.benderrobotics.com dist/brest-*.whl
 
 build-wheel:
   stage: build
@@ -109,7 +111,7 @@ code-quality-html:
 # verify version
 verify-version:
   stage: test
-  image: python:3.7
+  image: python:3.8
   tags:
     - docker
   script:
@@ -122,7 +124,7 @@ verify-version:
 # generate dynamic child pipeline
 generate-child-pipeline:
   stage: build
-  image: python:3.7
+  image: python:3.8
   tags:
     - docker
   before_script:

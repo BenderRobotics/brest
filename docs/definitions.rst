@@ -150,6 +150,29 @@ Cameras
         framerate: float
         white_auto_balance: str ('off', 'once', 'on')
 
+
+:class:`~brest.cameras.DisplaySniffer`::
+
+
+    interface:
+        serial_number: str                            # hardware unique string
+        init_timeout: float (default 10.0)            # number of seconds to try establish connection
+    default:
+        left_porch: int (default 0)                   # number of px columns to remove from left
+        right_porch: int (default 0)                  # number of px columns to remove from right
+        top_porch: int (default 0)                    # number of px rows to remove from top
+        bottom_porch: int (default 0)                 # number of px rows to remove from bottom
+        rotation: int (default 0; 0, 90, 180, 270)    # image clock-wise rotation
+        allow_delta_frames: bool (default False)      # Delta frames do not contain full frame, only sub-area of the frame where the pixel change is detected. This improves the performance, but in special causes this may also introduce strange artifacts in the captured frame.
+        lvds_vesa: bool (default False)               # Only for display sniffer boards VESA vs JEIDA pinout issue. Can be removed in the future!
+        timeout: float (default 0.0 - infinite)       # General timeout how long to wait for an image acquisition before timeout occures.
+
+.. admonition:: Display Sniffer usage
+
+    You might need to set up a few things for the Display Sniffer package,
+    please follow the instructions here: https://gitlab.benderrobotics.com/br/tools/display-sniffer/-/tree/master/sw?ref_type=heads#-windows
+
+
 Flashers
 ~~~~~~~~
 
@@ -384,7 +407,7 @@ Attribute name    Type Description
 **path**          int  Path to the device in operating system
 ================= ==== =======================================
 
-* **vid** + **pid** - Brest will try to look up matching ``vid`` and ``pid`` in connected devices 
+* **vid** + **pid** - Brest will try to look up matching ``vid`` and ``pid`` in connected devices
 * **vid** + **pid** + **serial_number** - Look up can be refined with ``serial_number``
 * **serial_number** - Brest will try to look up in connected devices matching only ``serial_number``
 

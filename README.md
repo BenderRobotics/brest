@@ -77,9 +77,20 @@ the procedure is to merge 'devel' into the feature branch (as a merge-commit) to
 branch development is over, it can be merged with 'devel'.
 
 ## Versioning strategy
-Release versioning:
+**Release versioning:**
     0.0.X 
-Post release versioning:
+
+**Post release versioning:**
     0.0.X.postN     - Nth fix of 0.0.X
-Development release versioning:
+
+**Development release versioning:**
     0.0.Y.devABCD+N - Y = X+1, ABCD = redmine ticket #, Nth dev release
+
+## Dev release steps
+To create a development release for a branch, one must follow these steps:
+1. Go to the main \_\_init\_\_.py of the package, find \_\_version\_\_ and change it according to the [versioning strategy](#versioning-strategy)
+2. Go to setup.py and also change the version there
+3. Commit these changes with commit message of the version and reference to the Redmine ticket (e.g. Version 1.0.1.dev8653+0 (refs #8653))
+4. Create a tag on this commit with the version
+
+Now in pipeline you should see deploy-wheel-dev.

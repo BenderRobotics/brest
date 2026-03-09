@@ -21,6 +21,7 @@ from .flasher_communicable import FlasherCommunicable
 from .hid_communicable import HIDCommunicable
 from .cli_communicable import CLICommunicable
 from .cleware_communicable import ClewareCommunicable
+from .display_sniffer_communicable import DisplaySnifferCommunicable
 
 import types
 
@@ -32,6 +33,7 @@ __all__ = [
     'CommunicationStructure',
     'CommunicationFrame',
     'PackableTypes',
+    'DisplaySnifferCommunicable'
     'SerialCommunicable',
     'SCPICommunicable',
     'SCPICommand',

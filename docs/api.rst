@@ -281,6 +281,15 @@ Available cameras:
 .. autoclass:: PointGrey
     :members: acquire_image, get_info, configure_trigger, reset_trigger
 
+.. autoclass:: DisplaySniffer
+    :members: acquire_image, get_info
+
+.. admonition:: Display Sniffer usage
+
+    You might need to set up a few things for the Display Sniffer package,
+    please follow the instructions here: https://gitlab.benderrobotics.com/br/tools/display-sniffer/-/tree/master/sw?ref_type=heads#-windows
+
+
 Loads
 ~~~~~
 

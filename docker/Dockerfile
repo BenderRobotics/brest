@@ -1,5 +1,5 @@
 # Download Alpine latest
-FROM alpine:3.10
+FROM alpine:3.11
 
 # Fill image descriptors
 LABEL maintainer="lesinsky@benderrobotics.com"
