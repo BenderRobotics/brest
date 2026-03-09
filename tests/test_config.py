@@ -488,7 +488,7 @@ class TestConfig(unittest.TestCase):
             dummy_config2.config['lamp'] = 'off'
 
             result = dummy_config2.merge_configs(dummy_config1)
-            self.assertRegexpMatches(result.required_projects[0], r'custom[0-9]+')
+            self.assertRegex(result.required_projects[0], r'custom[0-9]+')
             self.assertEqual('project1', result.required_projects[1])
             self.assertEqual('project2', result.required_projects[2])
             self.assertDictContainsSubset(dummy_dict1['project1'], result.config)

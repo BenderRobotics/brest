@@ -27,7 +27,7 @@ before_script:
   # Change pending to be added to toolchain, cython needed by hidapi
   - pip install --upgrade pip
   - pip install --upgrade setuptools
-  - pip install Cython==0.29.33
+  - pip install Cython==0.29.36
   - pip install -i https://pypi.benderrobotics.com dist/brest-*.whl
 
 build-wheel:

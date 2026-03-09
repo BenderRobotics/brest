@@ -12,7 +12,6 @@ import unittest
 from brest.helpers import prepare_tests
 
 from unittest.mock import patch
-from unittest.loader import _FailedTest
 
 
 class PrepareTests(unittest.TestCase):
@@ -73,6 +72,8 @@ class PrepareTests(unittest.TestCase):
         msg = "3): tests are not loaded correctly (syntax error)"
         self.log.info(f"Test case {msg}")
         with self.subTest(test_case=msg):
+            from unittest.loader import _FailedTest
+            
             failed_test = _FailedTest('test_01', 'syntax error')
             test_suite._tests = [failed_test]
 

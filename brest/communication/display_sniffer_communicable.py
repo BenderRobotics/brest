@@ -30,8 +30,10 @@ class DisplaySnifferCommunicable(Communicable):
         self.unmark_taken()
 
     def get_connections(self):
-
-        from display_sniffer import list_fx3_devices
+        try:
+            import display_sniffer
+        except ModuleNotFoundError:
+            return []
 
         generated_list = list_fx3_devices()
         sniffer_list = []
@@ -40,14 +42,6 @@ class DisplaySnifferCommunicable(Communicable):
             one_fx3["service"] = "sniffer_usb"
             sniffer_list.append(one_fx3)
         return sniffer_list
-
-    def _list_connections(self):
-        try:
-            import display_sniffer
-
-            return self.get_connections()
-        except ModuleNotFoundError:
-            return []
 
     def probe(self, interface, connections=None):
         def __device_to_interface(interface, device_id, index, connections):
@@ -60,7 +54,7 @@ class DisplaySnifferCommunicable(Communicable):
         probed = []
 
         if not connections:
-            connections = self._list_connections()
+            connections = self.get_connections()
 
         for cam in connections:
             if interface["service"] == cam["service"]:
