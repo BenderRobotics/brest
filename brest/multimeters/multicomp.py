@@ -16,7 +16,7 @@ from brest.communication import SCPICommunicable, SCPICommand, SCPIQueryCommand,
 
 class Multicomp(Multimeters, SCPICommunicable):
     """
-    Multicomp programmable tabletop multimeter
+    Multicomp Pro MP73xxxx series programmable tabletop multimeter
 
     Derived from :class:`~brest.multimeters.Multimeters`, :class:`~brest.communication.SCPICommunicable`
 
@@ -38,10 +38,12 @@ class Multicomp(Multimeters, SCPICommunicable):
     :attr:`~brest.Resource.disable_on_destruct`.
     """
 
+    ALIAS = 'MP73'
+
     #: Implicit interface definition
     Multimeters.KNOWN['Multicomp'] = {
         'type': 'serial',
-        'timeout': 0.1,
+        'timeout': 0.5,
         'vid': 0x1A86,
         'pid': 0x7523,
         'baudrate': 115200,
@@ -219,7 +221,7 @@ class Multicomp(Multimeters, SCPICommunicable):
         Multimeters.__init__(self, params)
         SCPICommunicable.__init__(self, params['interface'])
 
-        self.determine_suffix(self.Commands.MEASURE)
+        self.determine_suffix(self.Commands.GET_INFO)
 
         self.VOLTAGE_UNITS = [self.Units.UNIT_MV, self.Units.UNIT_V]
         self.CURRENT_UNITS = [self.Units.UNIT_UA, self.Units.UNIT_MA, self.Units.UNIT_A]
@@ -247,7 +249,7 @@ class Multicomp(Multimeters, SCPICommunicable):
         mode_received = self.transceive(self.Commands.GET_MODE)
         successful = False
         for mode in self.Modes:
-            if mode.name in mode_received.replace(' ', '_'):
+            if mode.name == mode_received.replace(':', '_').strip(' "\r\n'):
                 self.mode = mode
                 successful = True
                 break
@@ -303,7 +305,7 @@ class Multicomp(Multimeters, SCPICommunicable):
                 serial_number = split_response[2]
 
                 for model in self.Models:
-                    if model_str in model.idn:
+                    if model_str.lower() in model.idn.lower():
                         self._apply_model(model)
                         self.logger.info(f'Detected model {series} {model_str}', extra=self.log_args)
                         return
@@ -591,7 +593,7 @@ class Multicomp(Multimeters, SCPICommunicable):
         :param unit: The output unit
         :type  params: Multicomp.Units
         """
-        if self.mode != self.Modes.RES:
+        if self.mode != self.Modes.CAP:
             self.logger.error(
                 msg=f"Device is not in the correct state - CAPACITANCE [Modes.CAP]. Current mode: {self.mode}",
                 extra=self.log_args
