@@ -15,6 +15,7 @@ Welcome to Brest's documentation!
    usage
    supported
    definitions
+   developer
    api
 
 .. toctree::

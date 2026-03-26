@@ -176,10 +176,14 @@ Available supplies:
     :members:
 
 .. autoclass:: MP71
-    ::members: enable, disable, voltage, current, get_info, current_limit, votlage_limit, release
+    :members: enable, disable, voltage, current, get_info, current_limit, voltage_limit, release
 
 .. autoclass:: Tenma
     :members: enable, disable, voltage, current, enable_protection, disable_protection, save_memory, recall_memory, get_status, get_info
+
+.. py:class:: MP72
+   
+   Alias for :class:`~brest.supplies.Tenma`. Supported implicitly by the resource provider config.
 
 .. class:: Tenma.StatusMessage
 
@@ -211,6 +215,14 @@ Multimeters base class:
 
 Available multimeters:
 
+.. autoclass:: Manmulti
+    :members:
+        set_mode_voltage_dc, set_mode_voltage_ac, set_mode_current_dc, set_mode_current_ac,
+        set_mode_temperature, set_mode_resistance, set_mode_capacitance, set_mode_frequency,
+        measure_temperature, measure_frequency, measure_capacitance, measure_resistance,
+        measure_voltage, measure_voltage_dc, measure_voltage_ac,
+        measure_current, measure_current_dc, measure_current_ac
+
 .. autoclass:: Multicomp
     :members:
         Ranges, Units, Modes, TempSensors,
@@ -219,6 +231,21 @@ Available multimeters:
         set_mode_current_dc, set_mode_current_ac,
         set_mode_temperature, set_mode_resistance, set_mode_capacitance, set_mode_frequency,
         measure_temperature, measure_frequency, measure_capacitance, measure_resistance,
+        measure_voltage, measure_voltage_dc, measure_voltage_ac,
+        measure_current, measure_current_dc, measure_current_ac
+
+.. py:class:: MP73
+   
+   Alias for :class:`~brest.multimeters.Multicomp`. Supported implicitly by the resource provider config.
+
+.. autoclass:: brest.multimeters.MP71
+    :members:
+        Ranges, Units, Modes,
+        get_mode, is_mode, detect_model,
+        set_mode_voltage_dc, set_mode_voltage_ac,
+        set_mode_current_dc, set_mode_current_ac,
+        set_mode_resistance, set_mode_capacitance,
+        measure_capacitance, measure_resistance,
         measure_voltage, measure_voltage_dc, measure_voltage_ac,
         measure_current, measure_current_dc, measure_current_ac
 

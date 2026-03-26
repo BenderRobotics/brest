@@ -24,16 +24,16 @@ of available groups, please refer to the :ref:`supported`. If nothing is provide
 resources will be listed::
 
     >>> rp.print_available()
-    [0] Tenma
+    [0] supplies.Tenma | supplies.MP72
         type: serial
         timeout: 0.1
-        vid: 1046
-        pid: 20497
+        vid: 0x0416
+        pid: 0x5011
         serial_number: A02014090305
         port: COM9
 
 The number in square brackets indicates the resource index in the resource list obtained from
-:meth:`~brest.ResourceProvider.available`. Following string represents a name of the class,
+:meth:`~brest.ResourceProvider.available`. Following string represents a name of the possible classes,
 that can be constructed using interface parameters listed on the following lines. To get more information
 about interface parameters please refer to the :ref:`definitions.interfaces`.
 
@@ -41,10 +41,13 @@ The next step is to instantiate a selected resource. You can do that using
 :meth:`~brest.ResourceProvider.construct_available` method. For example, if you want to instantiate the
 Tenma supply from the previous example::
 
-    >>> psu = rp.construct_available(0)
+    >>> resources = rp.construct_available(0)
+    >>> psu = resources['supplies.Tenma']
 
 All you have to do is to pass the desired resource's index and the resource provider will construct the
-object for you.
+object for you. If there are multiple resources with the same index, the method will try to construct all of them.
+They are returned as a dictionary with resource class names as keys, e.g. 'supplies.Tenma' as shown in the example above.
+
 If you have printed resources using ``group`` parameter, you also need to specify the same group to
 :meth:`~brest.ResourceProvider.available` method for corresponding indexes.
 
@@ -104,6 +107,27 @@ Now you can access created class using `[]` operator and resource alias as a key
     res['supply'].voltage = 40
 
 This will give you direct access to the created class.
+
+Class Name Aliases
+~~~~~~~~~~~~~~~~~~
+
+When defining hardware resources inside your YAML configuration file, writing the full class name (e.g., ``multimeters.Multicomp``) can sometimes be unnecessarily verbose. To solve this, Brest supports **Class Name Aliases**, providing a convenient shorthand.
+
+You can safely drop in an alias in the ``class_name`` field interchangeably with the original class string:
+
+.. code-block:: yaml
+
+    # Instead of defining full class names like this:
+    multimeter_original:
+      class_name: multimeters.Multicomp
+
+    # You can safely use the shorter aliases:
+    multimeter_aliased:
+      class_name: multimeters.MP73
+
+**Why use aliases?**
+From a user's perspective, they behave entirely identically to the original, much longer class name. Inherited interface defaults (such as baudrate, timeout parameters, and vendor IDs) are fully preserved.
+To discover available aliases for your specific hardware, refer to the driver's underlying source file where aliases are explicitly defined as ``ALIAS`` class properties.
 
 Brest GUI
 ---------

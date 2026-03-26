@@ -71,7 +71,8 @@ start again without indentation and follow the same structure. To make configura
 file more readable you can put empty lines between projects.
 
 Every resource must have defined ``class_name``, the rest can be omitted. The value of
-the parameter can be just group name or group name + class name connected using dot.
+the parameter can be just group name (i.e. ``'supplies'``) or group name + class name
+connected using dot (i.e. ``'supplies.Tenma'``).
 If only group name is defined, Brest will instantiate first class which satisfies
 requirements defined in ``required:`` and can set defaults defined in ``default:``.
 
@@ -255,6 +256,31 @@ Loads
 
     # All attributes from Loads group can be used
 
+Multimeters
+~~~~~~~~~~~
+
+:class:`~brest.multimeters.Multimeters`::
+
+    default:
+        model: str
+
+:class:`~brest.multimeters.Multicomp`::
+
+    # All attributes from Multimeters group can be used
+
+:class:`~brest.multimeters.MP71`::
+
+    # All attributes from Multimeters group can be used
+
+:class:`~brest.multimeters.MP73`::
+   
+    # All attributes from Multimeters group can be used
+
+:class:`~brest.multimeters.Manmulti`::
+
+    default:
+        bypass_user: bool   # default: False; if True user will not be prompted to operate the multimeter
+
 Supplies
 ~~~~~~~~
 
@@ -301,6 +327,13 @@ Supplies
     # All attributes from Supplies group can be used
     default:
         protection: ('OVP', 'OCP') # OverVoltage, OverCurrent
+
+:class:`~brest.supplies.MP72`::
+
+    # All attributes from Supplies group can be used
+    default:
+        protection: ('OVP', 'OCP') # OverVoltage, OverCurrent
+
 
 .. admonition:: Default values for multichannel supplies
 
