@@ -43,6 +43,7 @@ class Scenario:
     idn: bytes
     commands: PSUCommandsList
     serial: FakeCom
+    init_responses: list
     voltage_range: list
     default_v: float
 
@@ -84,14 +85,16 @@ SCENARIOS = {
         idn=b"TENMA 72-2535",
         commands=PSU_COMMANDS["supplies.Tenma"],
         serial=FakeCom(port="COM999", vid=0x0416, pid=0x5011, serial="SN999"),
+        init_responses=[b"TENMA 72-2535"] * 3 + [b"1.0"] * 10,
         voltage_range=[0, 30],
-        default_v=5.0          
+        default_v=5.0
     ),
     "mp72": Scenario(
-        class_name="supplies.Tenma",
+        class_name="supplies.MP72",
         idn=b"Multicomp Pro 72-2535",
         commands=PSU_COMMANDS["supplies.Tenma"],
         serial=FakeCom(port="COM999", vid=0x0416, pid=0x5011, serial="SN999"),
+        init_responses=[b"Multicomp Pro 72-2535"] * 3 + [b"1.0"] * 10,
         voltage_range=[0, 30],
         default_v=5.0
     ),
@@ -100,6 +103,7 @@ SCENARIOS = {
         idn=b"Multicomp Pro MP711132",
         commands=PSU_COMMANDS["supplies.MP71"],
         serial=FakeCom(port="COM999", vid=0x1A86, pid=0x7523, serial="SN999"),
+        init_responses=[b"Multicomp Pro MP711132"] * 2 + [b"1.0"] * 10,
         voltage_range=[0, 30],
         default_v=5.0
     )
@@ -145,7 +149,7 @@ def psu_env(request):
         mock_serial_instance.isOpen.return_value = False
 
         # For proper instatiation of all supplies
-        mock_read.side_effect = [b"30.0", scenario.idn, b"30.0", b"OK", b"1.0", b"OK"]
+        mock_read.side_effect = scenario.init_responses
         res = brest.Resources(projects='test', project_config=config_data)
         
         mock_read.side_effect = None
@@ -158,6 +162,9 @@ def psu_env(request):
             "scenario": scenario
         }
 
+        for psu in res:
+            psu.disable_on_destruct = False
+            psu.release()
 
 # Parametrize command tests with actions as callables
 @dataclass
@@ -182,7 +189,7 @@ TEST_CASES_COMMANDS = [
                 skip_condition=lambda psu: not hasattr(psu, 'current_limit')),
     CommandTest("get_voltage_limit", (10.0,), lambda psu, v: psu.voltage_limit, 10.0,
                 skip_condition=lambda psu: not hasattr(psu, 'voltage_limit')),
-    CommandTest("get_current_limit", (1,), lambda psu, c: psu.current_limit, 1,
+    CommandTest("get_current_limit", (1,), lambda psu, c: psu.current_limit, 1.0,
                 skip_condition=lambda psu: not hasattr(psu, 'current_limit')),
     CommandTest("ovp_on", (), lambda psu: psu.enable_protection(psu.Protection.OVP), None,
                 skip_condition=lambda psu: psu.Protection.OVP not in psu.PROTECTION),
