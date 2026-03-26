@@ -48,7 +48,6 @@ class Multicomp(Multimeters, SCPICommunicable):
     }
 
     Models = [
-        Multimeters.Model('Multicomp Fallback', 65, 20, 1000, True, Multimeters.Kind.PROGRAMMABLE),
         Multimeters.Model('Multicomp Pro MP730889', 65, 20, 1000, True, Multimeters.Kind.PROGRAMMABLE),
     ]
 
@@ -295,14 +294,8 @@ class Multicomp(Multimeters, SCPICommunicable):
 
     def detect_model(self):
         response = self.transceive(self.Commands.GET_INFO)
-        if not response:
-            self.logger.warning(
-                msg='No IDN returned, fallback to model: {}'.format(self.Models[0].idn),
-                extra=self.log_args
-            )
-            self._apply_model(self.Models[0])
-            return
-        elif isinstance(response, str):
+ 
+        if response and isinstance(response, str):
             split_response = response.split(',')
             if len(split_response) >= 3:
                 series = split_response[0]
@@ -314,23 +307,8 @@ class Multicomp(Multimeters, SCPICommunicable):
                         self._apply_model(model)
                         self.logger.info(f'Detected model {series} {model_str}', extra=self.log_args)
                         return
-            else:
-                self.logger.warning(
-                    msg=f'IDN received in an incorrect format: {response}, fallback to model: {self.Models[0].idn}',
-                    extra=self.log_args
-                )
-                self._apply_model(self.Models[0])
-                return
-        else:
-            self.logger.warning(
-                msg=(
-                    f'IDN received in an incorrect type: {type(response)}, it should be `str`, '
-                    f'fallback to model: {self.Models[0].idn}'
-                ),
-                extra=self.log_args
-            )
-            self._apply_model(self.Models[0])
-            return
+
+        raise LookupError('Unable to detect a valid Multicomp multimeter model.')
 
     def set_mode_voltage_dc(self, range=Ranges.DC_5V) -> None:
         """

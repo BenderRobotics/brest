@@ -40,8 +40,8 @@ class Multimeters(Resource):
         :type  max_sample_freq: int
         :param ac_bandwidth_min: AC True RMS measurement bandwidth minimum [Hz]
         :type  ac_bandwidth_min: int
-        :param ac_bandwidth_min: AC True RMS measurement bandwidth maximum [Hz]
-        :type  ac_bandwidth_min: int
+        :param ac_bandwidth_max: AC True RMS measurement bandwidth maximum [Hz]
+        :type  ac_bandwidth_max: int
         :param internal_memory: Can save measured data and display it in a table
         :type  internal_memory: Bool
         :param kind: Kind of multimeter

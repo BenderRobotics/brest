@@ -22,7 +22,7 @@ class MP71(Supplies, SCPICommunicable):
     """
     Multicomp programmable power supplies.
 
-    Derived from :class:`~brest.supplies.TenmaType`, :class:`~brest.communication.SCPICommunicable`
+    Derived from :class:`~brest.supplies.Supplies`, :class:`~brest.communication.SCPICommunicable`
 
     :param params: Construction parameters
     :type  params: dict
@@ -130,14 +130,7 @@ class MP71(Supplies, SCPICommunicable):
         
         # Check whether a model was detected and applied
         if not self.IDN:
-            self.logger.warning(
-                msg='Unable to detect model, using Multicomp Pro fallback model.',
-                extra=self.log_args
-            )
-            self._apply_model(MulticompModel(
-                'Multicomp Pro Fallback', 1, 5, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
-                Supplies.Kind.PROGRAMMABLE
-            ))
+            raise LookupError('Unable to detect a valid Multicomp Pro MP71xxxx power supply model.')
 
         if self.CHANNELS >= 2:
             for i in range(0, self.CHANNELS):

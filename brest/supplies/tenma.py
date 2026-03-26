@@ -32,9 +32,10 @@ class Tenma(Supplies, SCPICommunicable):
     :param params: Construction parameters
     :type  params: dict
 
-    Supported models: TENMA 72-2535, TENMA 72-2540, TENMA 72-2545, TENMA 72-2550, TENMA 72-13330,
-                      TENMA 72-2705, Multicomp Pro 72-2535, Multicomp Pro 72-2540, Multicomp Pro 72-2545, 
-                      Multicomp Pro 72-2550, Multicomp Pro 72-13330, Multicomp Pro 72-2705
+    Supported models: 
+                        TENMA 72-2535, TENMA 72-2540, TENMA 72-2545, TENMA 72-2550, TENMA 72-13330, 
+                        TENMA 72-2705, Multicomp Pro 72-2535, Multicomp Pro 72-2540, Multicomp Pro 72-2545, 
+                        Multicomp Pro 72-2550, Multicomp Pro 72-13330, Multicomp Pro 72-2705
         
     Implicit interface definition::
         interface:
@@ -46,6 +47,8 @@ class Tenma(Supplies, SCPICommunicable):
     This resource tries to disable itself upon destruction. To change this behavior, refer to
     :attr:`~brest.Resource.disable_on_destruct`.
     """
+
+    ALIAS = 'MP72'
 
     #: Implicit interface definition
     Supplies.KNOWN['Tenma'] = {
@@ -315,14 +318,7 @@ class Tenma(Supplies, SCPICommunicable):
         
         # Check whether a model was detected and applied
         if not self.IDN:
-            self.logger.warning(
-                msg='Unable to detect model, using Tenma fallback model.',
-                extra=self.log_args
-            )
-            self._apply_model(Supplies.Model(
-                'TENMA Fallback', 1, 5, 60.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
-                Supplies.Kind.PROGRAMMABLE
-            ))
+            raise LookupError('Unable to detect a valid Tenma power supply model.')
 
         if self.CHANNELS >= 2:
             for i in range(0, self.CHANNELS):
