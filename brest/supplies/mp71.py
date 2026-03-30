@@ -27,7 +27,7 @@ class MP71(Supplies, SCPICommunicable):
     :param params: Construction parameters
     :type  params: dict
 
-    Supported models: Multicomp Pro MP711132 (power supply + multimeter)
+    Supported models: Multicomp Pro MP711132, Multicomp Pro MP711127
 
     Implicit interface definition::
 
@@ -54,6 +54,10 @@ class MP71(Supplies, SCPICommunicable):
     Models = [
         MulticompModel(
             'Multicomp Pro MP711132', 1, 5, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
+            Supplies.Kind.PROGRAMMABLE
+        ),
+        MulticompModel(
+            'Multicomp Pro MP711127', 1, 5, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
             Supplies.Kind.PROGRAMMABLE
         ),
     ]
