@@ -14,24 +14,28 @@ class FakeCom:
 @dataclass
 class PSUCommand:
     cmd: str
-    response: bytes = b"OK"
+    response: bytes = b"1.0"
 
 @dataclass
 class PSUCommandsList:
-    set_voltage: callable
-    set_current: callable
-    enable: callable
-    disable: callable
-    ovp_on: callable
-    ovp_off: callable
-    ocp_on: callable
-    ocp_off: callable
-    save_memory: callable
-    recall_memory: callable
-    status: callable
-    get_info: callable
-    get_voltage: callable
-    get_current: callable
+    set_voltage: callable = None
+    set_current: callable = None
+    enable: callable = None
+    disable: callable = None
+    ovp_on: callable = None
+    ovp_off: callable = None
+    ocp_on: callable = None
+    ocp_off: callable = None
+    save_memory: callable = None
+    recall_memory: callable = None
+    status: callable = None
+    get_info: callable = None
+    get_voltage: callable = None
+    get_current: callable = None
+    set_voltage_limit: callable = None
+    set_current_limit: callable = None
+    get_voltage_limit: callable = None
+    get_current_limit: callable = None
 
 @dataclass
 class Scenario:
@@ -58,11 +62,24 @@ PSU_COMMANDS = {
         recall_memory=lambda x: PSUCommand(cmd=f"RCL{x}".encode()),
         status=lambda x: PSUCommand(cmd=b"STATUS?", response=x),
         get_info=lambda x: PSUCommand(cmd=b"*IDN?", response=x)
+    ),
+    "supplies.MP71": PSUCommandsList(
+        set_voltage=lambda x: PSUCommand(cmd=f"VOLT {x}".encode(), response=b"5.0"),
+        set_current=lambda x: PSUCommand(cmd=f"CURR {x}".encode(), response=b"0.1"),
+        get_voltage=lambda x: PSUCommand(cmd=b"MEAS:VOLT?", response=str(x).encode()),
+        get_current=lambda x: PSUCommand(cmd=b"MEAS:CURR?", response=str(x).encode()),
+        enable=lambda: PSUCommand(cmd=b"OUTP 1"),
+        disable=lambda: PSUCommand(cmd=b"OUTP 0"),
+        set_voltage_limit=lambda x: PSUCommand(cmd=f"VOLT:LIM {x}".encode(), response=b"10.0"),
+        set_current_limit=lambda x: PSUCommand(cmd=f"CURR:LIM {x}".encode(), response=b"1.0"),
+        get_voltage_limit=lambda x: PSUCommand(cmd=b"VOLT:LIM?", response=str(x).encode()),
+        get_current_limit=lambda x: PSUCommand(cmd=b"CURR:LIM?", response=str(x).encode()),
+        get_info=lambda x: PSUCommand(cmd=b"*IDN?", response=x)
     )
 }
 
 SCENARIOS = {
-    "tenma_basic": Scenario(
+    "tenma": Scenario(
         class_name="supplies.Tenma",
         idn=b"TENMA 72-2535",
         commands=PSU_COMMANDS["supplies.Tenma"],
@@ -70,11 +87,19 @@ SCENARIOS = {
         voltage_range=[0, 30],
         default_v=5.0          
     ),
-    "multicomp_tenmatype": Scenario(
+    "mp72": Scenario(
         class_name="supplies.Tenma",
         idn=b"Multicomp Pro 72-2535",
         commands=PSU_COMMANDS["supplies.Tenma"],
         serial=FakeCom(port="COM999", vid=0x0416, pid=0x5011, serial="SN999"),
+        voltage_range=[0, 30],
+        default_v=5.0
+    ),
+    "mp71": Scenario(
+        class_name="supplies.MP71",
+        idn=b"Multicomp Pro MP711132",
+        commands=PSU_COMMANDS["supplies.MP71"],
+        serial=FakeCom(port="COM999", vid=0x1A86, pid=0x7523, serial="SN999"),
         voltage_range=[0, 30],
         default_v=5.0
     )
@@ -119,11 +144,15 @@ def psu_env(request):
         mock_serial_instance.port = scenario_serial.port
         mock_serial_instance.isOpen.return_value = False
 
-        # Initially set it to IDN response for correct model detection
-        mock_read.return_value = scenario.idn
+        # For proper instatiation of all supplies
+        mock_read.side_effect = [b"30.0", scenario.idn, b"30.0", b"OK", b"1.0", b"OK"]
+        res = brest.Resources(projects='test', project_config=config_data)
+        
+        mock_read.side_effect = None
+        mock_read.return_value = b"1.0" # Default response must be a float convertible value
 
         yield {
-            "res": brest.Resources(projects='test', project_config=config_data),
+            "res": res,
             "mock_read": mock_read,
             "mock_write": mock_write,
             "scenario": scenario
@@ -147,6 +176,14 @@ TEST_CASES_COMMANDS = [
     CommandTest("disable", (), lambda psu: psu.disable(), None),
     CommandTest("get_voltage", (5.0,), lambda psu, v: psu.voltage, 5.0),
     CommandTest("get_current", (0.1,), lambda psu, c: psu.current, 0.1),
+    CommandTest("set_voltage_limit", (10.0,), lambda psu, v: setattr(psu, 'voltage_limit', v), None,
+                skip_condition=lambda psu: not hasattr(psu, 'voltage_limit')),
+    CommandTest("set_current_limit", (1,), lambda psu, c: setattr(psu, 'current_limit', c), None,
+                skip_condition=lambda psu: not hasattr(psu, 'current_limit')),
+    CommandTest("get_voltage_limit", (10.0,), lambda psu, v: psu.voltage_limit, 10.0,
+                skip_condition=lambda psu: not hasattr(psu, 'voltage_limit')),
+    CommandTest("get_current_limit", (1,), lambda psu, c: psu.current_limit, 1,
+                skip_condition=lambda psu: not hasattr(psu, 'current_limit')),
     CommandTest("ovp_on", (), lambda psu: psu.enable_protection(psu.Protection.OVP), None,
                 skip_condition=lambda psu: psu.Protection.OVP not in psu.PROTECTION),
     CommandTest("ovp_off", (), lambda psu: psu.disable_protection(psu.Protection.OVP), None,
@@ -168,10 +205,12 @@ def test_commands(psu_env, test_case):
     """Parametrized test for PSU commands (read/write/protect/memory/status)."""
     psu = psu_env["res"]["psu_under_test"]
     
-    if test_case.skip_condition and test_case.skip_condition(psu):
+    # Skip if command is not supported by this PSU
+    cmd_func = getattr(psu_env["scenario"].commands, test_case.test_name, None)
+    
+    if not cmd_func or (test_case.skip_condition and test_case.skip_condition(psu)):
         pytest.skip(f"{test_case.test_name} not supported by this PSU")
-        
-    cmd_func = getattr(psu_env["scenario"].commands, test_case.test_name)
+
     psu_cmd = cmd_func(*test_case.test_args)
 
     psu_env["mock_read"].return_value = psu_cmd.response
@@ -179,7 +218,7 @@ def test_commands(psu_env, test_case):
     result = test_case.action(psu, *test_case.test_args)
     
     psu_env["mock_write"].assert_called_with(psu_cmd.cmd)
-    
+
     if test_case.expected_value:
         assert result == test_case.expected_value, f"Expected {test_case.expected_value}, got {result}"
         

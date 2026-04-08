@@ -175,6 +175,9 @@ Available supplies:
 .. autoclass:: Mansup
     :members:
 
+.. autoclass:: MP71
+    ::members: enable, disable, voltage, current, get_info, current_limit, votlage_limit, release
+
 .. autoclass:: Tenma
     :members: enable, disable, voltage, current, enable_protection, disable_protection, save_memory, recall_memory, get_status, get_info
 

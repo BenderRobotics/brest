@@ -312,7 +312,8 @@ class Tenma(Supplies, SCPICommunicable):
                     )
                 
                 break
-
+        
+        # Check whether a model was detected and applied
         if not self.IDN:
             self.logger.warning(
                 msg='Unable to detect model, using Tenma fallback model.',

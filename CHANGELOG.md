@@ -2,8 +2,9 @@
 
 ## [1.1.0]
 ### Added
+- Added support for multi-purpose Multicomp Pro MP71xxxx power supplies (only PSU functionality). #13084
 - Added Display Sniffer into cameras.
-- Added support for several Multicomp power supplies. #13082
+- Added support for several Multicomp Pro MP72-xxxx power supplies. #13082
 
 ## [1.0.0] - 2024-02-29
 ### Added

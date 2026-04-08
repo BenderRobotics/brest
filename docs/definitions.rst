@@ -296,6 +296,12 @@ Supplies
     default:
         protection: ('OVP', 'OCP') # OverVoltage, OverCurrent
 
+:class:`~brest.supplies.MP71`::
+
+    # All attributes from Supplies group can be used
+    default:
+        protection: ('OVP', 'OCP') # OverVoltage, OverCurrent
+
 .. admonition:: Default values for multichannel supplies
 
     If you happen to have multichannel power supply, values under
