@@ -91,6 +91,7 @@ class ResourceProvider:
             return
 
         com = self._get_communicable(interface['type'])
+        interface['class_name'] = class_name
         interfaces = com.probe(interface)
         i = 0
         for interface_ in interfaces:
@@ -115,6 +116,49 @@ class ResourceProvider:
         if not connections:
             connections = self._refresh_connections()
 
+        available = self._enumerate_available(group, connections)
+
+        grouped = []
+        for resource in available:
+            interface = resource['interface']
+            found = False
+            for group_res in grouped:
+                group_intr = group_res['interface']
+                is_same = False
+                if interface.get('type') == group_intr.get('type'):
+                    if 'port' in interface and 'port' in group_intr:
+                        is_same = interface['port'] == group_intr['port']
+                
+                if is_same:
+                    if resource['class_name'] not in group_res['class_name']:
+                        group_res['class_name'].append(resource['class_name'])
+                    found = True
+                    break
+                    
+            if not found:
+                new_interface = dict(resource['interface'])
+                if 'class_name' in new_interface:
+                    del new_interface['class_name']
+                grouped.append({
+                    'class_name': [resource['class_name']],
+                    'interface': new_interface
+                })
+
+        return grouped
+
+    def _enumerate_available(self, group=None, connections=None):
+        """
+        Enumerates available resources.
+
+        :param group: Group of resources to be enumerated
+        :type  group: str
+        :param connections: Connections to be used
+        :type  connections: dict
+        """
+
+        if not connections:
+            connections = self._refresh_connections()
+
         available = []
 
         for group_, resources in self.knowns.items():
@@ -123,7 +167,7 @@ class ResourceProvider:
                 continue
             for class_name, interface in resources.items():
                 com = self._get_communicable(interface['type'])
-                class_name = '{}.{}'.format(group_.lower(), class_name)
+                class_name = '{}.{}'.format(group_, class_name)
 
                 resources = com.get_available(class_name, interface, connections[interface['type']])
 
@@ -141,7 +185,7 @@ class ResourceProvider:
         """
 
         def print_av_dict(available_dict):
-            print(available_dict['class_name'])
+            print(' | '.join([c.split(',')[-1] for c in available_dict['class_name']]))
             com = self._get_communicable(available_dict['interface']['type'])
             for attr in com.format_interface(available_dict['interface']):
                 print('\t{}: {}'.format(attr[0], attr[1]))
@@ -163,7 +207,7 @@ class ResourceProvider:
         Prints all taken resources
         """
 
-        for _, com in self._communicables.items():
+        for _, com in self.__communicables.items():
             for taken in com.TAKEN:
                 attrs = com.format_interface(taken)
                 print(attrs[0][1])
@@ -192,18 +236,16 @@ class ResourceProvider:
         :param params: Needed parameters for automated class instantiation
         :type  params: dict
         """
+        class_ref = params.get('class_name', '')
 
-        for subcls_ in all_subclasses(Resource):
-            # Avoid conflicts between classes with the same name in different groups
-            clean_module_name = '.'.join(subcls_.__module__.split('.')[1:])
-            if params['class_name'].lower() == clean_module_name:
-                return self._construct(subcls_.__module__, params)
-
-        self.logger.warning(
-            msg='Can\'t construct class `{}`. Class is not subclass of any resource'.format(params['class_name']),
-            extra=self.log_args
-        )
-        return None
+        if class_ref and class_ref in self.__class_map:
+            return self._construct(class_ref, params)
+        else:
+            self.logger.error(
+                msg='Can\'t construct class `{}`. Class is not registered or aliased in brest.'.format(params['class_name']),
+                extra=self.log_args
+            )
+            return None
 
     def get_available_settings(self):
         """
@@ -239,12 +281,17 @@ class ResourceProvider:
         To construct resource from available just pass the resources's index
         while listing. If you specified `group=` parameter while listing, you
         also need to specify the `group=` with the same value to match the
-        indexes.
+        indexes. Note that since there can be multiple resources with the same
+        index, the method will try to construct all of them. The resources are 
+        returned as a dictionary where keys are class names and values are 
+        resource objects.
 
         :param index: Resource's index while listed
         :type  index: int
         :param group: Specified group of resources to be printed. To get available groups refer to the :ref:`supported`
         :type group: str
+        :return: Dictionary of constructed resources
+        :rtype: dict
         """
 
         available = self.available(group)
@@ -253,9 +300,32 @@ class ResourceProvider:
             return
 
         params = available[index]
-        resource = self.construct(params)
-        resource.detect_model()
-        return resource
+        resources = {}
+        
+        # try to construct all possible resources available listed under the interface
+        for class_name in params['class_name']:
+            try_params = dict(params)
+            try_params['class_name'] = class_name
+            resource = self.construct(try_params)
+            if not resource:
+                continue
+            try:
+                resource.detect_model()
+                all_resources = [r.__class__ for r in resources.values()]
+                if resource.__class__ in all_resources:
+                    resource.release()
+                    del resource
+                else:
+                    resources[class_name] = resource
+            except LookupError:
+                resource.release()
+                del resource
+        
+        if resources:
+            return resources
+                
+        self.logger.error('Could not construct any of the available resources from the group.', extra=self.log_args)
+        return None
 
     def construct_config(self, config):
         """
@@ -289,7 +359,12 @@ class ResourceProvider:
                     # Instantiation has failed
                     return None
                 resource.name = params['name']
-                resource.detect_model()
+                try:
+                    resource.detect_model()
+                except LookupError:
+                    resource.release()
+                    del resource
+                    continue
                 # Check if resource is matching requirements
                 if (
                     resource.check_required(params['required'])
@@ -335,6 +410,14 @@ class ResourceProvider:
             matching.clear()
             # Config validity should check if class_name is present in resource definition
             # and has valid value
+            if not isinstance(definition.get('class_name'), str):
+                self.logger.error(
+                    f"Resource `{alias}` must have a single string as class_name in the configuration.",
+                    extra=self.log_args
+                )
+                __log_missing_needed(needed)
+                return None
+                
             cls_name_split = definition['class_name'].split('.')
             group = cls_name_split[0]
             class_name = None
@@ -370,15 +453,22 @@ class ResourceProvider:
                 else:
                     params['interface'] = available['interface']
 
-                # If resources has full class_name definitions omit available
-                # with different classes
+                # params['class_name'] is a list. Check for matching classes.
                 if class_name:
-                    if class_name == params['class_name']:
+                    if definition['class_name'] in params['class_name']:
+                        # Fix params to a string so construct() gets a correct list
+                        params['class_name'] = definition['class_name']
                         matching.append(params)
                     else:
                         continue
                 else:
-                    matching.append(params)
+                    # fill all the possible class names from matched group
+                    for c in params['class_name']:
+                        if c.split('.')[0] == group:
+                            p = dict(params)
+                            p['class_name'] = c
+                            matching.append(p)
+
             # Try to construct class, that satisfies requirements
             fi = FilterAvailable()
             self.logger.addFilter(fi)
@@ -413,6 +503,7 @@ class ResourceProvider:
                 intr = impl_intr
             com = self._get_communicable(intr['type'])
 
+            intr['class_name'] = definition['class_name']
             for probed_interface in com.probe(intr):
                 params = dict(definition)
                 params['class_name'] = '{}.{}'.format(group, class_name)
@@ -465,13 +556,18 @@ class ResourceProvider:
         available = self.available()
         project_dict = dict()
         i = 0
+
         for av in available:
-            alias = 'resource_' + str(i)
-            project_dict[alias] = av
-            com = self._get_communicable(av['interface']['type'])
-            for attr in com.format_interface(av['interface']):
-                project_dict[alias]['interface'][attr[0]] = attr[1]
-            i += 1
+            for class_name in av['class_name']:
+                alias = 'resource_' + str(i)
+                project_dict[alias] = {
+                    'class_name': class_name,
+                    'interface': dict(av['interface'])
+                }
+                com = self._get_communicable(av['interface']['type'])
+                for attr in com.format_interface(av['interface']):
+                    project_dict[alias]['interface'][attr[0]] = attr[1]
+                i += 1
 
         config = Config(config_path=config_path)
         project_configs = []
@@ -496,7 +592,7 @@ class ResourceProvider:
         """
 
         connections = {}
-        for _, communicable in self._communicables.items():
+        for _, communicable in self.__communicables.items():
             connections[communicable.TYPE] = communicable.get_connections()
         return connections
 
@@ -507,8 +603,8 @@ class ResourceProvider:
         :param type_: Type of the communicable
         :type  type_: str
         """
-        if type_ in self._communicables:
-            return self._communicables[type_]
+        if type_ in self.__communicables:
+            return self.__communicables[type_]
         else:
             self.logger.error('Interface type `{}` is not known to Brest'.format(type_), extra=self.log_args)
 

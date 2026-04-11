@@ -30,19 +30,16 @@ class SCPICommunicable(SerialCommunicable):
     def __init__(self, params):
         SerialCommunicable.__init__(self, params)
 
-        self.message_suffix = self.SUFFIXES[0]  # TODO: Don't forget to mention in the documentation
+        # Try to retrieve from the pooled metadata first
+        self.message_suffix = self._get_metadata('message_suffix', self.SUFFIXES[0])
 
     def determine_suffix(self, command):
         """
         Tries to determine communication messages suffix.
-
-        Given command should return any string response in any state of
-        device. Function will interate over available suffixes until
-        given command returns string.
-
-        :param command: Command which should return any string response.
-        :type  command: :class:`~brest.communication.SCPICommand`
         """
+        # If we already have a pooled suffix, skip determination
+        if self.message_suffix != self.SUFFIXES[0]:
+            return
 
         i = 0
         response = self.transceive(command)
@@ -52,6 +49,9 @@ class SCPICommunicable(SerialCommunicable):
                 raise LookupError('Can\'t find a suitable message suffix')
             self.message_suffix = self.SUFFIXES[i]
             response = self.transceive(command)
+        
+        # Store the determined suffix in the global pool for other resources to use
+        self._set_metadata('message_suffix', self.message_suffix)
 
     def write(self, message):
         """
@@ -77,8 +77,10 @@ class SCPICommunicable(SerialCommunicable):
         :rtype: str
         """
 
-        self.write(message)
-        received = self.read_raw(expected=self.message_suffix)
+        with self._access_lock:
+            self.write(message)
+            received = self.read_raw(expected=self.message_suffix)
+        
         if decode:
             return received.decode(self.ENCODING)
         else:

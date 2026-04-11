@@ -12,9 +12,10 @@
 import serial
 import logging
 import weakref
+import threading
 
 from brest import HexInt
-from brest.communication import Communicable
+from brest.communication import Communicable, CommunicableError
 
 # Temporary workaround until new version of pyserial is released (refs #2786)
 # from serial.tools.list_ports import comports
@@ -33,6 +34,9 @@ class SerialCommunicable(Communicable):
     TYPE = 'serial'
     #: Tuples containing resource and its bound port
     TAKEN = []
+    #: Global pool of open serial connections: {port: {'com': serial_obj, 'refs': 0, 'metadata': {}}}
+    __POOL = {}
+    
     SETTINGS = [
         'vid', 'pid', 'serial_number', 'port', 'baudrate', 'bytesize',
         'parity', 'stopbits', 'timeout', 'xonxoff', 'rtscts', 'dsrdtr',
@@ -42,41 +46,96 @@ class SerialCommunicable(Communicable):
     def __init__(self, params):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
+        self.__com = None
 
-        if params:
-            serial_args = self.__filter_serial_args(params)
-            if 'port' in serial_args and serial_args['port'] is not None:
-                self.com = serial.Serial(**serial_args)
-                self.mark_taken(self)
-            else:
-                raise ValueError('Missing port definition')
+        if not params:
+            return
 
+        serial_args = self.__filter_serial_args(params)
+        port = serial_args.get('port')
+
+        if port is None:
+            raise ValueError('Missing port definition')
+
+        standard_name = self._get_resource_identifier(self)
+
+        # Global pool logic
+        if port in self.__POOL:
+            self.logger.info(f"Reusing existing connection for port {port}", extra=self.log_args)
+            self.__com = self.__POOL[port]['com']
+            self.__POOL[port]['refs'] += 1
+            self.__POOL[port]['classes'].append(standard_name)
+            
+            # Apply any specific metadata (like message_suffix if passed in params)
+            if 'metadata' in params:
+                 self.__POOL[port]['metadata'].update(params['metadata'])
+        else:
+            self.__com = serial.Serial(**serial_args)
+            self.__POOL[port] = {
+                'com': self.__com,
+                'refs': 1,
+                'classes': [standard_name],
+                'metadata': params.get('metadata', {}),
+                'access_lock': threading.RLock()
+            }
+        
+        # Assign a lock to each port to prevent race conditions between resources on the same port
+        # Used as a context manager https://docs.python.org/3/library/threading.html#with-locks
+        # for single operations and the SCPICommunicable.transceive() to assure consistent responses.
+        self._access_lock = self.__POOL[port]['access_lock']
+        self.mark_taken(self)
+    
     def connect(self):
-        if self.com and not self.com.isOpen():
-            self.com.open()
+        if self.__com and not self.__com.isOpen():
+            self.__com.open()
 
     def disconnect(self):
-        if self.com and self.com.isOpen():
-            self.com.close()
+        # release() handles the refs and closure.
+        pass
 
     def release(self):
-        self.disconnect()
-        self.unmark_taken(self)
+        if not self.__com:
+            return
+
+        port = self.__com.port
+        standard_name = self._get_resource_identifier(self)
+
+        if port in self.__POOL:
+            if standard_name in self.__POOL[port].get('classes', []):
+                self.__POOL[port]['classes'].remove(standard_name)
+
+            self.__POOL[port]['refs'] -= 1
+            if self.__POOL[port]['refs'] <= 0:
+                self.logger.debug(f"Closing pooled connection for port {port}", extra=self.log_args)
+                if self.__com.isOpen():
+                    self.__com.close()
+                self.unmark_taken(self)
+                del self.__POOL[port]
+            else:
+                self.unmark_taken(self)
+        else:
+            # Fallback for unpooled connections
+            if self.__com and self.__com.isOpen():
+                self.__com.close()
+            self.unmark_taken(self)
 
     def write_raw(self, data):
-        self.com.write(data)
+        with self._access_lock:
+            self.__com.write(data)
 
     def read_raw(self, expected='', size=None):
-        if size:
-            received = self.com.read(size)
-        else:
-            received = self.com.read_until(expected, size)
-        return received
+        with self._access_lock:
+            if size:
+                received = self.__com.read(size)
+            else:
+                received = self.__com.read_until(expected, size)
+            return received
 
     def get_connections(self):
         return comports()
 
     def probe(self, interface, connections=None):
+        class_name = interface.get('class_name')
 
         def __device_to_interface(interface, com):
             new_interface = dict(interface)
@@ -118,23 +177,43 @@ class SerialCommunicable(Communicable):
         return probed
 
     def mark_taken(self, resource):
-        self.TAKEN.append((resource.__class__.__name__, resource.com.port))
+        standard_name = self._get_resource_identifier(resource)
+        self.TAKEN.append((standard_name, resource.__com.port))
 
     def unmark_taken(self, resource):
+        standard_name = self._get_resource_identifier(resource)
         try:
-            self.TAKEN.remove((resource.__class__.__name__, resource.com.port))
+            self.TAKEN.remove((standard_name, resource.__com.port))
         except ValueError:
             pass
 
     def is_taken(self, interface):
-        for taken in self.TAKEN:
-            if interface['port'] == taken[1]:
-                return True
+        port = interface.get('port')
+        if not port:
+            return False
+
+        # If a class_name is provided in the check, we check if THAT specific
+        # resource type is already on the port.
+        class_name = interface.get('class_name')
+        
+        for taken_class, taken_port in self.TAKEN:
+            if port == taken_port:
+                if class_name is None or class_name == taken_class:
+                    return True
         return False
+
+    def _get_resource_identifier(self, resource):
+        module_name = resource.__class__.__module__
+        
+        module = module_name.split('.')[1]
+        class_name = resource.__class__.__name__
+        return f"{module}.{class_name}"
 
     def get_available(self, class_name, interface, connections):
         resources = []
+        interface['class_name'] = class_name
         interfaces = self.probe(interface, connections)
+
         for interface_ in interfaces:
             resources.append(
                 {
@@ -163,6 +242,24 @@ class SerialCommunicable(Communicable):
                     attrs.append((name, value))
         return attrs
 
+    def _get_metadata(self, key, default=None):
+        """Retrieve metadata for the current connection."""
+        if self.__com and self.__com.port in self.__POOL:
+            return self.__POOL[self.__com.port]['metadata'].get(key, default)
+        return default
+
+    def _set_metadata(self, key, value):
+        """Set metadata for the current connection."""
+        try:
+            if self.__com and self.__com.port in self.__POOL:
+                self.__POOL[self.__com.port]['metadata'][key] = value
+        except (AttributeError, KeyError) as e:
+            self.logger.warning(
+                f"Failed to set metadata '{key}' on {self.__class__.__name__}: "
+                f"Connection may have been released or is uninitialized.",
+                extra=self.log_args
+            )
+
     def __filter_serial_args(self, params):
         """
         Filters out serial.Serial() compatible arguments
@@ -180,5 +277,5 @@ class SerialCommunicable(Communicable):
         """
 
         for attr, value in params.items():
-            if hasattr(self.com, attr):
-                setattr(self.com, attr, value)
+            if hasattr(self.__com, attr):
+                setattr(self.__com, attr, value)
