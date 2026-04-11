@@ -41,16 +41,42 @@ class ResourceProvider:
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
-        #: All known resource classes
+        # known resource classes grouped by parent class (i.e. supplies)
         self.knowns = {}
-        # Merge all known resources into one dict
-        for cls_ in Resource.__subclasses__():
-            self.knowns[cls_.__name__.lower()] = cls_.KNOWN
+        # mapping from class name and aliases to class object
+        self.__class_map = {}
 
-        self._communicables = {}
+        # Merge all known resources into one dict and build the translation layer
+        for group_node in Resource.__subclasses__():
+            group_name = group_node.__name__.lower()
+
+            if group_node.KNOWN:
+                self.knowns[group_name] = group_node.KNOWN
+
+            # Iterate over implementations inside groups
+            for cls_ in all_subclasses(group_node):
+                cls_name = cls_.__name__
+
+                # Represent as group.Class
+                full_ref = f"{group_name}.{cls_name}"
+                self.__class_map[full_ref] = cls_
+
+                # Add aliases
+                alias = cls_.ALIAS
+                if alias:
+                    if isinstance(alias, str):
+                        alias = [alias]
+                    for a in alias:
+                        alias_ref = f"{group_name}.{a}"
+                        self.__class_map[alias_ref] = cls_
+                        
+                        if group_node.KNOWN and cls_.__name__ in group_node.KNOWN:
+                            group_node.KNOWN[a] = group_node.KNOWN[cls_.__name__]
+
+        self.__communicables = {}
         for com in self._all_communicables(Communicable):
-            self._communicables[com.TYPE] = com(None)
-
+            self.__communicables[com.TYPE] = com(None)
+ 
     def print_probe(self, class_name):
         """
         Checks if resource is present in the system, and prints its interface.
@@ -186,24 +212,24 @@ class ResourceProvider:
         :returns: Avaiable settings for resource class
         :rtype: dict
         """
-
+        
         available_settings = {}
-        for group in Resource.__subclasses__():
-            for resource in group.__subclasses__():
-                name = '{}.{}'.format(group.__name__.lower(), resource.__name__)
-                default = inspect.getmembers(
-                    resource,
+
+        for name, obj in self.__class_map.items():
+            default = inspect.getmembers(
+                obj,
                     lambda value: inspect.isfunction(value) and 'default' in value.__name__
                 )
-                required = inspect.getmembers(
-                    resource,
+            required = inspect.getmembers(
+                obj,
                     lambda value: inspect.isfunction(value) and 'required' in value.__name__
                 )
-                available_settings[name] = {
-                    'default': [m[0].split('_')[1] for m in default],
-                    'required': [m[0].split('_')[1] for m in required],
-                    'interface': list(resource.SETTINGS)
-                }
+            available_settings[name] = {
+                'default': [m[0].split('_')[1] for m in default],
+                'required': [m[0].split('_')[1] for m in required],
+                'interface': list(obj.SETTINGS)
+            }
+
         return available_settings
 
     def construct_available(self, index, group=None):
@@ -496,8 +522,12 @@ class ResourceProvider:
 
         interface = None
         for _, resources in self.knowns.items():
-            if class_name in resources:
-                interface = resources[class_name]
+            for known_name, known_interface in resources.items():
+                if known_name.lower() == class_name.lower():
+                    interface = known_interface
+                    break
+            if interface is not None:
+                break
         if interface is None:
             self.logger.warning('Class `{}` is not known to Brest'.format(class_name), extra=self.log_args)
             return None
@@ -510,15 +540,8 @@ class ResourceProvider:
 
         from serial import SerialException
 
-        module = importlib.import_module(module_name)
-        class_ = getattr(module, params['class_name'].split('.')[1])
-        # Possible log message
-        if 'name' in params:
-            message = 'Error during `{}` construction. '.format(params['name'])
-        else:
-            message = 'Error during `{}` construction. '.format(params['class_name'])
-
-        del params['class_name']  # Avoid unnecessary warning about class_name not being a class attribute
+        class_ = self.__class_map[module_name]
+        message = f"Error during `{class_.__name__}` construction."
 
         try:
             instance = class_(params)

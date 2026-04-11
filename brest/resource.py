@@ -21,6 +21,8 @@ class Resource():
     """
 
     _count = 0
+    KNOWN = {}
+    ALIAS = None
 
     def __init__(self, params):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
