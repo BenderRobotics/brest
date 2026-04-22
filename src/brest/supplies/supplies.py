@@ -87,7 +87,7 @@ class Supplies(Resource):
             s += '{}: {}\n'.format('protection', self.protection)
             s += '{}: {}\n'.format('kind', self.kind.name)
             return s
-        
+
         def detect(self, response: str) -> bool:
             """
             Detects if the model matches the response.

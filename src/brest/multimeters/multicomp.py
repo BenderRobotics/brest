@@ -296,7 +296,7 @@ class Multicomp(Multimeters, SCPICommunicable):
 
     def detect_model(self):
         response = self.transceive(self.Commands.GET_INFO)
- 
+
         if response and isinstance(response, str):
             split_response = response.split(',')
             if len(split_response) >= 3:

@@ -49,7 +49,7 @@ class SCPICommunicable(SerialCommunicable):
                 raise LookupError('Can\'t find a suitable message suffix')
             self.message_suffix = self.SUFFIXES[i]
             response = self.transceive(command)
-        
+
         # Store the determined suffix in the global pool for other resources to use
         self._set_metadata('message_suffix', self.message_suffix)
 
@@ -80,7 +80,7 @@ class SCPICommunicable(SerialCommunicable):
         with self._access_lock:
             self.write(message)
             received = self.read_raw(expected=self.message_suffix)
-        
+
         if decode:
             return received.decode(self.ENCODING)
         else:

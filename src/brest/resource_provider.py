@@ -69,14 +69,14 @@ class ResourceProvider:
                     for a in alias:
                         alias_ref = f"{group_name}.{a}"
                         self.__class_map[alias_ref] = cls_
-                        
+
                         if group_node.KNOWN and cls_.__name__ in group_node.KNOWN:
                             group_node.KNOWN[a] = group_node.KNOWN[cls_.__name__]
 
         self.__communicables = {}
         for com in self._all_communicables(Communicable):
             self.__communicables[com.TYPE] = com(None)
- 
+
     def print_probe(self, class_name):
         """
         Checks if resource is present in the system, and prints its interface.
@@ -128,13 +128,13 @@ class ResourceProvider:
                 if interface.get('type') == group_intr.get('type'):
                     if 'port' in interface and 'port' in group_intr:
                         is_same = interface['port'] == group_intr['port']
-                
+
                 if is_same:
                     if resource['class_name'] not in group_res['class_name']:
                         group_res['class_name'].append(resource['class_name'])
                     found = True
                     break
-                    
+
             if not found:
                 new_interface = dict(resource['interface'])
                 if 'class_name' in new_interface:
@@ -254,7 +254,7 @@ class ResourceProvider:
         :returns: Avaiable settings for resource class
         :rtype: dict
         """
-        
+
         available_settings = {}
 
         for name, obj in self.__class_map.items():
@@ -282,8 +282,8 @@ class ResourceProvider:
         while listing. If you specified `group=` parameter while listing, you
         also need to specify the `group=` with the same value to match the
         indexes. Note that since there can be multiple resources with the same
-        index, the method will try to construct all of them. The resources are 
-        returned as a dictionary where keys are class names and values are 
+        index, the method will try to construct all of them. The resources are
+        returned as a dictionary where keys are class names and values are
         resource objects.
 
         :param index: Resource's index while listed
@@ -301,7 +301,7 @@ class ResourceProvider:
 
         params = available[index]
         resources = {}
-        
+
         # try to construct all possible resources available listed under the interface
         for class_name in params['class_name']:
             try_params = dict(params)
@@ -320,10 +320,10 @@ class ResourceProvider:
             except LookupError:
                 resource.release()
                 del resource
-        
+
         if resources:
             return resources
-                
+
         self.logger.error('Could not construct any of the available resources from the group.', extra=self.log_args)
         return None
 
@@ -417,7 +417,7 @@ class ResourceProvider:
                 )
                 __log_missing_needed(needed)
                 return None
-                
+
             cls_name_split = definition['class_name'].split('.')
             group = cls_name_split[0]
             class_name = None

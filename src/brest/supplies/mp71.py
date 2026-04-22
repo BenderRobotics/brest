@@ -121,7 +121,7 @@ class MP71(Supplies, SCPICommunicable):
             with suppress(Exception):
                 self.disable()
         SCPICommunicable.release(self)
-    
+
     def detect_model(self):
         # Tenmas with added support for programing won't return anything
         # on *IDN? instruction
@@ -131,7 +131,7 @@ class MP71(Supplies, SCPICommunicable):
             if model.detect(response):
                 self._apply_model(model)
                 break
-        
+
         # Check whether a model was detected and applied
         if not self.IDN:
             raise LookupError('Unable to detect a valid Multicomp Pro MP71xxxx power supply model.')

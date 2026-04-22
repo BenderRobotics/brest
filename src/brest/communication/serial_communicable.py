@@ -36,7 +36,7 @@ class SerialCommunicable(Communicable):
     TAKEN = []
     #: Global pool of open serial connections: {port: {'com': serial_obj, 'refs': 0, 'metadata': {}}}
     __POOL = {}
-    
+
     SETTINGS = [
         'vid', 'pid', 'serial_number', 'port', 'baudrate', 'bytesize',
         'parity', 'stopbits', 'timeout', 'xonxoff', 'rtscts', 'dsrdtr',
@@ -65,7 +65,7 @@ class SerialCommunicable(Communicable):
             self.__com = self.__POOL[port]['com']
             self.__POOL[port]['refs'] += 1
             self.__POOL[port]['classes'].append(standard_name)
-            
+
             # Apply any specific metadata (like message_suffix if passed in params)
             if 'metadata' in params:
                  self.__POOL[port]['metadata'].update(params['metadata'])
@@ -78,13 +78,13 @@ class SerialCommunicable(Communicable):
                 'metadata': params.get('metadata', {}),
                 'access_lock': threading.RLock()
             }
-        
+
         # Assign a lock to each port to prevent race conditions between resources on the same port
         # Used as a context manager https://docs.python.org/3/library/threading.html#with-locks
         # for single operations and the SCPICommunicable.transceive() to assure consistent responses.
         self._access_lock = self.__POOL[port]['access_lock']
         self.mark_taken(self)
-    
+
     def connect(self):
         if self.__com and not self.__com.isOpen():
             self.__com.open()
@@ -195,7 +195,7 @@ class SerialCommunicable(Communicable):
         # If a class_name is provided in the check, we check if THAT specific
         # resource type is already on the port.
         class_name = interface.get('class_name')
-        
+
         for taken_class, taken_port in self.TAKEN:
             if port == taken_port:
                 if class_name is None or class_name == taken_class:
@@ -204,7 +204,7 @@ class SerialCommunicable(Communicable):
 
     def _get_resource_identifier(self, resource):
         module_name = resource.__class__.__module__
-        
+
         module = module_name.split('.')[1]
         class_name = resource.__class__.__name__
         return f"{module}.{class_name}"

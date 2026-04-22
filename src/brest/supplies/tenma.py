@@ -32,11 +32,11 @@ class Tenma(Supplies, SCPICommunicable):
     :param params: Construction parameters
     :type  params: dict
 
-    Supported models: 
-                        TENMA 72-2535, TENMA 72-2540, TENMA 72-2545, TENMA 72-2550, TENMA 72-13330, 
-                        TENMA 72-2705, Multicomp Pro 72-2535, Multicomp Pro 72-2540, Multicomp Pro 72-2545, 
+    Supported models:
+                        TENMA 72-2535, TENMA 72-2540, TENMA 72-2545, TENMA 72-2550, TENMA 72-13330,
+                        TENMA 72-2705, Multicomp Pro 72-2535, Multicomp Pro 72-2540, Multicomp Pro 72-2545,
                         Multicomp Pro 72-2550, Multicomp Pro 72-13330, Multicomp Pro 72-2705
-        
+
     Implicit interface definition::
         interface:
             type:    'serial'
@@ -100,7 +100,7 @@ class Tenma(Supplies, SCPICommunicable):
         @property
         def cc(self):
             return not self.cvcc
-    
+
     Models = [
         TenmaModel(
             'TENMA 72-2535', 1, 5, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
@@ -116,7 +116,7 @@ class Tenma(Supplies, SCPICommunicable):
         ),
         TenmaModel(
             'TENMA 2550', 1, 5, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
-            Supplies.Kind.PROGRAMMABLE  
+            Supplies.Kind.PROGRAMMABLE
         ),
         TenmaModel(
             'TENMA 72-13330', 2, 9, 30.0, 5.0, [], Supplies.Kind.PROGRAMMABLE
@@ -149,7 +149,7 @@ class Tenma(Supplies, SCPICommunicable):
             Supplies.Kind.PROGRAMMABLE
         ),
     ]
-    
+
     def __init__(self, params):
         Supplies.__init__(self, params)
         SCPICommunicable.__init__(self, params['interface'])
@@ -313,9 +313,9 @@ class Tenma(Supplies, SCPICommunicable):
                         ),
                         extra=self.log_args
                     )
-                
+
                 break
-        
+
         # Check whether a model was detected and applied
         if not self.IDN:
             raise LookupError('Unable to detect a valid Tenma power supply model.')

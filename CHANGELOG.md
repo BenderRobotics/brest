@@ -8,6 +8,7 @@
 - Added support for Multicomp Pro MP71xxxx multimeters. #13084
 - Added support for making class-level aliases for resources. #13084
 - Added SerialCommunicable pool to provide multi-resource access to same port. #13084
+- Added setuptools-scm for automatic versioning
 
 
 ## [1.0.0] - 2024-02-29

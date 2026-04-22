@@ -35,7 +35,7 @@ class DisplaySnifferCommunicable(Communicable):
         except ModuleNotFoundError:
             return []
 
-        generated_list = list_fx3_devices()
+        generated_list = display_sniffer.list_fx3_devices()
         sniffer_list = []
         for value in generated_list:
             one_fx3 = value.__dict__

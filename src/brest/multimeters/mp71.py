@@ -58,7 +58,7 @@ class MP71(Multimeters, SCPICommunicable):
         MEASURE = SCPIQueryCommand('CONF')  # Returns mode and value
         GET_MODE = SCPIQueryCommand('CONF:ALL') # Use CONF as it's more reliable for mode + status
         GET_INFO = SCPIQueryCommand('*IDN')  # Returns basic info about the device
-        
+
         # Mode switching
         SET_MODE_VOLT_DC = SCPICommand('FUNC:VOLT:DC')
         SET_MODE_VOLT_AC = SCPICommand('FUNC:VOLT:AC')
@@ -76,7 +76,7 @@ class MP71(Multimeters, SCPICommunicable):
         SET_CURR_AC_RANGE = SCPIValueCommand('CURR:AC:RANG', delimiter=' ')
         SET_CAP_RANGE = SCPIValueCommand('CAP:RANG', delimiter=' ')
         SET_RES_RANGE = SCPIValueCommand('RES:RANG', delimiter=' ')
-        
+
         SET_VOLT_DC_AUTO = SCPIValueCommand('VOLT:DC:RANG:AUTO', delimiter=' ')
         SET_VOLT_AC_AUTO = SCPIValueCommand('VOLT:AC:RANG:AUTO', delimiter=' ')
         SET_CURR_DC_AUTO = SCPIValueCommand('CURR:DC:RANG:AUTO', delimiter=' ')
@@ -96,22 +96,22 @@ class MP71(Multimeters, SCPICommunicable):
         DC_20V = '20'
         DC_200V = '200'
         DC_1000V = '1000'
-        
+
         # AC Voltage: 200mV, 2V, 20V, 200V, 750V
         AC_200MV = '0.2'
         AC_2V = '2'
         AC_20V = '20'
         AC_200V = '200'
         AC_750V = '750'
-        
+
         # DC Current: 200mA, 10A
         DC_200MA = '0.2'
         DC_10A = '10'
-        
+
         # AC Current: 200mA, 10A
         AC_200MA = '0.2'
         AC_10A = '10'
-        
+
         # Resistance: 200, 2k, 20k, 200k, 2M, 20M, 100M
         RES_200R = '200'
         RES_2KR = '2E3'
@@ -120,7 +120,7 @@ class MP71(Multimeters, SCPICommunicable):
         RES_2MR = '2E6'
         RES_20MR = '20E6'
         RES_100MR = '100E6'
-        
+
         # Capacitance: 2nF, 20nF, 200nF, 2uF, 20uF, 200uF, 10mF
         CAP_2NF = '2E-9'
         CAP_20NF = '20E-9'
@@ -214,7 +214,7 @@ class MP71(Multimeters, SCPICommunicable):
             if mode.value in mode_received:
                 self.mode = mode
                 return self.mode
-        
+
         raise ValueError(f"Mode received in an incorrect format. Received message: {mode_received}")
 
     def is_mode(self, mode) -> bool:
@@ -240,7 +240,7 @@ class MP71(Multimeters, SCPICommunicable):
 
     def get_range(self):
         """
-        Queries the current range. 
+        Queries the current range.
         Note: Since ranges are mode-specific in this series, this returns the full CONF? string.
         """
         return self.transceive(self.Commands.GET_MODE).strip('\r\n')
@@ -279,7 +279,7 @@ class MP71(Multimeters, SCPICommunicable):
             self.transceive(self.Commands.SET_VOLT_DC_RANGE)
             self.Commands.SET_VOLT_DC_AUTO.value = 'OFF'
             self.transceive(self.Commands.SET_VOLT_DC_AUTO)
-        
+
         if self.is_mode(self.Modes.VOLT):
             self.mode = self.Modes.VOLT
             self.logger.info(f"Measurement mode has been set to Voltage DC, range: {range.name}", extra=self.log_args)
@@ -302,7 +302,7 @@ class MP71(Multimeters, SCPICommunicable):
             self.transceive(self.Commands.SET_VOLT_AC_RANGE)
             self.Commands.SET_VOLT_AC_AUTO.value = 'OFF'
             self.transceive(self.Commands.SET_VOLT_AC_AUTO)
-        
+
         if self.is_mode(self.Modes.VOLT_AC):
             self.mode = self.Modes.VOLT_AC
             self.logger.info(f"Measurement mode has been set to Voltage AC, range: {range.name}", extra=self.log_args)
@@ -325,7 +325,7 @@ class MP71(Multimeters, SCPICommunicable):
             self.Commands.SET_CURR_DC_AUTO.value = 'OFF'
             self.transceive(self.Commands.SET_CURR_DC_RANGE)
             self.transceive(self.Commands.SET_CURR_DC_AUTO)
-        
+
         if self.is_mode(self.Modes.CURR):
             self.mode = self.Modes.CURR
             self.logger.info(f"Measurement mode has been set to Current DC, range: {range.name}", extra=self.log_args)
@@ -348,7 +348,7 @@ class MP71(Multimeters, SCPICommunicable):
             self.transceive(self.Commands.SET_CURR_AC_RANGE)
             self.Commands.SET_CURR_AC_AUTO.value = 'OFF'
             self.transceive(self.Commands.SET_CURR_AC_AUTO)
-        
+
         if self.is_mode(self.Modes.CURR_AC):
             self.mode = self.Modes.CURR_AC
             self.logger.info(f"Measurement mode has been set to Current AC, range: {range.name}", extra=self.log_args)
@@ -371,7 +371,7 @@ class MP71(Multimeters, SCPICommunicable):
             self.transceive(self.Commands.SET_RES_RANGE)
             self.Commands.SET_RES_AUTO.value = 'OFF'
             self.transceive(self.Commands.SET_RES_AUTO)
-        
+
         if self.is_mode(self.Modes.RES):
             self.mode = self.Modes.RES
             self.logger.info(f"Measurement mode has been set to Resistance, range: {range.name}", extra=self.log_args)
@@ -394,7 +394,7 @@ class MP71(Multimeters, SCPICommunicable):
             self.transceive(self.Commands.SET_CAP_RANGE)
             self.Commands.SET_CAP_AUTO.value = 'OFF'
             self.transceive(self.Commands.SET_CAP_AUTO)
-        
+
         if self.is_mode(self.Modes.CAP):
             self.mode = self.Modes.CAP
             self.logger.info(f"Measurement mode has been set to Capacitance, range: {range.name}", extra=self.log_args)
@@ -460,7 +460,7 @@ class MP71(Multimeters, SCPICommunicable):
         """
         if unit not in self.VOLTAGE_UNITS:
             raise ValueError(f'Unit {unit} is not supported (part of VOLTAGE_UNITS)')
- 
+
         multiplier = float(unit.value)
 
         result = self._measure_value()
@@ -479,7 +479,7 @@ class MP71(Multimeters, SCPICommunicable):
         """
         if unit not in self.CURRENT_UNITS:
             raise ValueError(f'Unit {unit} is not supported (part of CURRENT_UNITS)')
-        
+
         multiplier = float(unit.value)
 
         result = self._measure_value()

@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "brest"
+dynamic = ["version"]
+description = "Bender Robotics Embedded Systems Toolkit"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Bender Robotics", email = "muller@benderrobotics.com"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "colorama==0.4.6",
+    "pyserial==3.5",
+    "PyYAML==6.0.1",
+    "Cython==0.29.36",
+    "hidapi==0.14.0",
+    "crcmod==1.7",
+    "packaging==23.2",
+]
+
+[project.urls]
+Homepage = "https://www.benderrobotics.com"
+
+[project.scripts]
+"brest.gui" = "brest.gui.app:main"
+
+[project.optional-dependencies]
+docs = [
+    "sphinx",
+    "sphinx_rtd_theme",
+    "m2r2",
+]
+cameras_win = [
+    "pywin32",
+    "opencv-python",
+    "imageio",
+    "imageio-ffmpeg",
+    "display_sniffer>=1.2.0",
+]
+cameras_unix = [
+    "opencv-python",
+    "imageio",
+    "imageio-ffmpeg",
+    "display_sniffer>=1.2.0",
+]
+jlink_win = [
+    "pywin32",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"brest.gui.icon" = ["*"]
+
+[tool.setuptools_scm]
+write_to = "src/brest/__version__.py"
+version_scheme = "guess-next-dev"
+local_scheme = "node-and-date"
