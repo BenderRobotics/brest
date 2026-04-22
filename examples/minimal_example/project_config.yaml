@@ -1,0 +1,7 @@
+project_name:
+    psu:
+        class_name: 'Supplies'
+        disable_on_destruct: False
+        default:
+            voltage: 12
+            current: 0.5

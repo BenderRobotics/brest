@@ -1,0 +1,34 @@
+version: 0.2.0
+project: brest
+executors:
+  python:
+    type: docker
+    image: python:3.8
+    prepare:
+      - pip install build
+
+  toolchain:
+    type: docker
+    image: registry.benderrobotics.com/br/tools/brest/toolchain:latest
+    prepare:
+      - apk add git
+      - pip install --upgrade pip setuptools Cython==0.29.36
+
+commands:                     # optional
+  build-wheel:
+    steps:
+      - executor: python
+        script: |
+          python -m build --sdist --wheel .
+
+  build-doc:
+    steps:
+      - executor: toolchain
+        script: |
+          pip install -i https://pypi.benderrobotics.com dist/brest-*.whl
+          pip install .\[docs]
+          pip install --no-cache-dir cm/sphinx-versions/sphinx-versions-1.1.3.post4.tar.gz
+          cd docs
+          make html-versioned
+          cd ../tools
+          python docs_invert_titles.py

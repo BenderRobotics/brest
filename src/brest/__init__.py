@@ -37,6 +37,7 @@ from yaml import add_representer
 from .helpers import HexInt, hex_representer
 add_representer(HexInt, hex_representer)
 
+from .__version__ import __version__
 from .log import CharStreamHandler
 from .config import Config
 from .resource import Resource

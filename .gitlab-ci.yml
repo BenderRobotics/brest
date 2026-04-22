@@ -1,5 +1,5 @@
 image:
-  name: ${CI_REGISTRY_IMAGE}/toolchain
+  name: python:3.8
   pull_policy: always
 
 stages:
@@ -157,6 +157,7 @@ unit-tests-artifacts:
 build-docs-for-deploy:
   stage: docs
   needs: ["build-wheel"]
+  image: $CI_REGISTRY_IMAGE/toolchain
   tags:
     - docker
   variables:

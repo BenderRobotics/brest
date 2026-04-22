@@ -1,8 +1,44 @@
 # Bender Robotics Embedded Systems Toolkit documentation builder
 
-## Building
-To build the most recent documentation offline, follow the steps in the main README (`.\..\README.md`).
+## Building the offline documentation
+To build the docs for offline usage, you need to install the dependencies first. Assuming that you have already Brest installed, you
+can use:
 
+    $ pip install brest[docs]
+
+to install dependencies for building the docs. Next step is to navigate to the `./docs/` folder and execute the following command:
+
+    $ make html
+
+If the build was successful, the docs will be accessible in `./docs/_build/html/` directory under `index.html`.
+If you don't have **make** installed yet, please refer to [Installing make](#installing-make)
+
+There is an option to build versioned documentation. In order to be able to do that a versioning support has to be added. Navigate to `./cm/sphinx-versions/` and install the package inside:
+
+    $ pip install --no-cache-dir sphinx-versions-1.1.3.post4.tar.gz
+
+After that the versioned documentation can be built by going to `./docs/` and using:
+
+    $ make html-versioned
+
+If the command fails with sth like `fatal: could not read Username for 'https://github.com'` one might have to adjust settings in repository `.git-config`:
+
+    [credential]
+        helper = manager
+
+This was observed and fixed on Windows10 machine.
+
+### Installing make
+On Ubuntu like machines execute the following command:
+
+    $ sudo apt install make
+
+If you are on windows machine, you can install a [MinGW](http://www.mingw.org/). In the MinGW installer choose `mingw32-base-bin` and
+`msys-base-bin` packages, then click on *Installation* and *Apply changes*.
+Don't forget to add the **make** binary to the system `PATH`. Default install location should be `C:/MinGW/msys/1.0/bin/`.
+
+
+## Build Strategy
 The documentation is by default built only upon tagged commits.
 This can complicate development or update of the documentation.
 To include the version of documentation that is currently being worked on, change the `current_branch` parameter in `.\conf.py` to the branch with the changes.

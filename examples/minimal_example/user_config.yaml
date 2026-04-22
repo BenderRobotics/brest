@@ -1,0 +1,4 @@
+project_name:
+    psu:
+        class_name: 'supplies.Mansup'
+        prompt: yes
