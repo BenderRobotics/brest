@@ -20,5 +20,3 @@ __all__ = [
     'ConfigController',
     'ProjectResourceController',
 ]
-
-__version__ = '0.0.14'

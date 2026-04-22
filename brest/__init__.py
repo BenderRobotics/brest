@@ -60,8 +60,6 @@ __all__ = [
     'run',
 ]
 
-__version__ = '1.0.1.dev8653+2'
-
 
 def find_available_resource(projects, resource, user_config=Config.BREST_USER_CONFIG, project_config=None):
     """

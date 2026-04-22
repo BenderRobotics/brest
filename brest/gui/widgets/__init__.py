@@ -18,5 +18,3 @@ __all__ = [
     'Editor',
     'ScrollableFrame',
 ]
-
-__version__ = '0.0.14'

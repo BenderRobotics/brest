@@ -20,5 +20,3 @@ __all__ = [
     'ProjectResourceModel',
     'ConfigModel'
 ]
-
-__version__ = '0.0.14'

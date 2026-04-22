@@ -18,5 +18,3 @@ __all__ = [
     'Manio',
     'USBRelay',
 ]
-
-__version__ = '0.0.10'

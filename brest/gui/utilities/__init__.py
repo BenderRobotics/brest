@@ -16,5 +16,3 @@ __all__ = [
     'TextSyntaxHighlight',
     'dict_to_treeview',
 ]
-
-__version__ = '0.0.14'

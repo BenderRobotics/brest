@@ -15,5 +15,3 @@ from .tenma import Tenma
 from .mp71 import MP71
 
 __all__ = ['Supplies', 'Mansup', 'Tenma', 'MP71']
-
-__version__ = '1.0.0'

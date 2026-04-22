@@ -15,5 +15,3 @@ from .mp71 import MP71
 from .manmulti import Manmulti
 
 __all__ = ['Multimeters', 'Multicomp', 'MP71', 'Manmulti']
-
-__version__ = '1.0.0'

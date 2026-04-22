@@ -20,5 +20,3 @@ __all__ = [
     'ProjectView',
     'ProjectResourceView',
 ]
-
-__version__ = '0.0.14'

@@ -49,5 +49,3 @@ __all__ = [
     'ClewareCommunicable',
     'types',
     ]
-
-__version__ = '1.0.0'

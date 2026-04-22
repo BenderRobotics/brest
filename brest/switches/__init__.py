@@ -20,5 +20,3 @@ __all__ = [
     'Manswitch',
     'YepkitSwitch',
 ]
-
-__version__ = '1.0.0'

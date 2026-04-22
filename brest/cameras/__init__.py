@@ -22,5 +22,3 @@ __all__ = [
     'Basler',
     'DisplaySniffer'
     ]
-
-__version__ = '1.0.0'
