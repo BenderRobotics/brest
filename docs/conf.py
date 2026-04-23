@@ -142,6 +142,7 @@ scv_whitelist_branches = (current_branch, )
 scv_whitelist_tags = (              # Tag filtering:
     # Main releases are enabled
     re.compile(r'^[0-9]+\.[0-9]+\.[0-9]+$'),
+    re.compile(r'^v[0-9]+\.[0-9]+\.[0-9]+$'),
     # Tags for doc update are enabled
     # re.compile(r'^([0-9]+\.[0-9]+\.[0-9]+)\.doc$'),
     re.compile(r'^([0-9]+\.[0-9]+\.[0-9]+)\.doc_1.0.0$'),
