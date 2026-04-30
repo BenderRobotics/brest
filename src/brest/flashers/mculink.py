@@ -286,7 +286,36 @@ class MCULink(Flashers, FlasherCommunicable):
         raise NotImplementedError
 
     def hard_reset(self, timeout=None):
-        raise NotImplementedError
+        if timeout is None:
+            timeout = 200
+
+        if not self._check_parameters():
+            return None
+
+        # prepare command
+        command = [CLI_UTIL_SERVER_PATH, '--commandline']
+
+        inputs = (
+            f'PROBEOPENBYSERIAL "{self._serial_number}"\n'
+            'WIRESWDCONNECT THIS\n'
+            'CMResetVectorCatchSet This\n'
+            'CMSysResetReq This'
+            'APList This\n'
+            'CMInitApDp This\n'
+            'CMResetVectorCatchClear This\n'
+            'EXIT'
+        )
+
+        process = run(command, stdout=PIPE, stdin=PIPE, stderr=STDOUT,
+                      log=self._log, timeout=timeout, input_=inputs)
+
+        if process.returncode != 0:
+            msg = (
+                f'Return code: {process.returncode}, '
+                'Unable to perform reset operation{0}{1}'.format(os.linesep, process.stdout.read().decode())
+            )
+            self.logger.error(msg, extra=self.log_args)
+            raise ConnectionError(msg)
 
     def __parse_connect(self, *args):
         connect_args = [CLI_UTIL_USAGE_PATH]
