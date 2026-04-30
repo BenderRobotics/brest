@@ -105,3 +105,12 @@ def get_info(self):
     mode_val = self.transceive(self.Commands.GET_MODE).strip('\r\n')
     response = {"Device information": device_info, "Status": mode_val}
 ```
+
+## Multi-channel resources
+
+The resource abstraction is not ideal to achieve full potential of brest. The users should be able to specify they want a channel from a PSU rather than having to manually look for a PSU which has multichannel capabilities.
+
+## GET_STATUS 
+
+The currently implemented `get_status()` in Tenma is not easily transferable across resources. (i.e. supplies.Tenma -> supplies.MP71)
+Though it is possible to achieve similar behavior in different supplies, the commands and returned values from each supply may be different.

@@ -46,7 +46,7 @@ class SerialCommunicable(Communicable):
     def __init__(self, params):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
-        self.__com = None
+        self._com = None
 
         if not params:
             return
@@ -62,7 +62,7 @@ class SerialCommunicable(Communicable):
         # Global pool logic
         if port in self.__POOL:
             self.logger.info(f"Reusing existing connection for port {port}", extra=self.log_args)
-            self.__com = self.__POOL[port]['com']
+            self._com = self.__POOL[port]['com']
             self.__POOL[port]['refs'] += 1
             self.__POOL[port]['classes'].append(standard_name)
 
@@ -70,9 +70,9 @@ class SerialCommunicable(Communicable):
             if 'metadata' in params:
                  self.__POOL[port]['metadata'].update(params['metadata'])
         else:
-            self.__com = serial.Serial(**serial_args)
+            self._com = serial.Serial(**serial_args)
             self.__POOL[port] = {
-                'com': self.__com,
+                'com': self._com,
                 'refs': 1,
                 'classes': [standard_name],
                 'metadata': params.get('metadata', {}),
@@ -86,18 +86,18 @@ class SerialCommunicable(Communicable):
         self.mark_taken(self)
 
     def connect(self):
-        if self.__com and not self.__com.isOpen():
-            self.__com.open()
+        if self._com and not self._com.isOpen():
+            self._com.open()
 
     def disconnect(self):
-        # release() handles the refs and closure.
-        pass
+        if self._com and self._com.isOpen():
+            self._com.close()
 
     def release(self):
-        if not self.__com:
+        if not self._com:
             return
 
-        port = self.__com.port
+        port = self._com.port
         standard_name = self._get_resource_identifier(self)
 
         if port in self.__POOL:
@@ -107,28 +107,28 @@ class SerialCommunicable(Communicable):
             self.__POOL[port]['refs'] -= 1
             if self.__POOL[port]['refs'] <= 0:
                 self.logger.debug(f"Closing pooled connection for port {port}", extra=self.log_args)
-                if self.__com.isOpen():
-                    self.__com.close()
+                if self._com.isOpen():
+                    self._com.close()
                 self.unmark_taken(self)
                 del self.__POOL[port]
             else:
                 self.unmark_taken(self)
         else:
             # Fallback for unpooled connections
-            if self.__com and self.__com.isOpen():
-                self.__com.close()
+            if self._com and self._com.isOpen():
+                self._com.close()
             self.unmark_taken(self)
 
     def write_raw(self, data):
         with self._access_lock:
-            self.__com.write(data)
+            self._com.write(data)
 
     def read_raw(self, expected='', size=None):
         with self._access_lock:
             if size:
-                received = self.__com.read(size)
+                received = self._com.read(size)
             else:
-                received = self.__com.read_until(expected, size)
+                received = self._com.read_until(expected, size)
             return received
 
     def get_connections(self):
@@ -170,7 +170,7 @@ class SerialCommunicable(Communicable):
                 if com.serial_number == interface['serial_number']:
                     __add_to_probed(probed, __device_to_interface(interface, com))
         # Handle standalone USB <-> Serial converters
-        elif 1 == len(interface):
+        elif not any(key in interface for key in ['vid', 'pid', 'serial_number', 'port']):
             for com in connections:
                 __add_to_probed(probed, __device_to_interface(interface, com))
 
@@ -178,12 +178,12 @@ class SerialCommunicable(Communicable):
 
     def mark_taken(self, resource):
         standard_name = self._get_resource_identifier(resource)
-        self.TAKEN.append((standard_name, resource.__com.port))
+        self.TAKEN.append((standard_name, resource._com.port))
 
     def unmark_taken(self, resource):
         standard_name = self._get_resource_identifier(resource)
         try:
-            self.TAKEN.remove((standard_name, resource.__com.port))
+            self.TAKEN.remove((standard_name, resource._com.port))
         except ValueError:
             pass
 
@@ -244,15 +244,15 @@ class SerialCommunicable(Communicable):
 
     def _get_metadata(self, key, default=None):
         """Retrieve metadata for the current connection."""
-        if self.__com and self.__com.port in self.__POOL:
-            return self.__POOL[self.__com.port]['metadata'].get(key, default)
+        if self._com and self._com.port in self.__POOL:
+            return self.__POOL[self._com.port]['metadata'].get(key, default)
         return default
 
     def _set_metadata(self, key, value):
         """Set metadata for the current connection."""
         try:
-            if self.__com and self.__com.port in self.__POOL:
-                self.__POOL[self.__com.port]['metadata'][key] = value
+            if self._com and self._com.port in self.__POOL:
+                self.__POOL[self._com.port]['metadata'][key] = value
         except (AttributeError, KeyError) as e:
             self.logger.warning(
                 f"Failed to set metadata '{key}' on {self.__class__.__name__}: "
@@ -277,5 +277,5 @@ class SerialCommunicable(Communicable):
         """
 
         for attr, value in params.items():
-            if hasattr(self.__com, attr):
-                setattr(self.__com, attr, value)
+            if hasattr(self._com, attr):
+                setattr(self._com, attr, value)

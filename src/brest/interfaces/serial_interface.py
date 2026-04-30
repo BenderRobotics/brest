@@ -36,5 +36,9 @@ class SerialInterface(Interfaces, SerialCommunicable):
         SerialCommunicable.__init__(self, params['interface'])
         self.disconnect()
 
+    @property
+    def com(self):
+        return self._com
+
     def detect_model(self):
         pass

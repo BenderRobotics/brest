@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Fixed
+- Fixed a bug in SerialInterface resource discovery and com access. #13797
+
 ## [1.1.0]
 ### Added
 - Added support for multi-purpose Multicomp Pro MP71xxxx power supplies (only PSU functionality). #13084
