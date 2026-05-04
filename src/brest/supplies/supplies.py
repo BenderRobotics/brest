@@ -13,6 +13,7 @@ import time
 
 from brest import Resource
 from enum import Enum
+from attrs import define
 
 
 class Supplies(Resource):
@@ -98,6 +99,31 @@ class Supplies(Resource):
             :rtype: bool
             """
             raise NotImplementedError('This model is unable to detect itself.')
+
+    @define
+    class StatusMessage:
+        """
+        Status message structure for power supplies.
+
+        :param cvcc: True if the supply is in CV mode, False if in CC mode
+        :type  cvcc: bool
+        :param protection: True if the supply is in protection mode, False otherwise
+        :type  protection: bool
+        :param enabled: True if the supply is enabled, False otherwise
+        :type  enabled: bool
+        """
+        cvcc: bool = True
+        protection: bool = False
+        enabled: bool = False
+
+        @property
+        def cv(self):
+            return self.cvcc
+        
+        @property
+        def cc(self):
+            return not self.cvcc
+        
 
     def __init__(self, params=None):
         Resource.__init__(self, params)
@@ -241,9 +267,12 @@ class Supplies(Resource):
 
         raise NotImplementedError('This supply has no means of info detection.')
 
-    def get_status(self):
+    def get_status(self) -> StatusMessage:
         """
         Return status byte.
+
+        :return: Status message
+        :rtype: :class:`~brest.supplies.Supplies.StatusMessage`
         """
 
         raise NotImplementedError('This supply does not support status detection')

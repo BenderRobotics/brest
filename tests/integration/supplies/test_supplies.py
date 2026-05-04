@@ -1,6 +1,6 @@
 from dataclasses import dataclass, fields
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, call
 import brest
 from brest.communication import SCPICommunicable, SerialCommunicable
 
@@ -13,8 +13,8 @@ class FakeCom:
 
 @dataclass
 class PSUCommand:
-    cmd: str
-    response: bytes = b"1.0"
+    cmd: any
+    response: any = b"1.0"
 
 @dataclass
 class PSUCommandsList:
@@ -75,7 +75,11 @@ PSU_COMMANDS = {
         set_current_limit=lambda x: PSUCommand(cmd=f"CURR:LIM {x}".encode(), response=b"1.0"),
         get_voltage_limit=lambda x: PSUCommand(cmd=b"VOLT:LIM?", response=str(x).encode()),
         get_current_limit=lambda x: PSUCommand(cmd=b"CURR:LIM?", response=str(x).encode()),
-        get_info=lambda x: PSUCommand(cmd=b"*IDN?", response=x)
+        get_info=lambda x: PSUCommand(cmd=b"*IDN?", response=x),
+        status=lambda x: PSUCommand(
+            cmd=[b"MEAS:ALL:INFO?", b"OUTP?"],
+            response=[b"30.0 5.0 150.0 0 0 0 1", b"1"]
+        )
     )
 }
 
@@ -220,11 +224,15 @@ def test_commands(psu_env, test_case):
 
     psu_cmd = cmd_func(*test_case.test_args)
 
-    psu_env["mock_read"].return_value = psu_cmd.response
+    if isinstance(psu_cmd.response, list):
+        psu_env["mock_read"].side_effect = psu_cmd.response
+    else:
+        psu_env["mock_read"].return_value = psu_cmd.response
 
     result = test_case.action(psu, *test_case.test_args)
     
-    psu_env["mock_write"].assert_called_with(psu_cmd.cmd)
+    cmds = psu_cmd.cmd if isinstance(psu_cmd.cmd, list) else [psu_cmd.cmd]
+    psu_env["mock_write"].assert_has_calls([call(c) for c in cmds])
 
     if test_case.expected_value:
         assert result == test_case.expected_value, f"Expected {test_case.expected_value}, got {result}"

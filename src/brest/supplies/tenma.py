@@ -82,7 +82,7 @@ class Tenma(Supplies, SCPICommunicable):
         def SAVE(index):
             return SCPICommand('SAV' + str(index))
 
-    class StatusMessage(CommunicationStructure):
+    class StatusStructure(CommunicationStructure):
         '''
         Status message structure for SCPI-based programmable power supplies.
         '''
@@ -92,14 +92,6 @@ class Tenma(Supplies, SCPICommunicable):
             self.add('cvcc', bit_t(bit=0))
             self.add('protection', bit_t(bit=5))
             self.add('enabled', bit_t(bit=6))
-
-        @property
-        def cv(self):
-            return self.cvcc
-
-        @property
-        def cc(self):
-            return not self.cvcc
 
     Models = [
         TenmaModel(
@@ -288,13 +280,19 @@ class Tenma(Supplies, SCPICommunicable):
         :rtype: :class:`~brest.supplies.Tenma.StatusMessage`
         '''
 
-        stat_message = Tenma.StatusMessage()
-        stat_message.raw_data = self.transceive(self.Commands.GET_STATUS, decode=False)
+        status = self.StatusStructure()
+        status.raw_data = self.transceive(self.Commands.GET_STATUS, decode=False)
         try:
-            stat_message.unpack()
-        except IndexError as ex:
-            self.logger.warning('Could not decode status message, no data received.', extra=self.log_args)
-        return stat_message
+            status.unpack()
+        except IndexError:
+            self.logger.warning('Could not decode status message.', extra=self.log_args)
+            return status
+
+        return self.StatusMessage(
+            cvcc=status.cvcc,
+            protection=status.protection,
+            enabled=status.enabled
+        )
 
     def detect_model(self):
         # Tenmas with added support for programing won't return anything

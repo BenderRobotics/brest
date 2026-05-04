@@ -176,7 +176,7 @@ Available supplies:
     :members:
 
 .. autoclass:: MP71
-    :members: enable, disable, voltage, current, get_info, current_limit, voltage_limit, release
+    :members: enable, disable, voltage, current, voltage_limit, current_limit, get_info, get_status, release
 
 .. autoclass:: Tenma
     :members: enable, disable, voltage, current, enable_protection, disable_protection, save_memory, recall_memory, get_status, get_info
@@ -185,7 +185,29 @@ Available supplies:
    
    Alias for :class:`~brest.supplies.Tenma`. Supported implicitly by the resource provider config.
 
+.. class:: Supplies.StatusMessage
+
+    .. attribute:: cv
+
+        Indicates if supply output is in CV mode
+
+    .. attribute:: cc
+
+        Indicates if supply output is in CC mode
+
+    .. attribute:: protection
+
+        Indicates if both protection are enabled
+
+    .. attribute:: enabled
+
+        Indicates if output is enabled
+
 .. class:: Tenma.StatusMessage
+
+    Inherits :class:`~brest.supplies.Supplies.StatusMessage`
+
+    Additional bits defined based on the model's internal structure.
 
     .. attribute:: cv
 

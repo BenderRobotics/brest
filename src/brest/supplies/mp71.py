@@ -68,12 +68,14 @@ class MP71(Supplies, SCPICommunicable):
         """
 
         GET_INFO = SCPIQueryCommand('*IDN')
+        GET_STATUS = SCPIQueryCommand('MEAS:ALL:INFO',channel='')
         SET_VOLTAGE = SCPIValueCommand('VOLT',channel='',delimiter=' ')
         GET_VOLTAGE = SCPIQueryCommand('MEAS:VOLT',channel='')
         SET_CURRENT = SCPIValueCommand('CURR',channel='',delimiter=' ')
         GET_CURRENT = SCPIQueryCommand('MEAS:CURR',channel='')
         EN_OUTPUT = SCPIValueCommand('OUTP', delimiter=' ', value=1)
         DIS_OUTPUT = SCPIValueCommand('OUTP', delimiter=' ', value=0)
+        GET_OUTPUT_STATUS = SCPIQueryCommand('OUTP', channel='')
         SET_VOLTAGE_LIMIT = SCPIValueCommand('VOLT:LIM', channel='', delimiter=' ')
         GET_VOLTAGE_LIMIT = SCPIQueryCommand('VOLT:LIM', channel='')
         SET_CURRENT_LIMIT = SCPIValueCommand('CURR:LIM', channel='', delimiter=' ')
@@ -140,6 +142,42 @@ class MP71(Supplies, SCPICommunicable):
             for i in range(0, self.CHANNELS):
                 self._channels.append(TenmaChannel(self, i + 1))
 
+    def get_status(self):
+        """
+        Gets supply status.
+
+        :returns: Supply status message
+        :rtype: :class:`~brest.supplies.Supplies.StatusMessage`
+        """
+        status_str = self.transceive(self.Commands.GET_STATUS)
+        output_str = self.transceive(self.Commands.GET_OUTPUT_STATUS)
+
+        def _parse_scpi(val):
+            val = val.strip()
+            if 'ON' in val: 
+                return 1
+            if 'OFF' in val:
+                return 0
+            return int(val)
+
+        try:
+            # status string format: volt, curr, power, ovp, ocp, otp, mode
+            # mode: 0 = standby, 1 = CV, 2 = CC, 3 = fail
+            ovp, ocp, otp, mode = [_parse_scpi(p) for p in status_str.strip().split(',')[3:7]]
+            enabled = _parse_scpi(output_str.strip())
+
+            return self.StatusMessage(
+                cvcc=(mode == 1),
+                protection=(any([ovp, ocp, otp]) or mode == 3),
+                enabled=bool(enabled)
+            )
+        except (ValueError, IndexError):
+            self.logger.warning(
+                f'Could not parse status: status="{status_str}", output="{output_str}"',
+                extra=self.log_args
+            )
+            return self.StatusMessage()
+
     @property
     def voltage(self):
         return float(self.transceive(self.Commands.GET_VOLTAGE))
@@ -167,6 +205,10 @@ class MP71(Supplies, SCPICommunicable):
         else:
             self.Commands.SET_CURRENT.value = value
             self.transceive(self.Commands.SET_CURRENT)
+
+    @property
+    def status(self):
+        return self.get_status()
 
     @property
     def voltage_limit(self):
