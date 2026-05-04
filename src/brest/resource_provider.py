@@ -274,7 +274,7 @@ class ResourceProvider:
 
         return available_settings
 
-    def construct_available(self, index, group=None):
+    def construct_available(self, index, class_identifiers=None, group=None):
         """
         Construct resource from available resources.
 
@@ -282,14 +282,18 @@ class ResourceProvider:
         while listing. If you specified `group=` parameter while listing, you
         also need to specify the `group=` with the same value to match the
         indexes. Note that since there can be multiple resources with the same
-        index, the method will try to construct all of them. The resources are
-        returned as a dictionary where keys are class names and values are
-        resource objects.
+        index, by default the method will try to construct only the first one.
+        If `class_identifiers` is provided, it will try to construct only those.
+        The resources are returned as a dictionary where keys are class names
+        and values are resource objects.
 
         :param index: Resource's index while listed
         :type  index: int
         :param group: Specified group of resources to be printed. To get available groups refer to the :ref:`supported`
         :type group: str
+        :param class_identifiers: Single or list of class identifiers to be constructed
+            (e.g., 'supplies.Tenma' or ['supplies.MP71', 'multimeters.MP71'])
+        :type class_identifiers: str | list[str]
         :return: Dictionary of constructed resources
         :rtype: dict
         """
@@ -302,8 +306,15 @@ class ResourceProvider:
         params = available[index]
         resources = {}
 
-        # try to construct all possible resources available listed under the interface
-        for class_name in params['class_name']:
+        if class_identifiers:
+            if isinstance(class_identifiers, str):
+                class_identifiers = [class_identifiers]
+            to_construct = [c for c in params['class_name'] if c in class_identifiers]
+        else:
+            to_construct = [params['class_name'][0]]
+
+        # try to construct requested resources available listed under the interface
+        for class_name in to_construct:
             try_params = dict(params)
             try_params['class_name'] = class_name
             resource = self.construct(try_params)
@@ -322,7 +333,7 @@ class ResourceProvider:
                 del resource
 
         if resources:
-            return resources
+            return resources if len(resources) > 1 else list(resources.values())[0]
 
         self.logger.error('Could not construct any of the available resources from the group.', extra=self.log_args)
         return None

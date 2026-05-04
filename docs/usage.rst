@@ -24,7 +24,7 @@ of available groups, please refer to the :ref:`supported`. If nothing is provide
 resources will be listed::
 
     >>> rp.print_available()
-    [0] supplies.Tenma | supplies.MP72
+    [0] supplies.Tenma | supplies.MP72 | interfaces.SerialInterface
         type: serial
         timeout: 0.1
         vid: 0x0416
@@ -41,12 +41,29 @@ The next step is to instantiate a selected resource. You can do that using
 :meth:`~brest.ResourceProvider.construct_available` method. For example, if you want to instantiate the
 Tenma supply from the previous example::
 
-    >>> resources = rp.construct_available(0)
-    >>> psu = resources['supplies.Tenma']
+    >>> psu = rp.construct_available(0)
+    >>> psu = rp.construct_available(0, 'supplies.Tenma') # in this case equivalent
 
 All you have to do is to pass the desired resource's index and the resource provider will construct the
-object for you. If there are multiple resources with the same index, the method will try to construct all of them.
-They are returned as a dictionary with resource class names as keys, e.g. 'supplies.Tenma' as shown in the example above.
+object for you. If there are multiple resources with the same index, the method will try to construct all of  the ones you select using the ``class_identifiers`` parameter.
+If ``class_identifiers`` is not provided, it will construct the first matching resource for the given index.
+
+If a single resource is constructed, it is returned directly. However, if multiple resource are constructed, they are returned as a dictionary with resource class names as keys, e.g. 'supplies.Tenma' as shown in the example above.
+
+Consider a case where we want to instantiate multiple resources under the same index:
+
+    >>> rp.print_available()
+    [0] multimeters.MP71 | supplies.MP71 | interfaces.SerialInterface
+        type: serial
+        timeout: 0.1
+        vid: 0x0416
+        pid: 0x5011
+        serial_number: A02014090305
+        port: COM9
+
+    >>> resources = rp.construct_available(0, class_identifiers=['supplies.MP71', 'multimeters.MP71'])
+    >>> psu = resources['supplies.MP71']
+    >>> dmm = resources['multimeters.MP71']
 
 If you have printed resources using ``group`` parameter, you also need to specify the same group to
 :meth:`~brest.ResourceProvider.available` method for corresponding indexes.

@@ -1,15 +1,18 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Added status retrieval to MP71 series power supplies. #13798
+
 ### Fixed
 - Fixed a bug in SerialInterface resource discovery and com access. #13797
 
 ## [1.1.0]
 ### Added
-- Added support for multi-purpose Multicomp Pro MP71xxxx power supplies (only PSU functionality). #13084
+- Added support for multi-purpose Multicomp Pro MP71 series power supplies (only PSU functionality). #13084
 - Added Display Sniffer into cameras.
-- Added support for several Multicomp Pro MP72-xxxx power supplies. #13082
-- Added support for Multicomp Pro MP71xxxx multimeters. #13084
+- Added support for several Multicomp Pro MP72 series power supplies. #13082
+- Added support for Multicomp Pro MP71 series multimeters. #13084
 - Added support for making class-level aliases for resources. #13084
 - Added SerialCommunicable pool to provide multi-resource access to same port. #13084
 - Added setuptools-scm for automatic versioning
