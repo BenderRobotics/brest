@@ -60,9 +60,16 @@ class CameraCommunicable(Communicable):
         if not connections:
             connections = self._list_cameras()
 
+        found = set()
         for cam in connections:
             if interface['service'] == cam.Service:
                 p_device_id = self.__parse_device_id(cam.DeviceID)
+                if p_device_id in found:
+                    # prevent multiple instances of one resource
+                    # - windows can see one resource twice, but opencv does not -> breaks indexing
+                    continue
+                else:
+                    found.add(p_device_id)
                 if 'serial_number' in interface:
                     if interface['serial_number'] == p_device_id[2]:
                         probed.append(__device_to_interface(interface, p_device_id, self.services[cam.Service]))

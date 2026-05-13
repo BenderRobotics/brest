@@ -7,6 +7,7 @@
 ### Fixed
 - Fixed a bug in SerialInterface resource discovery and com access. #13797
 - Fixed 'bypass_user' parameter parsing and handling in manual resources. #12176
+- Fixed one camera being listed multiple times disrupting handover to opencv. #13894
 
 ## [1.1.0]
 ### Added
