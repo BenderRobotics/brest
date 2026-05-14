@@ -40,7 +40,7 @@ class Manswitch(Switches, NoneCommunicable):
         self.CHANNELS = 999
         self.STATES = 999
 
-        self._USER_BYPASS = False
+        self._BYPASS_USER = False
 
         self._states = {}
 
@@ -61,7 +61,7 @@ class Manswitch(Switches, NoneCommunicable):
 
         self._states.update({channel: state})
 
-        if not self._USER_BYPASS:
+        if not self._BYPASS_USER:
             input('{}: Please select state {} on channel {}. Then hit enter'.format(self.name, value, key))
         else:
             self.logger.warning(
@@ -89,5 +89,5 @@ class Manswitch(Switches, NoneCommunicable):
 
     def default_bypass_user(self, value):
         assert isinstance(value, bool), 'bypass_user parameter should be bool'
-        self.BYPASS_USER = value
+        self._BYPASS_USER = value
         return True

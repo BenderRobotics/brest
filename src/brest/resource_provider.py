@@ -260,15 +260,15 @@ class ResourceProvider:
         for name, obj in self.__class_map.items():
             default = inspect.getmembers(
                 obj,
-                    lambda value: inspect.isfunction(value) and 'default' in value.__name__
-                )
+                lambda value: inspect.isfunction(value) and value.__name__.startswith('default_')
+            )
             required = inspect.getmembers(
                 obj,
-                    lambda value: inspect.isfunction(value) and 'required' in value.__name__
-                )
+                lambda value: inspect.isfunction(value) and value.__name__.startswith('required_')
+            )
             available_settings[name] = {
-                'default': [m[0].split('_')[1] for m in default],
-                'required': [m[0].split('_')[1] for m in required],
+                'default': [m[0][len('default_'):] for m in default],
+                'required': [m[0][len('required_'):] for m in required],
                 'interface': list(obj.SETTINGS)
             }
 

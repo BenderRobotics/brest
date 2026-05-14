@@ -41,14 +41,14 @@ class Manio(IO, NoneCommunicable):
         self.MAX_CURRENT = 999
         self.IS_LATCHING = False
 
-        self.BYPASS_USER = False
+        self._BYPASS_USER = False
 
     def __setitem__(self, key, value):
         IO.__setitem__(self, key, value)
         # __setitem__ is being called twice, once for channel and once for alias name
         if (isinstance(key, str)):
             return
-        if (not self.BYPASS_USER):
+        if (not self._BYPASS_USER):
             channel_name = 'No alias'
             for name, channel in self._aliases.items():
                 if key == channel:
@@ -60,7 +60,7 @@ class Manio(IO, NoneCommunicable):
 
     def default_bypass_user(self, value):
         assert isinstance(value, bool), 'bypass_user parameter should be bool'
-        self.BYPASS_USER = value
+        self._BYPASS_USER = value
         return True
 
     def detect_model(self):
