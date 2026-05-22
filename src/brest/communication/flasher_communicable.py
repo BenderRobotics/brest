@@ -228,7 +228,7 @@ class FlasherCommunicable(Communicable):
             self.logger.error(f"pywin32 is required for USB flashers", extra=self.log_args)
             return []
 
-        flasher_regex = r'USB.*VID_' + target_vid + r'.*\\(\d+)'
+        flasher_regex = r'USB.*VID_' + target_vid + r'.*\\(\w+)\s*$'
         wmi_service = win32com.client.Dispatch("WbemScripting.SWbemLocator")
         swbem_services = wmi_service.ConnectServer(".", "root\\cimv2")
         pnp_items = swbem_services.ExecQuery("SELECT * FROM Win32_PnPEntity")

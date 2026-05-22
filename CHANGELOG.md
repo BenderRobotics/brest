@@ -3,6 +3,7 @@
 ## [1.3.0]
 ### Added
 - Added support for multiple flashers on Linux. #13157
+- Added support for MCULink-PRO. #13958 
 
 ### Changed
 - Updated flasher CLI probing mechanism. #13157
