@@ -100,7 +100,7 @@ class ResourceProvider:
                 print('\t{}: {}'.format(attr[0], attr[1]))
             print()
 
-    def available(self, group=None, connections=None):
+    def available(self, group=None, connections=None, class_name=None):
         """
         Searches for available resources.
 
@@ -109,6 +109,8 @@ class ResourceProvider:
         :type  group: str
         :param connections: Buffered connection to the system. Not intended to be used by user.
         :type  connections: dict
+        :param class_name: Optional class name to filter by.
+        :type  class_name: str
         :return: List of dicts describing available resource
         :rtype: list<dict>
         """
@@ -116,7 +118,7 @@ class ResourceProvider:
         if not connections:
             connections = self._refresh_connections()
 
-        available = self._enumerate_available(group, connections)
+        available = self._enumerate_available(group, connections, class_name)
 
         grouped = []
         for resource in available:
@@ -146,7 +148,7 @@ class ResourceProvider:
 
         return grouped
 
-    def _enumerate_available(self, group=None, connections=None):
+    def _enumerate_available(self, group=None, connections=None, class_name=None):
         """
         Enumerates available resources.
 
@@ -154,6 +156,8 @@ class ResourceProvider:
         :type  group: str
         :param connections: Connections to be used
         :type  connections: dict
+        :param class_name: Optional class name to filter by (without group, e.g. 'Tenma').
+        :type  class_name: str
         """
 
         if not connections:
@@ -165,14 +169,17 @@ class ResourceProvider:
             # If we have specified group of resources, skip all others
             if group and group_ != group:
                 continue
-            for class_name, interface in resources.items():
+            for class_name_, interface in resources.items():
+                # Skip all resources that are not matching the class_name parameter
+                if class_name and class_name_.lower() != class_name.lower():
+                    continue
+                full_class_name = '{}.{}'.format(group_, class_name_)
+
                 com = self._get_communicable(interface['type'])
-                class_name = '{}.{}'.format(group_, class_name)
+                found = com.get_available(full_class_name, interface, connections[interface['type']])
 
-                resources = com.get_available(class_name, interface, connections[interface['type']])
-
-                if resources:
-                    available.extend(resources)
+                if found:
+                    available.extend(found)
 
         return available
 
@@ -430,12 +437,12 @@ class ResourceProvider:
                 return None
 
             cls_name_split = definition['class_name'].split('.')
-            group = cls_name_split[0]
+            group = cls_name_split[0].lower()
             class_name = None
             if len(cls_name_split) > 1:
                 class_name = definition['class_name'].split('.')[1]
             # Try to match resource from the available
-            available_in_group = self.available(group=group, connections=connections)
+            available_in_group = self.available(group=group, connections=connections, class_name=class_name)
             for available in available_in_group:
                 if available['interface']['type'] == 'none':
                     # Resources that don't have to have physical connection

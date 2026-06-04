@@ -76,27 +76,29 @@ class FlasherCommunicable(Communicable):
             else:
                 return probed
 
-            utility_missing = True
-            utilities = utility.split(FlasherCommunicable.PATH_DELIMITER)
-            for utility in utilities:
-                if which(utility) is not None:
-                    utility_missing = False
-                    self._utility = utility
-                    interface['utility'] = utility
+            # Utility must also be resolved here in case of initialization without utility path
+            resolved = self._resolve_executable(utility)
 
-            if utility_missing:
-                self.logger.warning(
-                    "Unable to look for devices, since %s is not in path, check your utility parameter.",
-                    utilities[0],
-                    extra=self.log_args
-                )
+            if list_type == 'usb':
+                probed = self.list_flashers_usb(interface)
+
+            if resolved is None:
+                msg_ending = f"since {utility} is either not installed, not in PATH or not an executable."
+                if probed:
+                    self.logger.warning(f"Detected requested flasher but unable to connect, {msg_ending}", extra=self.log_args)
+                elif interface.get('class_name'):
+                    self.logger.warning(f"Unable to look for flashers, {msg_ending}", extra=self.log_args)
+
+                probed = []
                 self.listed = False
                 continue
 
+            # Utility must be set in interface for resource class to find it later
+            interface['utility'] = resolved
+
+            # Only try the CLI if present
             if list_type == 'cli':
                 probed = self.list_flashers_cli(interface)
-            elif list_type == 'usb':
-                probed = self.list_flashers_usb(interface)
 
         return probed
 
@@ -117,7 +119,13 @@ class FlasherCommunicable(Communicable):
 
     def get_available(self, class_name, interface, connected):
         resources = []
-        interfaces = self.probe(interface, connected)
+
+        # Temporarily add class_name to interface to properly log missing utility in probe
+        interface['class_name'] = class_name
+        try:
+            interfaces = self.probe(interface, connected)
+        finally:
+            interface.pop('class_name', None)
         for interface_ in interfaces:
             if not self.is_taken(interface_):
                 resources.append(
