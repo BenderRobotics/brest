@@ -40,7 +40,7 @@ docs = [
     "m2r2",
 ]
 cameras_win = [
-    "pywin32",
+    "pywin32; platform_system == 'Windows'",
     "opencv-python",
     "imageio",
     "imageio-ffmpeg",
@@ -53,7 +53,7 @@ cameras_unix = [
     "display_sniffer>=1.2.0",
 ]
 jlink_win = [
-    "pywin32",
+    "pywin32; platform_system == 'Windows'",
 ]
 
 [tool.setuptools]
