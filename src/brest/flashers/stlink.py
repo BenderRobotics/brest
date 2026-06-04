@@ -14,7 +14,7 @@ import re
 import sys
 import tempfile
 
-from shutil import which
+
 from brest.flashers import Flashers
 from brest.communication import FlasherCommunicable
 from brest.log_subprocess import run, PIPE, STDOUT
@@ -40,22 +40,33 @@ class STLink(Flashers, FlasherCommunicable):
             list_type:  'cli',
             list_cmd:   ['--list']
             list_regex: 'st-link\\s*probe\\s*\\d+\\s*:\\s*.*\\s*st-link sn\\s*:\\s*(\\w+)\\s*.*\\s*st-link fw\\s*:\\s*(\\w+)'
-            utility:    Windows - C:/ProgramFiles(x86)/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin/STM32_Programmer_CLI.exe
-                        Linux   - STM32_Programmer_CLI
+            utility:    Windows  - STM32_Programmer_CLI.exe
+                        Linux    - STM32_Programmer_CLI
     """
+
+    _PROBING_CLI = {
+        'win32': 'STM32_Programmer_CLI.exe',
+        'linux': 'STM32_Programmer_CLI'
+    }
+    
+    _SEARCH_CONFIGS = {
+        'win32': ['C:/Program Files (x86)/STMicroelectronics/STM32Cube/STM32CubeProgrammer',
+                'C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeProgrammer'],
+        'linux': ['/usr/local/STMicroelectronics/STM32Cube/STM32CubeProgrammer']
+    }
+
+    _PROBING_UTILITY = Flashers.get_utility_paths(
+        _PROBING_CLI,
+        _SEARCH_CONFIGS,
+        ['bin']
+    )
 
     Flashers.KNOWN['STLink'] = {
         'type': 'flashers',
         'list_type': 'cli',
         'list_cmd': ['--list'],
         'list_regex': r'st-link\s*probe\s*\d+\s*:\s*.*\s*st-link sn\s*:\s*(\w+)\s*.*\s*st-link fw\s*:\s*(\w+)',
-        'utility': str('{0};{1};{2}'.format(os.path.join(
-            'STM32_Programmer_CLI.exe',
-        ), os.path.join(
-            'C:/', 'Program Files (x86)', 'STMicroelectronics', 'STM32Cube', 'STM32CubeProgrammer', 'bin', 'STM32_Programmer_CLI.exe'
-        ), os.path.join(
-            'C:/', 'Program Files', 'STMicroelectronics', 'STM32Cube', 'STM32CubeProgrammer', 'bin', 'STM32_Programmer_CLI.exe'
-        ))) if sys.platform == 'win32' else os.path.join('STM32_Programmer_CLI')
+        'utility': _PROBING_UTILITY
     }
 
     def __init__(self, params):
@@ -63,10 +74,6 @@ class STLink(Flashers, FlasherCommunicable):
         self._verbosity = '1'
         self._timeout = 2
         FlasherCommunicable.__init__(self, params['interface'])
-
-        if which(self._utility) is None:
-            self.logger.error("Utility %s is not executable" % self._utility)
-            raise ValueError
 
         self.mark_taken(self)
 

@@ -11,9 +11,11 @@
 
 import logging
 import os
+import sys
+from pathlib import Path
+from typing import Union, Dict, List, Tuple
 
 from brest import Resource
-
 
 class Flashers(Resource):
     """
@@ -24,6 +26,62 @@ class Flashers(Resource):
     KNOWN['Flashers'] = {
         'type': 'flashers',
     }
+
+    @staticmethod
+    def map_platform(mapping: Dict[str, any]) -> any:
+        """
+        Returns the value for the current platform.
+        """
+        try:
+            return mapping[sys.platform]
+        except KeyError:
+            available = ", ".join(mapping.keys())
+            raise NotImplementedError(
+                f"Platform '{sys.platform}' is not supported for this utility. "
+                f"Available platforms: {available or 'none'}"
+            )
+
+    @staticmethod
+    def get_utility_paths(
+        utility_name: Union[str, Dict[str, str]],
+        search_configs: Dict[str, List[str]] = None,
+        known_subpaths: List[str] = []
+    ) -> str:
+        """
+        Resolve potential utility_path based on search configuration and the platform.
+        The first match is returned in a tuple with the default utility_name,
+        otherwise only the default utility name is returned.
+
+        :param utility_name: Name of the utility (e.g. 'rltool') or platform-mapped dict
+        :param search_configs: Search configuration platform-mapped dict
+        :param known_subpaths: List of subfolders where utility is usually found
+        :return: absolute utility path if resolved, default utility name otherwise
+        """
+
+        if isinstance(utility_name, dict):
+            utility_name = Flashers.map_platform(utility_name)
+
+        search_configs = [] if search_configs is None else Flashers.map_platform(search_configs)
+
+        for config in search_configs:
+            path = Path(config)
+            root = path.parent
+            pattern = path.name
+            if not root.is_dir():
+                continue
+
+            for found_dir in root.glob(pattern):
+                # Check standard subpaths first
+                for sub in known_subpaths:
+                    utility_path = found_dir / sub / utility_name
+                    if utility_path.exists():
+                        return str(utility_path)
+
+                # Fall back to a recursive search
+                for utility_path in found_dir.rglob(utility_name):
+                    return str(utility_path)
+
+        return utility_name
 
     def __init__(self, params):
         Resource.__init__(self, params)

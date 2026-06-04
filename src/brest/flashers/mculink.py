@@ -14,37 +14,12 @@ import re
 import sys
 import tempfile
 import logging
+from pathlib import Path
 
-from shutil import which
+
 from brest.flashers import Flashers
 from brest.communication import FlasherCommunicable
 from brest.log_subprocess import run, PIPE, STDOUT
-
-
-CLI_UTIL_USAGE_PATH = 'crt_emu_cm_redlink.exe'
-CLI_UTIL_PROBING_PATH = 'rltool.exe'
-CLI_UTIL_SERVER_PATH = 'redlinkserv.exe'
-SCRIPT_PATH = 'Scripts'
-
-pattern = re.compile(r'^MCUXpressoIDE\S*')
-dir_path = os.path.join('C:/', 'NXP')
-try:
-    contents = os.listdir(dir_path)
-    for item in contents:
-        match = pattern.match(item)
-        if match:
-            dir_name = match.group(0)
-            break
-    CLI_UTIL_USAGE_PATH = os.path.join(dir_path, dir_name, 'ide', 'binaries', 'crt_emu_cm_redlink.exe')
-    CLI_UTIL_PROBING_PATH = os.path.join(dir_path, dir_name, 'ide', 'binaries', 'rltool.exe')
-    CLI_UTIL_SERVER_PATH = os.path.join(dir_path, dir_name, 'ide', 'binaries', 'redlinkserv.exe')
-    SCRIPT_PATH = os.path.join(dir_path, dir_name, 'ide', 'binaries', 'Scripts', '{}')
-except Exception as ex:
-    logger = logging.getLogger('brest-MCULink')
-    logger.warning(
-        msg=f'Could not find an instance of MCUXpresso. Looked in {dir_path}.',
-        exc_info=True
-    )
 
 
 class MCULink(Flashers, FlasherCommunicable):
@@ -70,17 +45,46 @@ class MCULink(Flashers, FlasherCommunicable):
             list_cmd:   ['-c', 'PROBELIST']
             list_regex: 'Index = \\s*\\d+\\s*Manufacturer = .*\\s*Description = .*\\s*Serial Number = (\\S+)'
             utility:    Windows
-                            - probing - 'C:/NXP/MCUXpressoIDE_11.6.1_8255/ide/binaries/rltool.exe'
-                            - flashing / writing - 'C:/NXP/MCUXpressoIDE_11.6.1_8255/ide/binaries/crt_emu_cm_redlink.exe'
-                            - reading - 'C:/NXP/MCUXpressoIDE_11.6.1_8255/ide/binaries/redlinkserv.exe'
-                        Linux (unknown)
+                            - probing - 'rltool.exe'
+                            - flashing / writing - 'crt_emu_cm_redlink.exe'
+                            - reading - 'redlinkserv.exe'
+                        Linux
+                            - probing - 'rltool'
+                            - flashing / writing - 'crt_emu_cm_redlink'
+                            - reading - 'redlinkserv'
     """
+
+    _PROBING_CLI = {
+        'win32': 'rltool.exe',
+        'linux': 'rltool'
+    }
+    _USAGE_CLI = {
+        'win32': 'crt_emu_cm_redlink.exe',
+        'linux': 'crt_emu_cm_redlink'
+    }
+    _SERVER_CLI = {
+        'win32': 'redlinkserv.exe',
+        'linux': 'redlinkserv'
+    }
+    _SCRIPT_PATH = 'Scripts'
+
+    _SEARCH_CONFIGS = {
+        'win32': ['C:/NXP/MCUXpresso*', 'C:/nxp/MCUXpresso*'],
+        'linux': ['/usr/local/mcuxpresso*', str(Path.home()) + '/mcuxpresso*']
+    }
+
+    _PROBING_UTILITY = Flashers.get_utility_paths(
+        _PROBING_CLI,
+        _SEARCH_CONFIGS,
+        ['ide/binaries', 'ide/LinkServer/binaries']
+    )
+
     Flashers.KNOWN['MCULink'] = {
         'type': 'flashers',
         'list_type': 'cli',
         'list_cmd': ['-c', 'PROBELIST'],
         'list_regex': r'Index = \s*\d+\s*Manufacturer = .*\s*Description = .*\s*Serial Number = (\S+)',
-        'utility': str(f'{CLI_UTIL_PROBING_PATH}') if sys.platform == 'win32' else os.path.join('rltool')
+        'utility': _PROBING_UTILITY
     }
 
     SETTINGS = FlasherCommunicable.SETTINGS + ['script', 'package']
@@ -91,10 +95,13 @@ class MCULink(Flashers, FlasherCommunicable):
         self._timeout = 2
         FlasherCommunicable.__init__(self, params['interface'])
 
-        if which(self._utility) is None:
-            msg = f"Utility {self._utility} is not executable."
-            self.logger.error(msg, extra=self.log_args)
-            raise ValueError(msg)
+        bin_dir = Path(self._utility).parent
+
+        # Derive related utilities from the main probing utility directory
+        self._usage_utility = str(bin_dir / Flashers.map_platform(self._USAGE_CLI))
+        self._server_utility = str(bin_dir / Flashers.map_platform(self._SERVER_CLI))
+
+        self._scripts_path = bin_dir / self._SCRIPT_PATH
 
         self._package = None
         self._script = None
@@ -171,7 +178,7 @@ class MCULink(Flashers, FlasherCommunicable):
         self.connect()
 
         process = run(self.__parse_connect() + command, stdout=PIPE, stderr=STDOUT,
-                      log=self._log, timeout=timeout)
+                      log=self._log, timeout=timeout, env=os.environ.copy())
         if process.returncode != 0:
             msg = (
                 f'Return code: {process.returncode}, '
@@ -252,7 +259,7 @@ class MCULink(Flashers, FlasherCommunicable):
             'EXIT'
         )
 
-        command = [CLI_UTIL_SERVER_PATH, '--commandline']
+        command = [self._server_utility, '--commandline']
 
         address = self._unify_address(address)
         self.connect()
@@ -293,7 +300,7 @@ class MCULink(Flashers, FlasherCommunicable):
             return None
 
         # prepare command
-        command = [CLI_UTIL_SERVER_PATH, '--commandline']
+        command = [self._server_utility, '--commandline']
 
         inputs = (
             f'PROBEOPENBYSERIAL "{self._serial_number}"\n'
@@ -318,7 +325,7 @@ class MCULink(Flashers, FlasherCommunicable):
             raise ConnectionError(msg)
 
     def __parse_connect(self, *args):
-        connect_args = [CLI_UTIL_USAGE_PATH]
+        connect_args = [self._usage_utility]
         for arg in args:
             if arg != '':
                 connect_args.append(arg)
@@ -374,9 +381,9 @@ class MCULink(Flashers, FlasherCommunicable):
     def default_script(self, value):
         script = str(value)
 
-        script_path = SCRIPT_PATH.format(script)
+        script_path = self._scripts_path / script
 
-        if os.path.exists(script_path):
+        if script_path.exists():
             self._script = script
         else:
             msg = f"Invalid path to MCU-Link connection script: '{script_path}' (script found in config: '{script}')."

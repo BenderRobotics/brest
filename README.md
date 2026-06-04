@@ -12,9 +12,13 @@ If you are looking for the **documentation**, please refer [here](https://docs.b
 ## Install Brest
     $ pip install brest
 
-
 ## Installing Brest from the source
     $ pip install https+git://github.com/BenderRobotics/brest.git
+
+## Optional Modules
+    $ pip install "brest[<module>]"
+
+Available modules: [cameras_win, cameras_unix, jlink_win]
 
 ## Minimal Example
 See [minimal example files](examples/minimal_example/example.py)
