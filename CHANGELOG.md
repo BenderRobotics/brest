@@ -4,6 +4,7 @@
 ### Added
 - Added support for multiple flashers on Linux. #13157
 - Added support for MCULink-PRO. #13958 
+- Added support for configuration of option_bytes settings for STLink. #7780
 
 ### Changed
 - Updated flasher CLI probing mechanism. #13157

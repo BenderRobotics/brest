@@ -220,6 +220,12 @@ Flashers
         verbosity: int (1, 2, 3)
         mode: str ("under_reset", "hotplug", "normal")
         reset: str ("sw", "hw", "core")
+        option_bytes: str  # example "nboot0=1 nboot1=0"
+
+.. admonition:: STLink option_bytes usage
+
+    For more information regarding the usage of option_bytes, refer to 
+    `STLink User Manual <https://www.st.com/resource/en/user_manual/um0892-stm32-stlink-utility-software-description-stmicroelectronics.pdf>`_ (section 4.1.5).
 
 IO
 ~~~

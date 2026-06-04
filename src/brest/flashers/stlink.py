@@ -73,6 +73,7 @@ class STLink(Flashers, FlasherCommunicable):
         Flashers.__init__(self, params)
         self._verbosity = '1'
         self._timeout = 2
+        self._option_bytes = ''
         FlasherCommunicable.__init__(self, params['interface'])
 
         self.mark_taken(self)
@@ -305,19 +306,21 @@ class STLink(Flashers, FlasherCommunicable):
             connect_args.append('-q')
 
         connect_args.append('-c')
-        connect_args.append('port=' + self._port)
 
-        if self._frequency != '':
-            connect_args.append('freq=' + self._frequency)
+        params = {
+            'port': self._port,
+            'freq': self._frequency,
+            'sn': self._serial_number,
+            'mode': self._mode,
+            'reset': self._reset,
+        }
 
-        if self._serial_number != '':
-            connect_args.append('sn=' + self._serial_number)
+        for key, value in params.items():
+            if value != '':
+                connect_args.append(f'{key}={value}')
 
-        if self._mode != '':
-            connect_args.append('mode=' + self._mode)
-
-        if self._reset != '':
-            connect_args.append('reset=' + self._reset)
+        if self._option_bytes:
+            connect_args.extend(['-ob', self._option_bytes])
 
         return connect_args
 
@@ -355,6 +358,14 @@ class STLink(Flashers, FlasherCommunicable):
             return False
 
         self._mode = value.upper()
+        return True
+
+    def default_option_bytes(self, value):
+        if not isinstance(value, str):
+            self.logger.error("Invalid value of option bytes", extra=self.log_args)
+            return False
+
+        self._option_bytes = value
         return True
 
     def default_reset(self, value):

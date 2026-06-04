@@ -215,7 +215,7 @@ class JLink(Flashers, FlasherCommunicable):
             timeout = self._timeout
 
         tmp_file = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', delete=False)
-        tmp_file.write('\n'.join(['si ' + self.port, 'speed ' + self.frequency, 'r', 'h',
+        tmp_file.write('\n'.join(['si ' + self._port, 'speed ' + self._frequency, 'r', 'h',
                                   'mem8 ' + address + ' ' + str(hex(size)), 'qc', '']))
         tmp_file.flush()
         # file need to be closed so CLI can open it
