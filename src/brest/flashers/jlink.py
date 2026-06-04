@@ -104,7 +104,8 @@ class JLink(Flashers, FlasherCommunicable):
 
         os.remove(tmp_file.name)
         if process.returncode != 0:
-            raise ConnectionError
+            self.__log_command_error(process)
+            raise ConnectionError()
 
     def write(self, address, data, timeout=None):
         if timeout is None:
@@ -127,7 +128,8 @@ class JLink(Flashers, FlasherCommunicable):
 
         os.remove(tmp_file.name)
         if process.returncode != 0:
-            raise ConnectionError
+            self.__log_command_error(process, "Write data to memory")
+            raise ConnectionError()
 
     def erase_sector(self, sector, external_memory=False, timeout=None):
         raise NotImplementedError
@@ -145,10 +147,11 @@ class JLink(Flashers, FlasherCommunicable):
 
         process = run(self.__parse_connect(tmp_file.name), stdout=PIPE, stderr=STDOUT,
                       log=self._log, timeout=timeout)
-
+    
         os.remove(tmp_file.name)
         if process.returncode != 0:
-            raise ConnectionError
+            self.__log_command_error(process)
+            raise ConnectionError()
 
     def read(self, address, size, timeout=None):
         address = self._unify_address(address)
@@ -185,8 +188,8 @@ class JLink(Flashers, FlasherCommunicable):
 
         os.remove(tmp_file.name)
         if process.returncode != 0:
-            raise ConnectionError
-        raise NotImplementedError
+            self.__log_command_error(process)
+            raise ConnectionError()
 
     def hard_reset(self, timeout=None):
         if timeout is None:
@@ -202,8 +205,10 @@ class JLink(Flashers, FlasherCommunicable):
                       log=self._log, timeout=timeout)
 
         os.remove(tmp_file.name)
+
         if process.returncode != 0:
-            raise ConnectionError
+            self.__log_command_error(process)
+            raise ConnectionError()
 
     def __raw_read(self, address, size: int, timeout=None):
         if timeout is None:
@@ -220,8 +225,10 @@ class JLink(Flashers, FlasherCommunicable):
                       log=self._log, timeout=timeout)
 
         os.remove(tmp_file.name)
+
         if process.returncode != 0:
-            raise ConnectionError
+            self.__log_command_error(process, "Read memory")
+            raise ConnectionError()
 
         # read data from output log
         data_regex = r'[\dA-Fa-f]{7,12}\s*=\s*(([\dA-Fa-f]{2} ?)*)'
@@ -236,6 +243,34 @@ class JLink(Flashers, FlasherCommunicable):
                 '-ExitOnError', '1',
                 ]
 
+    def __log_command_error(self, process, command=None):
+        """
+        Generate and log JLink command error message to provide more context about the error,
+        since JLink doesn't provide detailed error messages itself.
+        """
+        if command is None:
+            command = sys._getframe(1).f_code.co_name.lstrip('_').replace('_', ' ').capitalize()
+
+        # Use CP1250 on Windows to match log_subprocess encoding
+        encoding = 'cp1250' if sys.platform == 'win32' else 'utf-8'
+        output = process.stdout.read().decode(encoding, errors='replace').strip()
+
+        args = getattr(process, 'args', 'Unknown')
+        cmd_line = " ".join(args) if isinstance(args, list) else str(args)
+
+        msg_lines = [
+            f"Operation: {command} failed whilst executing using JLink.",
+            f"Status: Process exited with return code {process.returncode}",
+            f"Command: {cmd_line}",
+            f"Output from JLink:",
+            f"----------------------------------------",
+            f"{output}",
+            f"----------------------------------------"
+        ]
+        msg = os.linesep.join(msg_lines)
+
+        self.logger.error(msg, extra=self.log_args)
+
     def connect(self):
         tmp_file = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', delete=False)
         tmp_file.write('\n'.join(['si ' + self._port, 'speed ' + self._frequency,
@@ -248,9 +283,12 @@ class JLink(Flashers, FlasherCommunicable):
             process = run(self.__parse_connect(tmp_file.name), stdout=PIPE, stderr=STDOUT,
                           timeout=2)
         except TimeoutError:
-            raise ConnectionError
+            raise ConnectionError(f"Failed to establish connection to JLink with serial number "
+                                f"{self._serial_number}")
         finally:
             os.remove(tmp_file.name)
 
         if process.returncode != 0:
-            raise ConnectionError
+            self.__log_command_error(process)
+            raise ConnectionError()
+ 

@@ -174,7 +174,7 @@ def _run_continuous_logging(args, timeout=None, buffsize=-1, executable=None, st
                 if sys.platform == "win32":
                     logger.info(output.decode('cp1250'), extra=__get_cmd(args))
                 else:
-                    logger.info(output.decode(), extra=__get_cmd())
+                    logger.info(output.decode(), extra=__get_cmd(args))
             else:
                 break
 

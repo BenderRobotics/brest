@@ -1,6 +1,14 @@
 # Changelog
 
 ## [1.3.0]
+### Added
+- Added support for multiple flashers on Linux. #13157
+
+### Changed
+- Updated flasher CLI probing mechanism. #13157
+    - Brest now searches multiple possible subpaths in known locations.
+- Removed unnecessary missing utility warning messages. #13157
+
 ### Fixed
 - Fixed GUI crashes due to improper `None` value handling. #13918
 
