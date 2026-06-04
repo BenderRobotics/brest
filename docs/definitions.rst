@@ -81,6 +81,12 @@ select a desired group of devices to get common attributes for the group. Each d
 can have defined additional attributes so checkout also devices if you are aiming for
 specific class.
 
+.. admonition:: Performance hint
+
+    Providing full ``interface:`` details is recommended as it 
+    decreases the time required to instantiate the resource, most notably for serial interface ports.
+
+
 If you omit ``interface:`` definition, Brest will use implicit interface definition.
 
 .. warning::
@@ -171,7 +177,7 @@ Cameras
 .. admonition:: Display Sniffer usage
 
     You might need to set up a few things for the Display Sniffer package,
-    please follow the instructions here: https://gitlab.benderrobotics.com/br/tools/display-sniffer/-/tree/master/sw?ref_type=heads#-windows
+    please follow the `instructions <https://gitlab.benderrobotics.com/br/tools/display-sniffer/-/tree/master/sw?ref_type=heads#-windows>`_.
 
 
 Flashers
