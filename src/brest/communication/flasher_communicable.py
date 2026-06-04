@@ -10,10 +10,12 @@
 """
 
 import weakref
+import os
 import sys
 import re
 import logging
 
+from pathlib import Path
 from shutil import which
 from brest.log_subprocess import run, PIPE, STDOUT
 from brest.communication import Communicable
@@ -31,9 +33,12 @@ class FlasherCommunicable(Communicable):
     PATH_DELIMITER = ';'
     SETTINGS = ['utility', 'serial_number']
 
+
     def __init__(self, params):
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
+        self._utility = None
+        self._serial_number = None
 
         if params:
             for attr, value in params.items():
@@ -45,6 +50,14 @@ class FlasherCommunicable(Communicable):
                     self._serial_number = value
         else:
             self.listed = True
+
+        if self._utility:
+            # Additionally check in case user provided custom utility path
+            resolved = self._resolve_executable(self._utility)
+            if resolved is None:
+                self.logger.error(f"Utility {self._utility} is not executable", extra=self.log_args)
+                raise ValueError
+            self._utility = resolved
 
     def probe(self, interface, connections=None):
         probed = []
@@ -168,41 +181,117 @@ class FlasherCommunicable(Communicable):
 
     def list_flashers_usb(self, interface):
         """
-        Method lists connected usb devices to the system and filter
-        devices by vid and later get the serial_number by regex
+        Lists connected USB devices (based on provided interface's vid) and extracts serial numbers.
+        Supports Windows and Linux.
         """
-
-        probed = []
+        target_vid = interface.get('vid', '')
 
         if sys.platform == 'win32':
-            try:
-                import win32com.client
-            except Exception:
-                return []
-
-            flasher_regex = r'USB.*VID_' + interface['vid'] + r'.*\\(\d+)'
-
-            wmi_service = win32com.client.Dispatch("WbemScripting.SWbemLocator")
-            swbem_services = wmi_service.ConnectServer(".", "root\\cimv2")
-            pnp_items = swbem_services.ExecQuery("SELECT * FROM Win32_PnPEntity")
-            for item in pnp_items:
-                pnp_device_id = item.PNPDeviceID
-                match = re.search(flasher_regex, pnp_device_id)
-                if match:
-                    if interface.get('serial_number') and interface['serial_number'] not in match.group(1):
-                        continue
-                    tmp = {}
-                    tmp.update(interface)
-                    tmp.update({'serial_number': str(int(match.group(1)))})
-                    probed.append(tmp)
+            return self._list_flashers_usb_win32(interface, target_vid)
+        elif sys.platform.startswith('linux'):
+            return self._list_flashers_usb_linux(interface, target_vid)
         else:
-            self.logger.warning('Listing connected flashers is not supported besides windows.', extra=self.log_args)
+            self.logger.warning(f'Listing connected flashers is not supported on {sys.platform}.', extra=self.log_args)
             return []
-
-        return probed
 
     def get_connections(self):
         return []
 
     def release(self):
         self.unmark_taken(self)
+
+    def _match_serial(self, interface, serial_str):
+        """
+        Check if serial matches the interface filter. 
+        Returns a new interface dict or None.
+        """
+        if interface.get('serial_number') and interface['serial_number'] not in serial_str:
+            return None
+
+        result = interface.copy()
+        result['serial_number'] = serial_str
+        return result
+
+    def _list_flashers_usb_win32(self, interface, target_vid):
+        """Probe USB flashers on Windows via WMI."""
+        try:
+            import win32com.client
+        except ImportError:
+            self.logger.error(f"pywin32 is required for USB flashers", extra=self.log_args)
+            return []
+
+        flasher_regex = r'USB.*VID_' + target_vid + r'.*\\(\d+)'
+        wmi_service = win32com.client.Dispatch("WbemScripting.SWbemLocator")
+        swbem_services = wmi_service.ConnectServer(".", "root\\cimv2")
+        pnp_items = swbem_services.ExecQuery("SELECT * FROM Win32_PnPEntity")
+
+        probed = []
+        for item in pnp_items:
+            pnp_device_id = item.PNPDeviceID
+            if not pnp_device_id:
+                continue
+
+            match = re.search(flasher_regex, pnp_device_id, re.IGNORECASE)
+            if not match:
+                continue
+
+            result = self._match_serial(interface, match.group(1))
+            if result:
+                probed.append(result)
+
+        return probed
+
+    def _list_flashers_usb_linux(self, interface, target_vid):
+        """Probe USB flashers on Linux via sysfs."""
+        usb_dir = Path('/sys/bus/usb/devices')
+
+        if not usb_dir.is_dir():
+            self.logger.warning(f"Path {usb_dir} not found. Cannot probe USB devices.", extra=self.log_args)
+            return []
+
+        probed = []
+        for dev_dir in usb_dir.iterdir():
+            vendor_file = dev_dir / 'idVendor'
+            serial_file = dev_dir / 'serial'
+
+            if not vendor_file.exists() or not serial_file.exists():
+                continue
+
+            vid = vendor_file.read_text().strip()
+            if vid.lower() != target_vid.lower():
+                continue
+
+            serial_str = serial_file.read_text().strip()
+            result = self._match_serial(interface, serial_str)
+            if result:
+                probed.append(result)
+
+        return probed
+
+    def _resolve_executable(self, cmd):
+        """
+        Resolve a command to an executable path with platform-aware checks.
+
+        On Windows, shutil.which treats any existing file as executable
+        because os.access(..., os.X_OK) is equivalent to an existence check.
+
+        On POSIX, verifies that the resolved path is a regular file with the
+        execute permission bit set.
+
+        :param cmd: Command name or path to resolve.
+        :returns: Absolute path to the executable, or None.
+        """
+        resolved_str = which(cmd)
+        if not resolved_str:
+            return None
+
+        resolved = Path(resolved_str).resolve()
+
+        # Skip possible directories
+        if not resolved.is_file():
+            return None
+
+        if sys.platform != 'win32':
+            if not os.access(resolved, os.X_OK):
+                return None
+        return str(resolved)
