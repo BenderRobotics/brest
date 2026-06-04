@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.0]
+### Fixed
+- Fixed GUI crashes due to improper `None` value handling. #13918
+
 ## [1.2.0]
 ### Added
 - Added status retrieval to MP71 series power supplies. #13798

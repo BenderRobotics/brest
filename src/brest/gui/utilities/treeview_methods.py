@@ -28,4 +28,4 @@ def __add_child(key, value, treeview, node_id=""):
         for key_, value_ in value[key].items():
             __add_child(key_, value_, node_)
     else:
-        treeview.insert(node_id, "end", text=(key), values=(value))
+        treeview.insert(node_id, "end", text=(key), values=[value])

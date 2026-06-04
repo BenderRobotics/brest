@@ -72,7 +72,8 @@ class ResourceController:
             if resource not in [r['hash'] for r in self._hashes]:
                 t_res = self.resource_view.tree.insert("", "end", text=resource['class_name'], values=[""], open=True)
                 for int_attr_name, int_attr_value in resource['interface'].items():
-                    added = self.resource_view.tree.insert(t_res, "end", text=int_attr_name, values=(int_attr_value))
+                    val = int_attr_value if int_attr_value is not None else "none"
+                    added = self.resource_view.tree.insert(t_res, "end", text=int_attr_name, values=[val])
                 self._hashes.append({'item': t_res, 'hash': resource})
 
         self.master.after(self.REDRAW_RATE, self.redraw_devices)
