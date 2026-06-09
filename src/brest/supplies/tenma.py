@@ -107,7 +107,7 @@ class Tenma(Supplies, SCPICommunicable):
             Supplies.Kind.PROGRAMMABLE
         ),
         TenmaModel(
-            'TENMA 2550', 1, 5, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
+            'TENMA 72-2550', 1, 5, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
             Supplies.Kind.PROGRAMMABLE
         ),
         TenmaModel(

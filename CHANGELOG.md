@@ -13,6 +13,7 @@
 
 ### Fixed
 - Fixed GUI crashes due to improper `None` value handling. #13918
+- Fixed typo in Tenma 72-2550 PSU name from latest refactoring. #14090
 
 ## [1.2.0]
 ### Added
