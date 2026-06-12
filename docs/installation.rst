@@ -54,7 +54,7 @@ Core
 * These dependencies will be installed automatically when installing Brest:
     * `colorama`_ (==0.4.6) - Colored terminal output
     * `pyserial`_ (==3.5) - Serial communication
-    * `PyYAML`_ (==6.0.1) - YAML files parsing
+    * `PyYAML`_ (==6.0.2) - YAML files parsing
     * `Cython`_ (==0.29.36) - C extensions in Python
     * `hidapi`_ (==0.14.0) - Cython hidapi interface
     * `crcmod`_ (==1.7) - CRC generator
