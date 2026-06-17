@@ -42,7 +42,7 @@ from .log import CharStreamHandler
 from .config import Config
 from .resource import Resource
 from .resources import Resources
-from .resource_provider import ResourceProvider
+from .resource_provider import ResourceProvider, _ResourceProvider
 from .log import FilterAvailable
 from .helpers import overwrite_log_config, prepare_tests
 from .log_subprocess import run

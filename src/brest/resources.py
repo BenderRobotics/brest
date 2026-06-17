@@ -12,7 +12,7 @@
 import logging
 
 from .config import Config
-from .resource_provider import ResourceProvider
+from .resource_provider import _ResourceProvider
 
 
 class Resources():
@@ -29,7 +29,7 @@ class Resources():
         res[resource_name]
 
     :param projects: A project name(s) you want to instantiate defined in the config file
-    :type  project: str (one project) or list of strings (multiple projects)
+    :type  projects: str (one project) or list of strings (multiple projects)
     :param user_config: An absolute path to user configuration file in non standard location
     :type  user_config: str
     :param project_config: An absolute path to project configuration file or a dict in the Config format

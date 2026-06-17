@@ -27,9 +27,16 @@ from .config import Config
 from .helpers import all_subclasses
 from .resource import Resource
 from brest.communication import Communicable, CommunicableError
+from warnings import warn
+from functools import wraps
 
+class ResourceConstructionError(Exception):
+    """
+    Exception raised when resource construction fails.
+    """
+    pass
 
-class ResourceProvider:
+class _ResourceProvider:
     """
     Base class for resource managing.
 
@@ -70,35 +77,9 @@ class ResourceProvider:
                         alias_ref = f"{group_name}.{a}"
                         self.__class_map[alias_ref] = cls_
 
-                        if group_node.KNOWN and cls_.__name__ in group_node.KNOWN:
-                            group_node.KNOWN[a] = group_node.KNOWN[cls_.__name__]
-
         self.__communicables = {}
         for com in self._all_communicables(Communicable):
             self.__communicables[com.TYPE] = com(None)
-
-    def print_probe(self, class_name):
-        """
-        Checks if resource is present in the system, and prints its interface.
-
-        :param class_name: Class name of a resource you want to probe.
-            To get available class names refer to the :ref:`supported`
-        :type  class_name: str
-        """
-
-        interface = self._get_implicit_definition(class_name)
-        if not interface:
-            return
-
-        com = self._get_communicable(interface['type'])
-        interface['class_name'] = class_name
-        interfaces = com.probe(interface)
-        i = 0
-        for interface_ in interfaces:
-            print('connection {}:'.format(i))
-            for attr in com.format_interface(interface_):
-                print('\t{}: {}'.format(attr[0], attr[1]))
-            print()
 
     def available(self, group=None, connections=None, class_name=None):
         """
@@ -124,6 +105,12 @@ class ResourceProvider:
         for resource in available:
             interface = resource['interface']
             found = False
+
+            resource_name = resource['class_name']
+            # Resolve aliases for the candidate class
+            cls_obj = self.__class_map.get(resource_name)
+            class_names = [k for k, v in self.__class_map.items() if v is cls_obj] if cls_obj else [resource_name]
+
             for group_res in grouped:
                 group_intr = group_res['interface']
                 is_same = False
@@ -132,8 +119,9 @@ class ResourceProvider:
                         is_same = interface['port'] == group_intr['port']
 
                 if is_same:
-                    if resource['class_name'] not in group_res['class_name']:
-                        group_res['class_name'].append(resource['class_name'])
+                    for cn in class_names:
+                        if cn not in group_res['class_name']:
+                            group_res['class_name'].append(cn)
                     found = True
                     break
 
@@ -142,7 +130,7 @@ class ResourceProvider:
                 if 'class_name' in new_interface:
                     del new_interface['class_name']
                 grouped.append({
-                    'class_name': [resource['class_name']],
+                    'class_name': class_names,
                     'interface': new_interface
                 })
 
