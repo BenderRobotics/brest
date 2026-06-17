@@ -5,10 +5,20 @@ API
 
 This part of the documentation covers all the interfaces of Brest.
 
+.. _brest-tools-methods:
+
 Brest tools methods
 -------------------
 
 .. autofunction:: brest::find_available_resource
+
+.. autofunction:: brest::print_available
+
+.. autofunction:: brest::print_taken
+
+.. autofunction:: brest::print_all
+
+.. autofunction:: brest::generate_config
 
 Resource instantiation
 ----------------------

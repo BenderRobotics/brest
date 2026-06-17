@@ -58,6 +58,10 @@ __all__ = [
     'overwrite_log_config',
     'prepare_tests',
     'find_available_resource',
+    'print_available',
+    'print_taken',
+    'print_all',
+    'generate_config',
     'run',
 ]
 
@@ -79,7 +83,7 @@ def find_available_resource(projects, resource, user_config=Config.BREST_USER_CO
     """
     logger = logging.getLogger('brest_find_available_resource')
     logger.setLevel(logging.INFO)
-    rp = ResourceProvider()
+    rp = _ResourceProvider()
 
     config_file = Config(projects, project_config)
     merged_configs = config_file.merge_configs(Config(projects, user_config))
@@ -124,3 +128,130 @@ def find_available_resource(projects, resource, user_config=Config.BREST_USER_CO
         )
 
     return None
+
+def print_available(group=None):
+    """
+    Tries to find available resources.
+
+    :param group: Specified group of resources to be printed. To get available groups refer to the :ref:`supported`
+    :type group: str
+    """
+    rp = _ResourceProvider()
+
+    def print_av_dict(available_dict):
+        print(' | '.join([c.split(',')[-1] for c in available_dict['class_name']]))
+        com = rp._get_communicable(available_dict['interface']['type'])
+        for attr in com.format_interface(available_dict['interface']):
+            print('\t{}: {}'.format(attr[0], attr[1]))
+
+    if group:
+        av = rp.available(group)
+    else:
+        av = rp.available()
+
+    i = 0
+    for a in av:
+        print('[{}] '.format(i), end='')
+        print_av_dict(a)
+        print()
+        i += 1
+
+def print_taken():
+    """
+    Prints taken resources.
+    """
+    rp = _ResourceProvider()
+    taken = rp.get_taken()
+
+    for item in taken:
+        print(item['resource'])
+        for key, value in item['interface'].items():
+            print(f'\t{key}: {value}')
+        print()
+
+def print_all():
+    """
+    Prints taken and available resources.
+    """
+    rp = _ResourceProvider()
+    
+    # Get taken and available resources
+    taken = rp.get_taken()
+    av = rp.available()
+
+    def print_av_dict(available_dict):
+        print(' | '.join([c.split(',')[-1] for c in available_dict['class_name']]))
+        com = rp._get_communicable(available_dict['interface']['type'])
+        for attr in com.format_interface(available_dict['interface']):
+            print('\t{}: {}'.format(attr[0], attr[1]))
+
+    print('--Taken resources--------------------')
+    for item in taken:
+        print(item['resource'])
+        for key, value in item['interface'].items():
+            print(f'\t{key}: {value}')
+        print()
+
+    print('--Available resources----------------')
+    i = 0
+    for a in av:
+        print('[{}] '.format(i), end='')
+        print_av_dict(a)
+        print()
+        i += 1
+
+def generate_config(project_name='autogen', config_path=Config.BREST_USER_CONFIG):
+    """
+    Autogenerates configuration file from available resources.
+
+    Lists currently available resources and make a basic configuration file containing
+    filled interfaces for these resources. Default configuration path is
+    :attr:`~brest.Config.BREST_USER_CONFIG` and default project name is \'autogen\'.
+    If the file already exist, project will be appended to the end of file. In case
+    of existing project with same name, the project will be overwritten.
+
+    :param project_name: Name of the generated project
+    :type  project_name: str
+    :param config_path: Absolute path
+    :type  config_path: str
+    :returns: Generated configuration object
+    :rtype: :class:`~brest.Config`
+    """
+    rp = _ResourceProvider()
+    available = rp.available()
+    project_dict = dict()
+    i = 0
+
+    for av in available:
+        for class_name in av['class_name']:
+            alias = 'resource_' + str(i)
+            project_dict[alias] = {
+                'class_name': class_name,
+                'interface': dict(av['interface'])
+            }
+            com = rp._get_communicable(av['interface']['type'])
+            for attr in com.format_interface(av['interface']):
+                project_dict[alias]['interface'][attr[0]] = attr[1]
+            i += 1
+
+    config = Config(config_path=config_path)
+    project_configs = []
+    project_found = False
+
+    for project in config.read_projects():
+        project_config = Config(project, config_path=config_path)
+
+        if project == project_name:
+            project_config = project_config.merge_configs(
+                Config(project_name, config_dict={project_name: project_dict})
+            )
+            project_found = True
+
+        project_configs.append(project_config)
+
+    if not project_found:
+        project_configs.append(Config(project_name, config_dict={project_name: project_dict}))
+
+    config.clear_yaml(config_path)
+    for project_config in project_configs:
+        project_config.dump_yaml(config_path)
