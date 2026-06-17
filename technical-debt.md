@@ -114,3 +114,11 @@ The resource abstraction is not ideal to achieve full potential of brest. The us
 
 The currently implemented `get_status()` in Tenma is not easily transferable across resources. (i.e. supplies.Tenma -> supplies.MP71)
 Though it is possible to achieve similar behavior in different supplies, the commands and returned values from each supply may be different.
+
+## Inconsitent resource identification
+
+The logic in `print_available()` creates indexes for resources on the fly. These indexes are directly used in the `construct_available(index)` method. This could lead to unexpected behaviour for the users, as these indexes are not persistent and change across multiple runs with disconnects and resource constructions between the respective calls.
+
+It would be better if the resource indexes were consistent across the whole session. Therefore, should any changes occur between calls, the indexes of the resources listed would remain the same.
+
+The implementation would require keeping tracks of all available/taken resources across the session and generating consistent indexes for each of the resources.

@@ -8,10 +8,7 @@ Welcome to the internal developer documentation. This guide explains the applica
 Resource Aliases
 ----------------
 
-During initialization, the :class:`~brest.resource_provider.ResourceProvider` iterates through subclasses of :class:`~brest.resource.Resource`. For each discovered class, it checks for an ``ALIAS`` class attribute. If present, the resource is mapped in the internal class registry under both its original class name (e.g. ``multimeters.Multicomp``) and its alias (e.g. ``multimeters.MP73``). The alias is also injected into the group's ``KNOWN`` dictionary, inheriting the default interface settings of the original class.
-
-**Hidden behaviors you should be aware of:**
-When using an alias, the framework treats it identically to the original class name. This means all implicit interface definitions (such as baudrate, timeout, VID/PID, etc.) are automatically inherited. You do not lose or override default connection properties when referencing a device by its alias.
+During initialization, the :class:`~brest.resource_provider.ResourceProvider` iterates through subclasses of :class:`~brest.resource.Resource`. For each discovered class, it checks for an ``ALIAS`` class attribute. If present, the resource is mapped in the internal class registry under both its original class name (e.g. ``multimeters.Multicomp``) and its alias (e.g. ``multimeters.MP73``).
 
 **How to define and use them:**
 You can define an alias by adding the ``ALIAS`` class attribute to your resource subclass. Brest supports both a single string or a list of strings:
@@ -19,12 +16,12 @@ You can define an alias by adding the ``ALIAS`` class attribute to your resource
 .. code-block:: python
 
     class Multicomp(Multimeters):
-        ALIAS = 'MP73' 
-        # Or using multiple aliases: 
-        # ALIAS = ['MP73', 'MP730889']
+        ALIAS = 'MP73'
 
-**Important:**
-In order for implicit configuration to function properly, the original class name must be registered in the parent class ``KNOWN`` dictionary first. When an alias is discovered, the framework explicitly copies the interface definitions from ``KNOWN[OriginalClassName]`` to ``KNOWN[AliasName]``.
+    # Or using multiple aliases: 
+    class Multicomp(Multimeters):
+        ALIAS = ['MP73', 'MP730889']
+
 
 Serial Communication Pool
 -------------------------
@@ -49,7 +46,10 @@ Each pooled connection holds its individual reentrant lock (``access_lock``). Al
 
 Note that when fetching the ``message_suffix`` from pooled metadata, the mechanism defaults to ``self.SUFFIXES[0]`` if the suffix hasn't been definitively probed yet.
 
-**Known limitations:**
-* **Sequential Locking Bottleneck:** Because pooled transmission locks the port, communication across multiple logically pooled devices occurs completely sequentially. Firing concurrent high-frequency I/O requests to multiple devices on the same shared port could become a performance bottleneck due to IO wait times.
-* **Static Interface Settings:** You cannot initialize two devices with differing serial configurations (like ``baudrate`` or ``parity``) onto the same pooled port dynamically without breaking connection synchrony. Ensure that devices mapped to identical physical hardware ports declare the exact same serial baud rates and data formats.
-* **Strict Lifecycles:** Failing to invoke ``.release()`` causes lingering zombie references in the background pool. Your connection will never cleanly disconnect, which might crash subsequent probing algorithms unless Python garbage cleans the dangling references.
+**Known limitations**
+
+**Sequential Locking Bottleneck:** Because pooled transmission locks the port, communication across multiple logically pooled devices occurs completely sequentially. Firing concurrent high-frequency I/O requests to multiple devices on the same shared port could become a performance bottleneck due to IO wait times.
+
+**Static Interface Settings:** You cannot initialize two devices with differing serial configurations (like ``baudrate`` or ``parity``) onto the same pooled port dynamically without breaking connection synchrony. Ensure that devices mapped to identical physical hardware ports declare the exact same serial baud rates and data formats.
+
+**Strict Lifecycles:** Failing to invoke ``.release()`` causes lingering zombie references in the background pool. Your connection will never cleanly disconnect, which might crash subsequent probing algorithms unless Python garbage cleans the dangling references.
