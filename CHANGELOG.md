@@ -5,15 +5,24 @@
 - Added support for multiple flashers on Linux. #13157
 - Added support for MCULink-PRO. #13958 
 - Added support for configuration of option_bytes settings for STLink. #7780
+- Added `release_all` method to release all instantiated resources in `Resources`. #3768
+- Added programmer's API `get_all()` and `get_taken()` in `Resources`.
+- Added several basic discovery methods to the brest module:
+    - `print_available` - prints available resources
+    - `print_taken` - prints already taken resources
+    - `print_all` - prints taken and available resources
+    - `generate_config` - generates config from available resources
 
 ### Changed
 - Updated flasher CLI probing mechanism. #13157
     - Brest now searches multiple possible subpaths in known locations.
 - Removed unnecessary missing utility warning messages. #13157
+- Deprecated `ResourceProvider` and restricted main module entrypoint to `Resources`. #13993
 
 ### Fixed
 - Fixed GUI crashes due to improper `None` value handling. #13918
 - Fixed typo in Tenma 72-2550 PSU name from latest refactoring. #14090
+- Fixed improper releasing of resources. #13993
 
 ## [1.2.0]
 ### Added
