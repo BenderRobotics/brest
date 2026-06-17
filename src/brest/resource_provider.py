@@ -171,61 +171,52 @@ class _ResourceProvider:
 
         return available
 
-    def print_available(self, group=None):
+    def get_taken(self):
         """
-        Prints available resources
+        Returns a structured list of all taken resources.
 
-        :param group: Specified group of resources to be printed. To get available groups refer to the :ref:`supported`
-        :type group: str
+        :return: List of dicts describing taken resources and their interfaces
+        :rtype: list<dict>
         """
-
-        def print_av_dict(available_dict):
-            print(' | '.join([c.split(',')[-1] for c in available_dict['class_name']]))
-            com = self._get_communicable(available_dict['interface']['type'])
-            for attr in com.format_interface(available_dict['interface']):
-                print('\t{}: {}'.format(attr[0], attr[1]))
-
-        if group:
-            av = self.available(group)
-        else:
-            av = self.available()
-
-        i = 0
-        for a in av:
-            print('[{}] '.format(i), end='')
-            print_av_dict(a)
-            print()
-            i += 1
-
-    def print_taken(self):
-        """
-        Prints all taken resources
-        """
-
+        taken_resources = []
         for _, com in self.__communicables.items():
             for taken in com.TAKEN:
                 attrs = com.format_interface(taken)
-                print(attrs[0][1])
+                if not attrs:
+                    continue
+                
+                # Assuming the first element contains the primary identifier/name
+                resource_name = attrs[0][1] if len(attrs[0]) > 1 else attrs[0][0]
+                
+                interface_details = {}
                 for attr in attrs[1:]:
-                    print('\t{}: {}'.format(attr[0], attr[1]))
-                print()
+                    if len(attr) == 2:
+                        interface_details[attr[0]] = attr[1]
 
-    def print_all(self):
-        """
-        Prints all taken and available resources
-        """
+                taken_resources.append({
+                    'resource': resource_name,
+                    'interface': interface_details
+                })
+        return taken_resources
 
-        print('--Taken resources--------------------')
-        self.print_taken()
-        print('--Available resources----------------')
-        self.print_available()
+    def get_all(self):
+        """
+        Returns a dictionary containing all taken and available resources.
+
+        :return: Dict containing 'taken' and 'available' lists
+        :rtype: dict
+        """
+        return {
+            'taken': self.get_taken(),
+            'available': self.available()
+        }
 
     def construct(self, params):
         """
         Constructs a resource from given parameters.
 
         Parameter can be obtained through :meth:`~brest.ResourceProvider.available` method
-        or created by you in for if dict which must contains ``class_name`` and ``interface`` fields.
+        or created by you, in which case the dict must contain the ``class_name`` and ``interface`` fields.
         For available class names refer to :ref:`supported` and interface definition to :ref:`definitions`.
 
         :param params: Needed parameters for automated class instantiation
@@ -380,7 +371,7 @@ class _ResourceProvider:
                     resource.set_extra(params)
                     return resource
                 else:
-                    # Othervise delete the constructed resource
+                    # Otherwise delete the constructed resource
                     # to release connection and continue to the
                     # next construction params
                     resource.release()
@@ -405,192 +396,145 @@ class _ResourceProvider:
         else:
             needed = None
 
-        # Iterate over configuration file
-        for alias, definition in config:
-            # Check if resource is needed
-            if config.needed is not None:
-                if alias not in config.needed:
-                    # If not, continue to next resource
+        try:
+            # Iterate over configuration file
+            for alias, definition in config:
+                # Check if resource is needed
+                if config.needed is not None:
+                    if alias not in config.needed:
+                        # If not, continue to next resource
+                        continue
+
+                matching.clear()
+                # Config validity should check if class_name is present in resource definition
+                # and has valid value
+                if not isinstance(definition.get('class_name'), str):
+                    raise ResourceConstructionError(
+                        f"Resource `{alias}` must have a single string as class_name in the configuration."
+                    )
+
+                cls_name_split = definition['class_name'].split('.')
+                group = cls_name_split[0].lower()
+                class_name = None
+                if len(cls_name_split) > 1:
+                    # Map class level aliases to class name if defined (i.e. 'supplies.MP72')
+                    cls_obj = self.__class_map.get(definition['class_name'])
+                    if not cls_obj:
+                        raise ResourceConstructionError(
+                            f"Resource `{alias}` has an invalid class_name in the configuration."
+                        )
+                    class_name = cls_obj.__name__
+                # Try to match resource from the available
+                available_in_group = self.available(group=group, connections=connections, class_name=class_name)
+                for available in available_in_group:
+                    if available['interface']['type'] == 'none':
+                        # Resources that don't have to have physical connection
+                        # can also be listed. So skip them.
+                        continue
+
+                    # Make construction params from every available interface
+                    params = dict(definition)
+                    params['class_name'] = available['class_name']
+                    params['name'] = alias
+                    # Check if there is interface defined in the config file
+                    if 'interface' in definition:
+                        # Check if defined interface params matches available interface params
+                        skip = False
+
+                        for key in set(definition['interface']) & set(available['interface']):
+                            if definition['interface'][key] != available['interface'][key]:
+                                skip = True
+                                break
+                        if skip:
+                            # If any value didn\'t match, skip to the next available
+                            continue
+                        else:
+                            # Othervise merge the rest of params
+                            params['interface'] = {**available['interface'], **definition['interface']}
+                    else:
+                        params['interface'] = available['interface']
+
+                    # params['class_name'] is a list. Check for matching classes.
+                    if class_name:
+                        if definition['class_name'] in params['class_name']:
+                            # Fix params to a string so construct() gets a correct list
+                            params['class_name'] = definition['class_name']
+                            matching.append(params)
+                        else:
+                            continue
+                    else:
+                        # fill all the possible class names from matched group
+                        for c in params['class_name']:
+                            if c.split('.')[0] == group:
+                                p = dict(params)
+                                p['class_name'] = c
+                                matching.append(p)
+
+                # Try to construct class, that satisfies requirements
+                fi = FilterAvailable()
+                self.logger.addFilter(fi)
+                const_rest = __construct_from_params(matching, config)
+                self.logger.removeFilter(fi)
+                if const_rest:
+                    constructed.append(const_rest)
+                    if needed is not None and needed:
+                        needed.remove(const_rest.name)
+                    # If there is class in available that satisfies requirements
+                    # and was successfully constructed, proceed to next resource definition
                     continue
 
-            matching.clear()
-            # Config validity should check if class_name is present in resource definition
-            # and has valid value
-            if not isinstance(definition.get('class_name'), str):
-                self.logger.error(
-                    f"Resource `{alias}` must have a single string as class_name in the configuration.",
-                    extra=self.log_args
-                )
-                __log_missing_needed(needed)
-                return None
+                # Try to construct the resources, that didn't matched in available
+                matching.clear()
+                if not class_name:
+                    raise ResourceConstructionError(
+                        f"Resource `{alias}` didn\'t match anything in the available "
+                        "and is missing class definition"
+                    )
 
-            cls_name_split = definition['class_name'].split('.')
-            group = cls_name_split[0].lower()
-            class_name = None
-            if len(cls_name_split) > 1:
-                class_name = definition['class_name'].split('.')[1]
-            # Try to match resource from the available
-            available_in_group = self.available(group=group, connections=connections, class_name=class_name)
-            for available in available_in_group:
-                if available['interface']['type'] == 'none':
-                    # Resources that don't have to have physical connection
-                    # can also be listed. So skip them.
-                    continue
+                # Get implicit arguments from Brest
+                impl_intr = self._get_implicit_definition(class_name)
+                # Make construction params from the definition
 
-                # Make construction params from every available interface
-                params = dict(definition)
-                params['class_name'] = available['class_name']
-                params['name'] = alias
-                # Check if there is interface defined in the config file
                 if 'interface' in definition:
-                    # Check if defined interface params matches available interface params
-                    skip = False
-
-                    for key in set(definition['interface']) & set(available['interface']):
-                        if definition['interface'][key] != available['interface'][key]:
-                            skip = True
-                            break
-                    if skip:
-                        # If any value didn\'t match, skip to the next available
-                        continue
-                    else:
-                        # Othervise merge the rest of params
-                        params['interface'] = {**available['interface'], **definition['interface']}
+                    intr = {**impl_intr, **definition['interface']}
                 else:
-                    params['interface'] = available['interface']
+                    intr = impl_intr
+                com = self._get_communicable(intr['type'])
 
-                # params['class_name'] is a list. Check for matching classes.
-                if class_name:
-                    if definition['class_name'] in params['class_name']:
-                        # Fix params to a string so construct() gets a correct list
-                        params['class_name'] = definition['class_name']
-                        matching.append(params)
-                    else:
-                        continue
+                intr['class_name'] = definition['class_name']
+                for probed_interface in com.probe(intr):
+                    params = dict(definition)
+                    params['class_name'] = '{}.{}'.format(group, class_name)
+                    params['name'] = alias
+                    params['interface'] = probed_interface
+                    matching.append(params)
+
+                if not matching:
+                    raise ResourceConstructionError(
+                        f"Resource `{alias}` doesn\'t seem to be connected to the system"
+                    )
+                const_rest = __construct_from_params(matching, config)
+                if const_rest:
+                    constructed.append(const_rest)
+                    if needed is not None and needed:
+                        needed.remove(const_rest.name)
+                    continue
                 else:
-                    # fill all the possible class names from matched group
-                    for c in params['class_name']:
-                        if c.split('.')[0] == group:
-                            p = dict(params)
-                            p['class_name'] = c
-                            matching.append(p)
+                    raise ResourceConstructionError(f'No devices satisfy `{alias}` requirements')
 
-            # Try to construct class, that satisfies requirements
-            fi = FilterAvailable()
-            self.logger.addFilter(fi)
-            const_rest = __construct_from_params(matching, config)
-            self.logger.removeFilter(fi)
-            if const_rest:
-                constructed.append(const_rest)
-                if needed is not None and needed:
-                    needed.remove(const_rest.name)
-                # If there is class in available that satisfies requirements
-                # and was successfully constructed, proceed to next resource definition
-                continue
+            if needed:
+                raise ResourceConstructionError(f'Resources {needed} were not constructed')
 
-            # Try to construct the resources, that didn't matched in available
-            matching.clear()
-            if not class_name:
-                self.logger.error(
-                    f"Resource `{alias}` didn\'t match anything in "
-                    "the available and is missing class definition",
-                    extra=self.log_args
-                )
-                __log_missing_needed(needed)
-                return None
+            return constructed
 
-            # Get implicit arguments from Brest
-            impl_intr = self._get_implicit_definition(class_name)
-            # Make construction params from the definition
-
-            if 'interface' in definition:
-                intr = {**impl_intr, **definition['interface']}
-            else:
-                intr = impl_intr
-            com = self._get_communicable(intr['type'])
-
-            intr['class_name'] = definition['class_name']
-            for probed_interface in com.probe(intr):
-                params = dict(definition)
-                params['class_name'] = '{}.{}'.format(group, class_name)
-                params['name'] = alias
-                params['interface'] = probed_interface
-                matching.append(params)
-
-            if not matching:
-                self.logger.error(
-                    f"Resource `{alias}` doesn\'t seem to be connected to the system",
-                    extra=self.log_args
-                )
-                __log_missing_needed(needed)
-                return None
-            const_rest = __construct_from_params(matching, config)
-            if const_rest:
-                constructed.append(const_rest)
-                if needed is not None and needed:
-                    needed.remove(const_rest.name)
-                continue
-            else:
-                self.logger.error('No devices satisfy `{}` requirements'.format(alias), extra=self.log_args)
-                __log_missing_needed(needed)
-                return None
-
-        __log_missing_needed(needed)
-        if needed is not None and needed:
+        except ResourceConstructionError as e:
+            self.logger.error(e, extra=self.log_args)
+            __log_missing_needed(needed)
+            self.release_all(constructed)
             return None
-
-        return constructed
-
-    def generate_config(self, project_name='autogen', config_path=Config.BREST_USER_CONFIG):
-        """
-        Autogenerates configuration file from available resources.
-
-        Lists currently available resources and make a basic configuration file containing
-        filled interfaces for these resources. Default configuration path is
-        :attr:`~brest.Config.BREST_USER_CONFIG` and default project name is \'autogen\'.
-        If the file already exist, project will be appended to the end of file. In case
-        of existing project with same name, the project will be overwritten.
-
-        :param project_name: Name of the generated project
-        :type  project_name: str
-        :param config_path: Absolute path
-        :type  config_path: str
-        :returns: Generated configuration object
-        :rtype: :class:`~brest.Config`
-        """
-
-        available = self.available()
-        project_dict = dict()
-        i = 0
-
-        for av in available:
-            for class_name in av['class_name']:
-                alias = 'resource_' + str(i)
-                project_dict[alias] = {
-                    'class_name': class_name,
-                    'interface': dict(av['interface'])
-                }
-                com = self._get_communicable(av['interface']['type'])
-                for attr in com.format_interface(av['interface']):
-                    project_dict[alias]['interface'][attr[0]] = attr[1]
-                i += 1
-
-        config = Config(config_path=config_path)
-        project_configs = []
-
-        for project in config.read_projects():
-            project_config = Config(project, config_path=config_path)
-
-            if project == project_name:
-                project_config = project_config.merge_configs(
-                    Config(project_name, config_dict={project_name: project_dict})
-                )
-
-            project_configs.append(project_config)
-
-        config.clear_yaml(config_path)
-        for project_config in project_configs:
-            project_config.dump_yaml(config_path)
+        except Exception:
+            self.release_all(constructed)
+            raise
 
     def _refresh_connections(self):
         """
