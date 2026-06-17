@@ -264,12 +264,13 @@ class _ResourceProvider:
         """
         Construct resource from available resources.
 
-        To construct resource from available just pass the resources's index
-        while listing. If you specified `group=` parameter while listing, you
-        also need to specify the `group=` with the same value to match the
-        indexes. Note that since there can be multiple resources with the same
-        index, by default the method will try to construct only the first one.
-        If `class_identifiers` is provided, it will try to construct only those.
+        To construct resource from available pass the resources's index
+        obtained from `~brest.Resources.available()` or `~brest.print_available()`. 
+        If `group` was specified while listing, you also need to specify the same `group`
+        to match the indexes. Note that since there can be multiple resources
+        with the same index, by default the method will try to construct only
+        the first one. If `class_identifiers` is provided, it will try to
+        construct only those.
         The resources are returned as a dictionary where keys are class names
         and values are resource objects.
 
@@ -318,15 +319,33 @@ class _ResourceProvider:
                 resource.release()
                 del resource
 
-        if resources:
-            return resources if len(resources) > 1 else list(resources.values())[0]
+        return resources
 
         self.logger.error('Could not construct any of the available resources from the group.', extra=self.log_args)
         return None
 
+    def release_all(self, res):
+        """
+        Tries to release all resources from provided list.
+
+        :param res: List of resources to release
+        :type  res: list[Resource]
+        """
+        resources = res if isinstance(res, list) else [res]
+
+        self.logger.info(f"Releasing {len(resources)} resources: {resources}.", extra=self.log_args)
+
+        for r in resources:
+            if r:
+                try:
+                    r.release()
+                except Exception:
+                    pass
+
     def construct_config(self, config):
         """
         Construct resources from configuration file.
+        In case of failure, instantiated resources are cleaned up.
 
         Construct resources specified in the configuration file. To glimpse of how to write
         a configuration file, please refer to :ref:`definitions.configuration-file`.
@@ -565,7 +584,6 @@ class _ResourceProvider:
         :param class_name: Name of the class, you want to interface from
         :type  class_name: str
         """
-
         interface = None
         for _, resources in self.knowns.items():
             for known_name, known_interface in resources.items():
