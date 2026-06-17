@@ -1,0 +1,30 @@
+test_project:
+  # To not disrupt your current operations, you can specify interfaces
+  psu_mp71:
+    class_name: "supplies.MP71"
+    interface:
+      type: "serial"
+    #   port: "COM6"
+  psu_tenma:
+    class_name: "supplies.Tenma"
+    interface:
+      type: "serial"
+    #   port: "COM3"
+  dmm_mp71:
+    class_name: "multimeters.MP71"
+    interface:
+      type: "serial"
+    #   port: "COM6"
+  psu_mp72:
+    class_name: "supplies.MP72"
+    interface:
+      type: "serial"
+      # port: "COM3"
+  jlink:
+    class_name: "flashers.JLink"
+  #   interface:
+    #   serial_number: 'MLK1SITYVWLEH'
+  mculink:
+    class_name: "flashers.MCULink"
+    # interface:
+    #   serial_number: 'MLK1SITYVWLEH'

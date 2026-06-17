@@ -32,3 +32,11 @@ commands:                     # optional
           make html-versioned
           cd ../tools
           python docs_invert_titles.py
+
+  test:
+    steps:
+      - executor: toolchain
+        script: |
+          pip install pytest pytest-mock
+          pip install --force-reinstall -e .
+          pytest tests/ --ignore=tests/system/
