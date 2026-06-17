@@ -626,3 +626,208 @@ class _ResourceProvider:
         Returns list with all communicable classes containing TYPE attribute
         """
         return list(filter(lambda x: hasattr(x, 'TYPE'), all_subclasses(cls).difference(all_subclasses(Resource))))
+
+
+def deprecate_method(custom_msg=None, run_parent=True):
+    """
+    Decorator for deprecating methods.
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            msg = custom_msg or f"ResourceProvider.{func.__name__}() is deprecated, please use Resources.{func.__name__}() instead."
+            warn(msg, category=DeprecationWarning, stacklevel=2)
+
+            if run_parent:
+                try:
+                    parent_method = getattr(super(ResourceProvider, self), func.__name__)
+                    return parent_method(*args, **kwargs)
+                except AttributeError:
+                    pass
+
+            return func(self, *args, **kwargs)
+        return wrapper
+    return decorator
+
+class ResourceProvider(_ResourceProvider):
+    """
+    Base class for resource managing.
+
+    .. deprecated:: 1.3.0
+       :class:`~brest.ResourceProvider` is deprecated and will be removed in a future version.
+       Plase, use the :class:`~brest.Resources` class instead.
+    """
+
+    def __init__(self):
+        # Initialize the base class implementation cleanly
+        super().__init__()
+
+        warn(
+            'ResourceProvider is deprecated, please use Resources class instead.',
+            DeprecationWarning,
+            stacklevel=2
+        )
+
+    @deprecate_method("ResourceProvider.print_probe() is deprecated. Use Resources.available() instead!", run_parent=False)
+    def print_probe(self, class_name):
+        """
+        Checks if resource is present in the system, and prints its interface.
+
+        :param class_name: Class name of a resource you want to probe.
+            To get available class names refer to the :ref:`supported`
+        :type  class_name: str
+        """
+
+        interface = self._get_implicit_definition(class_name)
+        if not interface:
+            return
+
+        com = self._get_communicable(interface['type'])
+        interface['class_name'] = class_name
+        interfaces = com.probe(interface)
+        i = 0
+        for interface_ in interfaces:
+            print('connection {}:'.format(i))
+            for attr in com.format_interface(interface_):
+                print('\t{}: {}'.format(attr[0], attr[1]))
+            print()
+
+    @deprecate_method()
+    def available(self, group=None, connections=None, class_name=None):
+        pass
+
+    @deprecate_method("ResourceProvider.print_available() is deprecated. Use brest.print_available() instead!", run_parent=False)
+    def print_available(self, group=None):
+        """
+        Prints available resources
+
+        :param group: Specified group of resources to be printed. To get available groups refer to the :ref:`supported`
+        :type group: str
+        """
+
+        def print_av_dict(available_dict):
+            print(' | '.join([c.split(',')[-1] for c in available_dict['class_name']]))
+            com = self._get_communicable(available_dict['interface']['type'])
+            for attr in com.format_interface(available_dict['interface']):
+                print('\t{}: {}'.format(attr[0], attr[1]))
+
+        if group:
+            av = self.available(group)
+        else:
+            av = self.available()
+
+        i = 0
+        for a in av:
+            print('[{}] '.format(i), end='')
+            print_av_dict(a)
+            print()
+            i += 1
+
+    @deprecate_method("ResourceProvider.print_taken() is deprecated. Use brest.print_taken() instead!", run_parent=False)
+    def print_taken(self):
+        """
+        Prints all taken resources using data from get_taken().
+        """
+        taken = self.get_taken()
+        
+        for item in taken:
+            print(item['resource'])
+            for key, value in item['interface'].items():
+                print(f'\t{key}: {value}')
+            print()
+
+    @deprecate_method("ResourceProvider.print_all() is deprecated. Use brest.print_all() instead!", run_parent=False)
+    def print_all(self):
+        """
+        Prints all taken and available resources
+        """
+
+        print('--Taken resources--------------------')
+        self.print_taken.__wrapped__(self)
+        print('--Available resources----------------')
+        self.print_available.__wrapped__(self)
+
+    @deprecate_method()
+    def construct(self, params):    
+        pass
+
+    @deprecate_method()
+    def get_available_settings(self):
+        pass
+
+    @deprecate_method()
+    def construct_available(self, index, class_identifiers=None, group=None):
+        pass
+
+    @deprecate_method("ResourceProvider.construct_config() is deprecated. Use brest.Resources() with params instead!")
+    def construct_config(self, config):
+        pass
+
+    @deprecate_method("ResourceProvider.generate_config() is deprecated. Use brest.generate_config() instead!", run_parent=False)
+    def generate_config(self, project_name='autogen', config_path=Config.BREST_USER_CONFIG):
+        """
+        Autogenerates configuration file from available resources.
+
+        Lists currently available resources and make a basic configuration file containing
+        filled interfaces for these resources. Default configuration path is
+        :attr:`~brest.Config.BREST_USER_CONFIG` and default project name is \'autogen\'.
+        If the file already exist, project will be appended to the end of file. In case
+        of existing project with same name, the project will be overwritten.
+
+        :param project_name: Name of the generated project
+        :type  project_name: str
+        :param config_path: Absolute path
+        :type  config_path: str
+        :returns: Generated configuration object
+        :rtype: :class:`~brest.Config`
+        """
+
+        available = self.available()
+        project_dict = dict()
+        i = 0
+
+        for av in available:
+            for class_name in av['class_name']:
+                alias = 'resource_' + str(i)
+                project_dict[alias] = {
+                    'class_name': class_name,
+                    'interface': dict(av['interface'])
+                }
+                com = self._get_communicable(av['interface']['type'])
+                for attr in com.format_interface(av['interface']):
+                    project_dict[alias]['interface'][attr[0]] = attr[1]
+                i += 1
+
+        config = Config(config_path=config_path)
+        project_configs = []
+        project_found = False
+
+        for project in config.read_projects():
+            project_config = Config(project, config_path=config_path)
+
+            if project == project_name:
+                project_config = project_config.merge_configs(
+                    Config(project_name, config_dict={project_name: project_dict})
+                )
+                project_found = True
+
+            project_configs.append(project_config)
+
+        if not project_found:
+            project_configs.append(Config(project_name, config_dict={project_name: project_dict}))
+
+        config.clear_yaml(config_path)
+        for project_config in project_configs:
+            project_config.dump_yaml(config_path)
+
+    @deprecate_method()
+    def release_all(self, res):
+        pass
+
+    @deprecate_method("ResourceProvider.get_taken() is deprecated. Use Resources.get_taken() instead!")
+    def get_taken(self):
+        pass
+
+    @deprecate_method("ResourceProvider.get_all() is deprecated. Use Resources.get_all() instead!")
+    def get_all(self):
+        pass
