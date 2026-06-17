@@ -17,7 +17,7 @@ import random
 from yaml import load, Loader, dump, Dumper
 from yaml.parser import ParserError
 from yaml.scanner import ScannerError
-
+from pathlib import Path
 
 class Config():
     """
@@ -114,7 +114,10 @@ class Config():
         :param config_path: Absolute path
         :type  config_path: str
         """
-        open(config_path, 'w+')
+        path = Path(config_path).resolve()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch(exist_ok=True)
+        path.write_text('')
 
     def dump_yaml(self, config_path=BREST_USER_CONFIG, project_name=None):
         """
