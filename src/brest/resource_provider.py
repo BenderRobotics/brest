@@ -436,8 +436,9 @@ class _ResourceProvider:
                 group = cls_name_split[0].lower()
                 class_name = None
                 if len(cls_name_split) > 1:
-                    # Map class level aliases to class name if defined (i.e. 'supplies.MP72')
-                    cls_obj = self.__class_map.get(definition['class_name'])
+                    # Map normalized class level aliases to class name if defined (i.e. 'supplies.MP72')
+                    normalized_class_name = f"{group}.{cls_name_split[1]}"
+                    cls_obj = self.__class_map.get(normalized_class_name)
                     if not cls_obj:
                         raise ResourceConstructionError(
                             f"Resource `{alias}` has an invalid class_name in the configuration."
