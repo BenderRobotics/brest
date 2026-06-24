@@ -26,6 +26,7 @@ class CameraCommunicable(Communicable):
     SETTINGS = ['index', 'service', 'serial_number']
 
     def __init__(self, params):
+        super().__init__()
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
         self.services = {
@@ -40,6 +41,9 @@ class CameraCommunicable(Communicable):
             self.mark_taken(self)
 
     def release(self):
+        if not super().release():
+            return
+
         self.unmark_taken(self)
 
     def get_connections(self):

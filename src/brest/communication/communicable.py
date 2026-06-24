@@ -23,6 +23,9 @@ class Communicable():
     Base class for communication interfaces.
     """
 
+    def __init__(self):
+        self.released = False
+
     def connect(self):
         """
         Tries to connect to the interface.
@@ -37,12 +40,18 @@ class Communicable():
 
         raise NotImplementedError('This interface doesn\'t implement disconnection')
 
-    def release(self):
+    def release(self) -> bool:
         """
-        Releases bound connections to the system.
-        """
+        Sets the released flag if unreleased communicable is being released.
 
-        raise NotImplementedError('This interface doesn\'t implement physical binding releasing')
+        :return: True if the communicable was released, False if it was already released.
+        :rtype: bool
+        """
+        if self.released:
+            return False
+
+        self.released = True
+        return True
 
     def check_connection(self):
         """

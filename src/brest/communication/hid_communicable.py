@@ -29,6 +29,7 @@ class HIDCommunicable(Communicable):
     SETTINGS = ['vid', 'pid', 'serial_number', 'path']
 
     def __init__(self, params):
+        super().__init__()
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
 
@@ -49,6 +50,9 @@ class HIDCommunicable(Communicable):
             self.device.close()
 
     def release(self):
+        if not super().release():
+            return
+
         self.disconnect()
         self.unmark_taken(self)
 

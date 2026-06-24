@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.0]
+### Fixed
+- Fixed bug where resource was released twice during construction. #14231
+
 ## [1.3.0]
 ### Added
 - Added support for multiple flashers on Linux. #13157

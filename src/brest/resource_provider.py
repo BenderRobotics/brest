@@ -312,12 +312,10 @@ class _ResourceProvider:
                 all_resources = [r.__class__ for r in resources.values()]
                 if resource.__class__ in all_resources:
                     resource.release()
-                    del resource
                 else:
                     resources[class_name] = resource
             except LookupError:
                 resource.release()
-                del resource
 
         return resources
 
@@ -379,7 +377,6 @@ class _ResourceProvider:
                     resource.detect_model()
                 except LookupError:
                     resource.release()
-                    del resource
                     continue
                 # Check if resource is matching requirements
                 if (
@@ -394,7 +391,6 @@ class _ResourceProvider:
                     # to release connection and continue to the
                     # next construction params
                     resource.release()
-                    del resource
 
         def __log_missing_needed(needed):
             if needed:

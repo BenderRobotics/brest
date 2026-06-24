@@ -44,6 +44,7 @@ class SerialCommunicable(Communicable):
     ]
 
     def __init__(self, params):
+        super().__init__()
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
         self._com = None
@@ -95,6 +96,9 @@ class SerialCommunicable(Communicable):
 
     def release(self):
         if not self._com:
+            return
+
+        if not super().release():
             return
 
         port = self._com.port

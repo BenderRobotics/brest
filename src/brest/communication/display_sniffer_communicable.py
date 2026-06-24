@@ -17,6 +17,7 @@ class DisplaySnifferCommunicable(Communicable):
     SETTINGS = []
 
     def __init__(self, params):
+        super().__init__()
         self.log_args = {
             "class_name": self.__class__.__module__ + "." + self.__class__.__name__
         }
@@ -27,6 +28,9 @@ class DisplaySnifferCommunicable(Communicable):
             self.mark_taken()
 
     def release(self):
+        if not super().release():
+            return
+
         self.unmark_taken()
 
     def get_connections(self):

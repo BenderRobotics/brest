@@ -35,6 +35,7 @@ class FlasherCommunicable(Communicable):
 
 
     def __init__(self, params):
+        super().__init__()
         self.log_args = {'class_name': self.__class__.__module__ + '.' + self.__class__.__name__}
         self.logger = logging.getLogger('brest')
         self._utility = None
@@ -206,6 +207,9 @@ class FlasherCommunicable(Communicable):
         return []
 
     def release(self):
+        if not super().release():
+            return
+
         self.unmark_taken(self)
 
     def _match_serial(self, interface, serial_str):
