@@ -171,6 +171,7 @@ build-docs-for-deploy:
   dependencies:
     - build-wheel
   rules:
+    - when: never
     - !reference [.rule-release]
 
 build-docs-for-review:
@@ -178,6 +179,7 @@ build-docs-for-review:
   variables:
     INCLUDE_CURRENT_BRANCH: '1'
   rules:
+    - when: never
     - !reference [.rule-do-not-deploy-doc]
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
       when: never
@@ -185,7 +187,9 @@ build-docs-for-review:
 
 build-docs-docker:
   stage: preview
-  needs: ["build-docs-for-review"]
+  needs:
+    - job: "build-docs-for-review"
+      optional: true
   image: docker
   allow_failure: true
   tags:
@@ -194,19 +198,24 @@ build-docs-docker:
     - docker build --pull -t $IMAGE_TAG -f docs/docker/Dockerfile docs/
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker push $IMAGE_TAG
-  except:
-    - tags
+  rules:
+    - when: never
+    - if: $CI_COMMIT_TAG
+      when: never
+    - when: on_success
 
 .preview:
   stage: preview
-  needs: ["build-docs-docker"]
-  only:
-    - branches
-  except:
-    - master
-    - devel
+  needs:
+    - job: "build-docs-docker"
+      optional: true
   tags:
     - web
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "devel"
+      when: never
+    - if: $CI_COMMIT_BRANCH
+      when: on_success
 
 preview:
   extends: .preview
@@ -219,6 +228,8 @@ preview:
     name: preview/$CI_COMMIT_REF_NAME
     url: https://${CI_COMMIT_REF_SLUG}-${DOC_REVIEW_URL}
     on_stop: stop_preview
+  rules:
+    - when: never
 
 stop_preview:
   extends: .preview
@@ -227,14 +238,17 @@ stop_preview:
     - docker rm $PREVIEW_URL
   variables:
     GIT_STRATEGY: none
-  when: manual
   environment:
     name: preview/$CI_COMMIT_REF_NAME
     action: stop
+  rules:
+    - when: never
 
 staging:
   stage: preview
-  needs: ["build-docs-docker"]
+  needs:
+    - job: "build-docs-docker"
+      optional: true
   script:
     - docker stop $DOC_STAGING_URL || true
     - docker rm $DOC_STAGING_URL || true
@@ -280,7 +294,9 @@ deploy-wheel-pypi:
 
 deploy-docs:
   stage: deploy
-  needs: ["build-docs-for-deploy"]
+  needs:
+    - job: "build-docs-for-deploy"
+      optional: true
   tags:
     - docker
   image: ${CI_REGISTRY}/br/toolchains/release:0.1
@@ -297,4 +313,5 @@ deploy-docs:
   dependencies:
     - build-docs-for-deploy
   rules:
+    - when: never
     - !reference [.rule-release]
