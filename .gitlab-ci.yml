@@ -149,7 +149,7 @@ build-docs-for-deploy:
   needs: ["build-wheel"]
   image: $CI_REGISTRY_IMAGE/toolchain
   tags:
-    - docker
+    - docker-hp
   variables:
     INCLUDE_CURRENT_BRANCH: '0'
   before_script:
@@ -189,7 +189,7 @@ build-docs-docker:
   image: docker
   allow_failure: true
   tags:
-    - docker
+    - docker-hp
   script:
     - docker build --pull -t $IMAGE_TAG -f docs/docker/Dockerfile docs/
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
