@@ -4,35 +4,30 @@
     brest.supplies.models
     ~~~~~~~~~~~~~~~~~~~~~~~
 
-    This module implements identification string parsing methods for various power supply models.
+    This module implements identification string parsing methods for various power supply models
+    based on their communication interface.
 
     :copyright: 2026 Bender Robotics
 """
 
 from brest.supplies import Supplies
 
-class TenmaModel(Supplies.Model):
+
+class SCPIModel(Supplies.Model):
+    """
+    SCPI-based model.
+    """
+
     def detect(self, response: str) -> bool:
-        # Old Tenmas returns INFO as comma seperated string
-        splitted = response.split(',')
-        psu_idn = splitted[0]
-        if len(splitted) == 1:
-            # New Tenmas returns INFO as space separated string
-            splitted = psu_idn.split(' ')
-            if len(splitted) == 1:
-                return False # incorrect format
-        psu_idn = ' '.join(splitted[:2])
+        """
+        Detects if the model matches the response.
 
-        return self.idn.lower() in psu_idn.lower()
+        :param response: Response from the device
+        :type  response: str
+        :return: True if the model matches the response, False otherwise
+        :rtype: bool
+        """
+        if not response:
+            return False
 
-class MulticompModel(Supplies.Model):
-    def detect(self, response: str) -> bool:
-        splitted = response.split(',')
-        psu_idn = splitted[0]
-        if len(splitted) == 1:
-            splitted = psu_idn.split(' ')
-            if len(splitted) == 1:
-                return False # incorrect format
-        psu_idn = ' '.join(splitted[:3])
-
-        return self.idn.lower() in psu_idn.lower()
+        return self.idn.lower() in response.replace(',', ' ').lower()

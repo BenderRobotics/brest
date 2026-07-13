@@ -20,7 +20,7 @@ from brest.communication.types import bit_t
 from copy import deepcopy
 from contextlib import suppress
 
-from .models import TenmaModel, MulticompModel
+from .models import SCPIModel
 
 
 class Tenma(Supplies, SCPICommunicable):
@@ -94,49 +94,49 @@ class Tenma(Supplies, SCPICommunicable):
             self.add('enabled', bit_t(bit=6))
 
     Models = [
-        TenmaModel(
+        SCPIModel(
             'TENMA 72-2535', 1, 5, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
             Supplies.Kind.PROGRAMMABLE
         ),
-        TenmaModel(
+        SCPIModel(
             'TENMA 72-2540', 1, 5, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
             Supplies.Kind.PROGRAMMABLE
         ),
-        TenmaModel(
+        SCPIModel(
             'TENMA 72-2545', 1, 5, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
             Supplies.Kind.PROGRAMMABLE
         ),
-        TenmaModel(
+        SCPIModel(
             'TENMA 72-2550', 1, 5, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
             Supplies.Kind.PROGRAMMABLE
         ),
-        TenmaModel(
+        SCPIModel(
             'TENMA 72-13330', 2, 9, 30.0, 5.0, [], Supplies.Kind.PROGRAMMABLE
         ),
-        TenmaModel(
+        SCPIModel(
             'TENMA 72-2705', 1, 0, 30.0, 3.0, [Supplies.Protection.OCP],
             Supplies.Kind.PROGRAMMABLE
         ),
-        MulticompModel(
+        SCPIModel(
             'Multicomp Pro 72-2535', 1, 5, 30.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
             Supplies.Kind.PROGRAMMABLE
         ),
-        MulticompModel(
+        SCPIModel(
             'Multicomp Pro 72-2540', 1, 5, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
             Supplies.Kind.PROGRAMMABLE
         ),
-        MulticompModel(
+        SCPIModel(
             'Multicomp Pro 72-2545', 1, 5, 60.0, 2.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
             Supplies.Kind.PROGRAMMABLE
         ),
-        MulticompModel(
+        SCPIModel(
             'Multicomp Pro 72-2550', 1, 5, 60.0, 3.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
             Supplies.Kind.PROGRAMMABLE
         ),
-        MulticompModel(
+        SCPIModel(
             'Multicomp Pro 72-13330', 2, 9, 30.0, 5.0, [], Supplies.Kind.PROGRAMMABLE
         ),
-        MulticompModel(
+        SCPIModel(
             'Multicomp Pro 72-2705', 1, 0, 30.0, 3.0, [Supplies.Protection.OCP],
             Supplies.Kind.PROGRAMMABLE
         ),

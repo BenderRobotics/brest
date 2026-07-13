@@ -211,6 +211,32 @@ class Supplies(Resource):
 
         raise NotImplementedError('This supply does not support different current limits.')
 
+    @property
+    def voltage_limit(self):
+        """
+        Gets and sets voltage limits (used for OVP).
+        """
+
+        raise NotImplementedError('This supply is unable to measure output voltage limits.')
+
+    @voltage_limit.setter
+    def voltage_limit(self, value):
+
+        raise NotImplementedError('This supply does not support different voltage limits.')
+
+    @property
+    def current_limit(self):
+        """
+        Gets and sets current limits (used for OCP).
+        """
+
+        raise NotImplementedError('This supply is unable to measure output current limits.')
+
+    @current_limit.setter
+    def current_limit(self, value):
+
+        raise NotImplementedError('This supply does not support different current limits.')
+
     def enable_protection(self, protection_type):
         """
         Enables given protection.
