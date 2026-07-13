@@ -178,7 +178,7 @@ Supplies
 Supplies base class:
 
 .. autoclass:: Supplies
-    :members: Protection, Kind, Model, IDN, CHANNELS, MEMORIES, MAX_VOLTAGE, MAX_CURRENT, PROTECTION, KIND, _apply_model
+    :members: Protection, Kind, Model, IDN, CHANNELS, MEMORIES, MAX_VOLTAGE, MAX_CURRENT, PROTECTION, KIND
 
 Available supplies:
 
@@ -187,6 +187,10 @@ Available supplies:
 
 .. autoclass:: MP71
     :members: enable, disable, voltage, current, voltage_limit, current_limit, get_info, get_status, release
+
+.. py:class:: Owon
+   
+   Alias for :class:`~brest.supplies.MP71`. Supported implicitly by the resource provider config.
 
 .. autoclass:: Tenma
     :members: enable, disable, voltage, current, enable_protection, disable_protection, save_memory, recall_memory, get_status, get_info

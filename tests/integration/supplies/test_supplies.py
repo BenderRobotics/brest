@@ -110,6 +110,15 @@ SCENARIOS = {
         init_responses=[b"Multicomp Pro MP711132"] * 2 + [b"1.0"] * 10,
         voltage_range=[0, 30],
         default_v=5.0
+    ),
+    "owon": Scenario(
+        class_name="supplies.Owon",
+        idn=b"OWON SPE3102",
+        commands=PSU_COMMANDS["supplies.MP71"],
+        serial=FakeCom(port="COM999", vid=0x1A86, pid=0x7523, serial="SN999"),
+        init_responses=[b"OWON SPE3102"] * 2 + [b"1.0"] * 10,
+        voltage_range=[0, 30],
+        default_v=5.0
     )
 }
 

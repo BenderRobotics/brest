@@ -1,6 +1,9 @@
 # Changelog
 
 ## [1.4.0]
+### Added
+- Added support for OWON SPE3102 power supply. #14047
+
 ### Fixed
 - Fixed bug where resource was released twice during construction. #14231
 

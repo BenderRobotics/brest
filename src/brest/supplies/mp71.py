@@ -13,7 +13,7 @@ from brest.communication import (
     SCPICommunicable, SCPICommand, SCPIQueryCommand, SCPIValueCommand, CommunicationStructure
 )
 from brest.supplies import Supplies
-from brest.supplies.models import MulticompModel
+from brest.supplies.models import SCPIModel
 
 from copy import deepcopy
 from contextlib import suppress
@@ -27,7 +27,7 @@ class MP71(Supplies, SCPICommunicable):
     :param params: Construction parameters
     :type  params: dict
 
-    Supported models: Multicomp Pro MP711132, Multicomp Pro MP711127
+    Supported models: Multicomp Pro MP711132, Multicomp Pro MP711127, OWON SPE3102
 
     Implicit interface definition::
 
@@ -42,6 +42,8 @@ class MP71(Supplies, SCPICommunicable):
     :attr:`~brest.Resource.disable_on_destruct`.
     """
 
+    ALIAS = ['Owon']
+
     #: Implicit interface definition
     Supplies.KNOWN['MP71'] = {
         'type': 'serial',
@@ -52,14 +54,18 @@ class MP71(Supplies, SCPICommunicable):
     }
 
     Models = [
-        MulticompModel(
+        SCPIModel(
             'Multicomp Pro MP711132', 1, 5, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
             Supplies.Kind.PROGRAMMABLE
         ),
-        MulticompModel(
+        SCPIModel(
             'Multicomp Pro MP711127', 1, 5, 30.0, 5.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
             Supplies.Kind.PROGRAMMABLE
         ),
+        SCPIModel(
+            'OWON SPE3102', 1, 5, 30.0, 10.0, [Supplies.Protection.OCP, Supplies.Protection.OVP],
+            Supplies.Kind.PROGRAMMABLE
+        )
     ]
 
     class Commands():
