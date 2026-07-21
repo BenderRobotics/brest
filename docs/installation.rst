@@ -58,6 +58,7 @@ Core
     * `Cython`_ (==0.29.36) - C extensions in Python
     * `hidapi`_ (==0.14.0) - Cython hidapi interface
     * `crcmod`_ (==1.7) - CRC generator
+    * `attrs`_ (>=21.3.0) - Dataclasses
 
 .. _colorama: https://pypi.org/project/colorama/
 .. _pyserial: https://pypi.org/project/pyserial/
@@ -65,6 +66,7 @@ Core
 .. _Cython: https://pypi.org/project/Cython/
 .. _hidapi: https://pypi.org/project/hidapi/
 .. _crcmod: https://pypi.org/project/crcmod/
+.. _attrs: https://pypi.org/project/attrs/
 
 .. _installation.python-resource-specific:
 

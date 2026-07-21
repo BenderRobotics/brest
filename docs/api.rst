@@ -364,12 +364,38 @@ Loads
 Loads base class:
 
 .. autoclass:: Loads
-    :members: MAX_CURRENT
+   :members: KNOWN, Protection, Mode, Quantity, Units, Model, enable, disable, current, voltage, get_info, clear, reset, self_test, detect_model, required_voltage_range, required_current_range
+   :undoc-members:
 
 Available loads:
 
 .. autoclass:: Pli
     :members: enable, disable, current, get_info, clear, reset, self_test, detect_model
+
+.. autoclass:: Tenma
+   :members: enable, disable, trigger, detect_model, is_enabled, current, voltage, power, resistance, measure, mode, configure_dynamic_mode, configure_ocp_mode, recall_ocp_mode
+   :show-inheritance:
+
+Telemetry & Configuration Classes:
+
+.. autoclass:: brest.loads.tenma.TenmaTelemetry
+   :members:
+   :undoc-members:
+
+.. autoclass:: brest.loads.configs.tenma.TenmaDynamicCVConfig
+   :members:
+
+.. autoclass:: brest.loads.configs.tenma.TenmaDynamicCCConfig
+   :members:
+
+.. autoclass:: brest.loads.configs.tenma.TenmaDynamicCRConfig
+   :members:
+
+.. autoclass:: brest.loads.configs.tenma.TenmaDynamicCWConfig
+   :members:
+
+.. autoclass:: brest.loads.configs.tenma.TenmaOCPConfig
+   :members:
 
 Switches
 ~~~~~~~~

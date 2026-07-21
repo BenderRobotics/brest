@@ -3,6 +3,8 @@
 ## [1.4.0]
 ### Added
 - Added support for OWON SPE3102 power supply. #14047
+- Added support for Tenma 72-13210 DC Electronic Load. #14056
+    - Aside from base constant-(C/V/R/W) modes, device also supports dynamic and OCP test mode.
 
 ### Fixed
 - Fixed bug where resource was released twice during construction. #14231

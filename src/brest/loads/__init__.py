@@ -11,5 +11,10 @@
 
 from .loads import Loads
 from .pli import Pli
+from .tenma import Tenma
 
-__all__ = ['Loads', "Pli"]
+__all__ = [
+    'Loads',
+    'Pli',
+    'Tenma',
+]

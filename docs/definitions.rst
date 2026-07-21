@@ -261,10 +261,25 @@ Loads
 
 :class:`~brest.loads.Loads`::
 
+    required:
+        voltage_range: [float, float]
+        current_range: [float, float]
+        power_range: [float, float]
+        mode: list[str] or str # refer to supported modes by models
+    default:
+        mode: str # default mode to be set
+        voltage: float
+        current: float
+        power: float
+        model: str
+
+:class:`~brest.loads.Pli`::
+
+    # Only the following subset can be used
     default:
         current: float
 
-:class:`~brest.loads.Pli`::
+:class:`~brest.loads.Tenma`::
 
     # All attributes from Loads group can be used
 

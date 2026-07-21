@@ -610,6 +610,12 @@ class _ResourceProvider:
         except (NotImplementedError, ModuleNotFoundError, ValueError, CommunicableError, SerialException) as e:
             self.logger.error(message + str(e), extra=self.log_args, exc_info=True)
             return None
+        except LookupError as ex:
+            self.logger.error(
+                msg=f'Can\'t construct class `{params["class_name"]}`. {ex}.',
+                extra=self.log_args
+            )
+            return None
         except Exception as ex:
             self.logger.error(
                 f'Unexpected {message}: {ex}',
