@@ -258,7 +258,7 @@ staging:
     name: staging
     url: https://${DOC_STAGING_URL}
   only:
-    - devel
+    - never
   except:
     - tags
   tags:
