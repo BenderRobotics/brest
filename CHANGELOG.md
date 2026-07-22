@@ -5,6 +5,7 @@
 - Added support for OWON SPE3102 power supply. #14047
 - Added support for Tenma 72-13210 DC Electronic Load. #14056
     - Aside from base constant-(C/V/R/W) modes, device also supports dynamic and OCP test mode.
+- Added support for PPS Sink - USB-C PD Sink. #14058
 
 ### Fixed
 - Fixed bug where resource was released twice during construction. #14231
@@ -12,7 +13,7 @@
 ## [1.3.0]
 ### Added
 - Added support for multiple flashers on Linux. #13157
-- Added support for MCULink-PRO. #13958 
+- Added support for MCULink-PRO. #13958
 - Added support for configuration of option_bytes settings for STLink. #7780
 - Added `release_all` method to release all instantiated resources in `Resources`. #3768
 - Added programmer's API `get_all()` and `get_taken()` in `Resources`.

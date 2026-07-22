@@ -19,7 +19,7 @@ with patch('serial.Serial') as mock_serial_class, \
     patch.object(SerialCommunicable, 'probe') as mock_probe, \
     patch.object(SCPICommunicable, 'write_raw') as mock_write, \
     patch.object(SCPICommunicable, 'read_raw') as mock_read:
-    
+
     mock_conn.return_value = [scenario_serial]
     mock_comports.return_value = [scenario_serial]
 
@@ -41,12 +41,12 @@ The abstract multimeter base class doesn't define the API/methods which the Mult
 ## Properties of resource cannot be defined within config
 Suppose some models are able to perform temperature measurements, while others are not.  In such cases, it would be useful to able to describe the temperature measurement capability for a multimeter  within the config.
 
-Though the config is very useful in case of general requirements for a multimeter, it doesn't sufficient granularity to distinguish between certain models in classes, such as `Multimeters.Multicomp`. 
+Though the config is very useful in case of general requirements for a multimeter, it doesn't sufficient granularity to distinguish between certain models in classes, such as `Multimeters.Multicomp`.
 
 ## print_* methods semantics
-Given the resource discovery methodology of choice, the brest API methods do not provide exact information about the resources. 
+Given the resource discovery methodology of choice, the brest API methods do not provide exact information about the resources.
 
-Below is a snippet of the `print_available()` method's output: 
+Below is a snippet of the `print_available()` method's output:
 
 ```yaml
 [1] supplies.MP71 | multimeters.Multicomp | multimeters.MP71 | multimeters.MP73
@@ -59,13 +59,13 @@ Below is a snippet of the `print_available()` method's output:
     port: COM10
 ```
 
-Given there are several resources which can be identified with the same `vid`, `pid` combination, it is not possible to determine without further probing the interface. This information is currently compared to the `KNOWN` property of the resource classes. 
+Given there are several resources which can be identified with the same `vid`, `pid` combination, it is not possible to determine without further probing the interface. This information is currently compared to the `KNOWN` property of the resource classes.
 
 ## Base classes don't contain common behavior
 Sometimes, there is a lack of shared functionality within the base class, even though it could be included there. This introduces some redundant duplicates in the code.
 
 ## Weird naming conventions in Public API
-`Mansup`, now added `Manmulti`. 
+`Mansup`, now added `Manmulti`.
 
 ## Accounting for user error in manual resources
 Regarding `Man*` classes, the user error isn't accounted for. For example, if the user enters an invalid value, it is currently ignored and logged. However, it would be better to ask the user again.
@@ -86,13 +86,13 @@ Regarding `Man*` classes, the user error isn't accounted for. For example, if th
     return 0.0
 ```
 
-## Lack of type hints 
+## Lack of type hints
 The codebase lacks type hints, which makes it harder to understand the code and to find potential bugs.
 
 ## Overcomplicated API
-The current API relies on distinct methods for each measurement type (e.g., `measure_voltage()`, `measure_current()`), which may be unnecessarily verbose. 
+The current API relies on distinct methods for each measurement type (e.g., `measure_voltage()`, `measure_current()`), which may be unnecessarily verbose.
 
-A unified `measure(unit)` approach could deduce the measurement type directly from the requested unit, significantly simplifying the interface. 
+A unified `measure(unit)` approach could deduce the measurement type directly from the requested unit, significantly simplifying the interface.
 
 Furthermore, the current architecture ties capabilities strictly to physical hardware forms (e.g., assuming all measurements come from a `Multimeter`). This decomposition becomes restrictive for specialized instruments like dedicated RCL meters, highlighting a need to decouple hardware form factors from their underlying measuring capabilities.
 
@@ -110,7 +110,7 @@ def get_info(self):
 
 The resource abstraction is not ideal to achieve full potential of brest. The users should be able to specify they want a channel from a PSU rather than having to manually look for a PSU which has multichannel capabilities.
 
-## GET_STATUS 
+## GET_STATUS
 
 The currently implemented `get_status()` in Tenma is not easily transferable across resources. (i.e. supplies.Tenma -> supplies.MP71)
 Though it is possible to achieve similar behavior in different supplies, the commands and returned values from each supply may be different.
@@ -122,3 +122,7 @@ The logic in `print_available()` creates indexes for resources on the fly. These
 It would be better if the resource indexes were consistent across the whole session. Therefore, should any changes occur between calls, the indexes of the resources listed would remain the same.
 
 The implementation would require keeping tracks of all available/taken resources across the session and generating consistent indexes for each of the resources.
+
+## Using @property for I/O bound operations
+The property call is somewhat hidden to the user, on a first glance it seems it is just a member access without additional cost.
+Having I/O operations (sending request to device) in property can be confusing for the user, as he might not expect getting transmition exceptions or transmition delays on a simple access.

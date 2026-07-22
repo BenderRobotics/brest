@@ -13,5 +13,12 @@ from .supplies import Supplies
 from .mansup import Mansup
 from .tenma import Tenma
 from .mp71 import MP71
+from .pps_sink import PpsSink
 
-__all__ = ['Supplies', 'Mansup', 'Tenma', 'MP71']
+__all__ = [
+    'Supplies',
+    'Mansup',
+    'Tenma',
+    'MP71',
+    'PpsSink'
+]

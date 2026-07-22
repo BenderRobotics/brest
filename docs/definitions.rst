@@ -83,7 +83,7 @@ specific class.
 
 .. admonition:: Performance hint
 
-    Providing full ``interface:`` details is recommended as it 
+    Providing full ``interface:`` details is recommended as it
     decreases the time required to instantiate the resource, most notably for serial interface ports.
 
 
@@ -224,7 +224,7 @@ Flashers
 
 .. admonition:: STLink option_bytes usage
 
-    For more information regarding the usage of option_bytes, refer to 
+    For more information regarding the usage of option_bytes, refer to
     `STLink User Manual <https://www.st.com/resource/en/user_manual/um0892-stm32-stlink-utility-software-description-stmicroelectronics.pdf>`_ (section 4.1.5).
 
 IO
@@ -300,7 +300,7 @@ Multimeters
     # All attributes from Multimeters group can be used
 
 :class:`~brest.multimeters.MP73`::
-   
+
     # All attributes from Multimeters group can be used
 
 :class:`~brest.multimeters.Manmulti`::
@@ -360,6 +360,11 @@ Supplies
     # All attributes from Supplies group can be used
     default:
         protection: ('OVP', 'OCP') # OverVoltage, OverCurrent
+
+:class:`~brest.supplies.PpsSink`::
+    # All attributes from Supplies group can be used
+    default:
+        protection: ('OCP') # OverVoltage, OverCurrent
 
 
 .. admonition:: Default values for multichannel supplies

@@ -189,15 +189,18 @@ Available supplies:
     :members: enable, disable, voltage, current, voltage_limit, current_limit, get_info, get_status, release
 
 .. py:class:: Owon
-   
+
    Alias for :class:`~brest.supplies.MP71`. Supported implicitly by the resource provider config.
 
 .. autoclass:: Tenma
     :members: enable, disable, voltage, current, enable_protection, disable_protection, save_memory, recall_memory, get_status, get_info
 
 .. py:class:: MP72
-   
+
    Alias for :class:`~brest.supplies.Tenma`. Supported implicitly by the resource provider config.
+
+.. autoclass:: PpsSink
+    :members: enable, disable, voltage, current, release, profiles, pd_timeout
 
 .. class:: Supplies.StatusMessage
 
@@ -271,7 +274,7 @@ Available multimeters:
         measure_current, measure_current_dc, measure_current_ac
 
 .. py:class:: MP73
-   
+
    Alias for :class:`~brest.multimeters.Multicomp`. Supported implicitly by the resource provider config.
 
 .. autoclass:: brest.multimeters.MP71
